@@ -1,0 +1,23 @@
+/* 
+    Document   : span
+    Created on : Apr 11, 2017, 3:22:47 PM
+    Author     : adamc
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+#input-panel {
+    display: table;
+}
+#checkbox-panel, #text-panel {
+    display: table-cell;
+    padding: 1em;
+}
+li {
+    display: table-row;
+}
+label, input {
+    display: table-cell;
+    text-align: right;
+    padding: 2px;
+}

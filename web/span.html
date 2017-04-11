@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/myget/resources/css/span.css" />
+        <title>mySampler</title>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <h1>myGet Span</h1>
+        <p>All options but channel are optional.</p>
+        <form action="span-data" method="get">
+            <div id ="input-panel">
+                <div id="text-panel">
+                    <ul>
+                        <li>
+                            <label for="c">Channel (c): </label>
+                            <input id="c" name="c" type="text"/> 
+                        </li>
+                        <li>
+                            <label for="b">Begin Date (b): </label>
+                            <input id="b" name="b" type="text" placeholder="YYYY-MM-DD[ hh:mm:[ss]]"/> 
+                        </li>
+                        <li>
+                            <label for="b">End Date (e): </label>
+                            <input id="e" name="e" type="text" placeholder="YYYY-MM-DD[ hh:mm:[ss]]"/> 
+                        </li>
+                        <li>
+                            <label for="l">Limit by binning (l): </label>
+                            <input id="l" name="l" type="text" placeholder="disabled by default"/> 
+                        </li>
+                        <li>
+                            <label for="m">Mya Deployment (m): </label>
+                            <input id="m" name="m" type="text" placeholder="default = ops"/> 
+                        </li>
+                        <li>
+                            <label for="M">Mya master host (M): </label>
+                            <input id="M" name="M" type="text" placeholder="overrides Mya Deployment (m)"/> 
+                        </li>
+                        <li>
+                            <label for="d">Data events only (d): </label>
+                            <input id="d" name="d" type="text" placeholder="filter expression"/> 
+                        </li>
+                        <li>
+                            <label for="f">Fractional time digits (f): </label>
+                            <input id="f" name="f" type="text" placeholder="default = 0"/> 
+                        </li>
+                    </ul>
+                </div>
+
+                <div id="checkbox-panel">
+                    <ul>
+                        <li>
+                            <label for="p">Include prior point (p): </label>
+                            <input id="p" name="p" type="checkbox"/> 
+                        </li>
+                        <li>
+                            <label for="s">Enumerations as string (s): </label>
+                            <input id="s" name="s" type="checkbox"/> 
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <input type="submit"/>
+        </form>
+    </body>
+</html>
