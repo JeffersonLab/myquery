@@ -1,9 +1,9 @@
 package org.jlab.myGet;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -20,7 +20,7 @@ public class Service {
 
     private final static Logger LOGGER = Logger.getLogger(Service.class.getName());
 
-    private static final long MAX_EXECUTE_MILLIS = 30000;
+    private static final long MAX_EXECUTE_MILLIS = 300000;
 
     public List<Record> getRecordList(String c, String b, String e,
             String l, String p, String m, String M, String d, String f,
@@ -87,16 +87,39 @@ public class Service {
         Timer timer = new Timer();
         timer.schedule(new InterruptTimerTask(Thread.currentThread()), MAX_EXECUTE_MILLIS);
         Process proc = builder.start();
+        // Note: we don't gobble stream in current thread because InputStream.read may block and is 
+        // not interruptable - so it is tricky to implement a timeout.   Putting the potentially 
+        // blocked stream in a separate thread allows us to wait with a timeout and then "destroy"
+        // the process that is making the gobbler thread block
         StreamGobbler gobbler = new StreamGobbler(proc.getInputStream());
         Thread t = new Thread(gobbler);
         t.start();
 
         try {
-            int status = proc.waitFor();
+            int status = proc.waitFor(); // This may result in InterruptedException
+
+            
+            // I've observed it is possible for waitFor (process thread) to return yet gobbler 
+            // thread is still running.
+            // Though unlikely, worst case execution time could be close to MAX_EXECUTE_MILLIS X 2
+            synchronized (gobbler) {
+                if (!gobbler.isDone()) {
+                    //LOGGER.log(Level.INFO, "Gobbler is still gobbling");
+                    //t.join(MAX_EXECUTE_MILLIS); // This might be more concise than using wait on gobbler, but both do essentially same thing
+                    gobbler.wait(MAX_EXECUTE_MILLIS); // Can't interrupt gobbler so we just abandon it after timeout
+                    if (!gobbler.isDone()) {
+                        proc.destroy(); // This should kill the gobbler thread too indirectly, I hope
+                        throw new Exception(
+                                "Process I/O Gobbler thread is still not done, but I'm tired of waiting");
+                    }
+                }
+            }
 
             if (status != 0) {
-                throw new Exception("Unexpected status from process: " + status + "; output: " + gobbler.toString());
+                throw new Exception("Unexpected status from process: " + status + "; output: "
+                        + gobbler.toString());
             }
+
             recordList = parseOutput(gobbler.toString());
         } catch (InterruptedException ex) {
             proc.destroy();
@@ -118,6 +141,7 @@ public class Service {
 
         return recordList;
     }
+
 
     private List<Record> parseOutput(String output) throws Exception {
         //LOGGER.log(Level.FINEST, "Output: {0}", output);
@@ -145,11 +169,11 @@ public class Service {
 
         return recordList;
     }
-
     private class StreamGobbler implements Runnable {
 
         private final InputStream in;
-        private final StringBuilder builder = new StringBuilder();
+        private String output = null;
+        private boolean done = false;
 
         StreamGobbler(InputStream in) {
             this.in = in;
@@ -157,23 +181,48 @@ public class Service {
 
         @Override
         public String toString() {
-            return builder.toString();
+            return output;
+        }
+
+        public synchronized boolean isDone() {
+            return done;
         }
 
         @Override
         public void run() {
             try {
-                InputStreamReader reader = new InputStreamReader(in);
-                BufferedReader buffer = new BufferedReader(reader);
-                String line = null;
-                while ((line = buffer.readLine()) != null) {
-                    builder.append(line);
-                    builder.append("\n");
-                    //LOGGER.log(Level.INFO, line);
-                }
+                //long start = System.currentTimeMillis();
+                doItFast();
+                //long end = System.currentTimeMillis();
+                //LOGGER.log(Level.INFO, "Gobble Seconds: {0}", (end - start) / 1000.0f);
             } catch (IOException ioe) {
                 LOGGER.log(Level.SEVERE, "Unable to gobble stream", ioe);
             }
+
+            synchronized (this) {
+                done = true;
+                notifyAll();
+            }
+        }
+
+        private void doItFast() throws IOException {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            copy(in, out);
+            output = out.toString("UTF-8");
+        }
+
+        private long copy(InputStream in, OutputStream out)
+                throws IOException {
+            byte[] buffer = new byte[4096];
+            long count = 0;
+            int n = 0;
+
+            while (-1 != (n = in.read(buffer))) {
+                out.write(buffer, 0, n);
+                count += n;
+            }
+
+            return count;
         }
     }
 

@@ -33,33 +33,42 @@ public class Controller extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("application/json");
+        String jsonp = request.getParameter("jsonp");
+        
+        if ( jsonp != null ) {
+            response.setContentType("application/javascript");
+        } else {
+            response.setContentType("application/json");
+        }
 
         String errorReason = null;
         List<Record> recordList = null;
-        String c = "";
-        
+
+        String c = request.getParameter("c");
+        String b = request.getParameter("b");
+        String e = request.getParameter("e");
+        String l = request.getParameter("l");
+        String p = request.getParameter("p");
+        String m = request.getParameter("m");
+        String M = request.getParameter("M");
+        String d = request.getParameter("d");
+        String f = request.getParameter("f");
+        String s = request.getParameter("s");
+
+        Service service = new Service();
+
         try {
-            c = request.getParameter("c");
-            String b = request.getParameter("b");
-            String e = request.getParameter("e");
-            String l = request.getParameter("l");
-            String p = request.getParameter("p");
-            String m = request.getParameter("m");
-            String M = request.getParameter("M");
-            String d = request.getParameter("d");
-            String f = request.getParameter("f");
-            String s = request.getParameter("s");
-
-            Service service = new Service();
-
             recordList = service.getRecordList(c, b, e, l, p, m, M, d, f, s);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Unable to service request", e);
-            errorReason = e.getMessage();
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Unable to service request", ex);
+            errorReason = ex.getMessage();
         }
         OutputStream out = response.getOutputStream();
 
+        if (jsonp != null) {
+            out.write((jsonp + "(").getBytes("UTF-8"));
+        }
+                
         try (JsonGenerator gen = Json.createGenerator(out)) {
             gen.writeStartObject().writeStartArray("data");
             if (recordList != null) {
@@ -76,6 +85,11 @@ public class Controller extends HttpServlet {
                 gen.write("error", errorReason);
             }
             gen.writeEnd();
+            
+            gen.flush();
+            if (jsonp != null) {
+                out.write((");").getBytes("UTF-8"));
+            }
         }
     }
 }
