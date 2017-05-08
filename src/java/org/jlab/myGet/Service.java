@@ -155,7 +155,7 @@ public class Service {
                 //LOGGER.log(Level.INFO, "Line: {0}", line);
                 String[] tokens = line.split("\\s+");
                 if (tokens.length >= 3 ) {
-                    String date = tokens[0] + " " + tokens[1];
+                    String date = tokens[0] + "T" + tokens[1];
                     String channelValue = tokens[2];
                     for(int i=3; i < tokens.length; i++) {
                         channelValue = channelValue + " " + tokens[i];
