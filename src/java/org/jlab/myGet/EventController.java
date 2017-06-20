@@ -2,7 +2,6 @@ package org.jlab.myGet;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.Json;
@@ -17,10 +16,10 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author ryans
  */
-@WebServlet(name = "Controller", urlPatterns = {"/span-data"})
-public class Controller extends HttpServlet {
+@WebServlet(name = "EventController", urlPatterns = {"/event-data"})
+public class EventController extends HttpServlet {
 
-    private final static Logger LOGGER = Logger.getLogger(Controller.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(EventController.class.getName());
 
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -34,31 +33,29 @@ public class Controller extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String jsonp = request.getParameter("jsonp");
-        
-        if ( jsonp != null ) {
+
+        if (jsonp != null) {
             response.setContentType("application/javascript");
         } else {
             response.setContentType("application/json");
         }
 
         String errorReason = null;
-        List<Record> recordList = null;
+        Record record = null;
 
         String c = request.getParameter("c");
-        String b = request.getParameter("b");
-        String e = request.getParameter("e");
-        String l = request.getParameter("l");
-        String p = request.getParameter("p");
+        String t = request.getParameter("t");
         String m = request.getParameter("m");
         String M = request.getParameter("M");
         String d = request.getParameter("d");
         String f = request.getParameter("f");
+        String w = request.getParameter("w");
         String s = request.getParameter("s");
 
-        Service service = new Service();
+        EventService service = new EventService();
 
         try {
-            recordList = service.getRecordList(c, b, e, l, p, m, M, d, f, s);
+            record = service.getRecord(c, t, m, M, d, f, w, s);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
@@ -68,24 +65,21 @@ public class Controller extends HttpServlet {
         if (jsonp != null) {
             out.write((jsonp + "(").getBytes("UTF-8"));
         }
-                
+
         try (JsonGenerator gen = Json.createGenerator(out)) {
-            gen.writeStartObject().writeStartArray("data");
-            if (recordList != null) {
-                for (Record record : recordList) {
-                    gen.writeStartObject();
-                    gen.write("date", record.getDate());
-                    gen.write("value", record.getChannelValue());
-                    gen.writeEnd();
-                }
-            }
+            gen.writeStartObject().writeStartObject("data");
+            if (record != null) {
+                gen.write("date", record.getDate());
+                gen.write("value", record.getChannelValue());
+            } // otherwise empty object
+            gen.writeEnd();
             gen.writeEnd();
             if (errorReason != null) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 gen.write("error", errorReason);
             }
             gen.writeEnd();
-            
+
             gen.flush();
             if (jsonp != null) {
                 out.write((");").getBytes("UTF-8"));
