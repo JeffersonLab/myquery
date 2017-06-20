@@ -16,9 +16,9 @@ import java.util.logging.Logger;
  *
  * @author ryans
  */
-public class Service {
+public class SpanService {
 
-    private final static Logger LOGGER = Logger.getLogger(Service.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(SpanService.class.getName());
 
     private static final long MAX_EXECUTE_MILLIS = 300000;
 
