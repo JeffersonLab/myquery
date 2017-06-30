@@ -1,2 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/myget"/>
+<Context path="/myget">
+    <ResourceLink name="jdbc/opsmya0"
+                  global="jdbc/opsmya0"
+                  type="javax.sql.DataSource"/>
+    <ResourceLink name="jdbc/opsmya1"
+                  global="jdbc/opsmya1"
+                  type="javax.sql.DataSource"/>
+    <ResourceLink name="jdbc/opsmya2"
+                  global="jdbc/opsmya2"
+                  type="javax.sql.DataSource"/>
+    <ResourceLink name="jdbc/opsmya3"
+                  global="jdbc/opsmya3"
+                  type="javax.sql.DataSource"/>
+    <ResourceLink name="jdbc/opsmya4"
+                  global="jdbc/opsmya4"
+                  type="javax.sql.DataSource"/>
+    <ResourceLink name="jdbc/opsmya5"
+                  global="jdbc/opsmya5"
+                  type="javax.sql.DataSource"/>
+</Context>

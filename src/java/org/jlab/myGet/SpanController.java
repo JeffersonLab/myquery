@@ -55,7 +55,7 @@ public class SpanController extends HttpServlet {
         String f = request.getParameter("f");
         String s = request.getParameter("s");
 
-        SpanService service = new SpanService();
+        SpanService service = new JmyapiSpanService();
 
         try {
             recordList = service.getRecordList(c, b, e, l, p, m, M, d, f, s);
