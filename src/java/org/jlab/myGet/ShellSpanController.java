@@ -18,9 +18,9 @@ import javax.servlet.http.HttpServletResponse;
  * @author ryans
  */
 @WebServlet(name = "SpanController", urlPatterns = {"/span-data"})
-public class SpanController extends HttpServlet {
+public class ShellSpanController extends HttpServlet {
 
-    private final static Logger LOGGER = Logger.getLogger(SpanController.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(ShellSpanController.class.getName());
 
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -34,8 +34,8 @@ public class SpanController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String jsonp = request.getParameter("jsonp");
-        
-        if ( jsonp != null ) {
+
+        if (jsonp != null) {
             response.setContentType("application/javascript");
         } else {
             response.setContentType("application/json");
@@ -55,20 +55,30 @@ public class SpanController extends HttpServlet {
         String f = request.getParameter("f");
         String s = request.getParameter("s");
 
-        SpanService service = new JmyapiSpanService();
+        ShellSpanService service = new ShellSpanService();
 
         try {
+            if (c == null || c.trim().isEmpty()) {
+                throw new Exception("Channel (c) is required");
+            }
+            if (b == null || b.trim().isEmpty()) {
+                throw new Exception("Begin Date (b) is required");
+            }
+            if (e == null || e.trim().isEmpty()) {
+                throw new Exception("End Date (e) is required");
+            }
             recordList = service.getRecordList(c, b, e, l, p, m, M, d, f, s);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
         }
+
         OutputStream out = response.getOutputStream();
 
         if (jsonp != null) {
             out.write((jsonp + "(").getBytes("UTF-8"));
         }
-                
+
         try (JsonGenerator gen = Json.createGenerator(out)) {
             gen.writeStartObject().writeStartArray("data");
             if (recordList != null) {
@@ -85,7 +95,7 @@ public class SpanController extends HttpServlet {
                 gen.write("error", errorReason);
             }
             gen.writeEnd();
-            
+
             gen.flush();
             if (jsonp != null) {
                 out.write((");").getBytes("UTF-8"));

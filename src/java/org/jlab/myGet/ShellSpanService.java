@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  *
  * @author ryans
  */
-public class ShellSpanService implements SpanService {
+public class ShellSpanService {
 
     private final static Logger LOGGER = Logger.getLogger(ShellSpanService.class.getName());
 
@@ -169,6 +169,7 @@ public class ShellSpanService implements SpanService {
 
         return recordList;
     }
+
     private class StreamGobbler implements Runnable {
 
         private final InputStream in;

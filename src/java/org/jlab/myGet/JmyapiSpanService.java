@@ -5,10 +5,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.naming.NamingException;
 import org.jlab.mya.Deployment;
+import org.jlab.mya.EventStream;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.nexus.PooledNexus;
@@ -20,7 +19,7 @@ import org.jlab.mya.stream.FloatEventStream;
  *
  * @author ryans
  */
-public class JmyapiSpanService implements SpanService {
+public class JmyapiSpanService {
 
     private static final PooledNexus NEXUS;
 
@@ -32,7 +31,6 @@ public class JmyapiSpanService implements SpanService {
         }
     }
 
-    @Override
     public List<Record> getRecordList(String c, String b, String e, String l, String p, String m,
             String M, String d, String f, String s) throws Exception {
         List<Record> recordList = new ArrayList<>();
@@ -53,4 +51,17 @@ public class JmyapiSpanService implements SpanService {
         return recordList;
     }
 
+    public EventStream openEventStream(String c, String b, String e, String l, String p, String m,
+            String M, String d, String f, String s) throws Exception {
+        IntervalService service = new IntervalService(NEXUS); 
+        Metadata metadata = service.findMetadata(c);
+        Instant begin = LocalDateTime.parse(b).atZone(
+            ZoneId.systemDefault()).toInstant();
+        Instant end = LocalDateTime.parse(e).atZone(
+            ZoneId.systemDefault()).toInstant();
+        IntervalQueryParams params = new IntervalQueryParams(metadata, begin, end);
+        final FloatEventStream stream = service.openFloatStream(params);
+
+        return stream;      
+    }
 }
