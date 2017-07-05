@@ -2,6 +2,7 @@ package org.jlab.myGet;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -207,7 +208,16 @@ public class JmyapilSpanController extends HttpServlet {
         while ((event = stream.read()) != null) {
             gen.writeStartObject();
             writeTimestamp(gen, event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
-            gen.write("v", decimalFormatter.format(event.getValue()));
+            // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
+            gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
+            
+            // This is an alternative to the above
+            /*BigDecimal v = new BigDecimal(event.getValue()); // passing string would be safter than float
+            v = v.setScale(decimalFormatter.getMaximumFractionDigits(), BigDecimal.ROUND_HALF_EVEN); // Create new BigDecimal
+            v = v.stripTrailingZeros(); // Create new BigDecimal
+            gen.write("v", v);*/
+            
+            // This would always show maximum precision / scale
             //gen.write("v", event.getValue());
             gen.writeEnd();
         }
