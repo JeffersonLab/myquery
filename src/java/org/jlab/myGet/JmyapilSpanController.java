@@ -16,6 +16,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.jlab.mya.EventCode;
 import org.jlab.mya.EventStream;
 import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.event.MultiStringEvent;
@@ -142,7 +143,6 @@ public class JmyapilSpanController extends HttpServlet {
         }
 
         //System.out.println(decimalPattern);
-        
         // Not thread safe so we just re-create each request
         DecimalFormat decimalFormatter = new DecimalFormat(decimalPattern);
 
@@ -155,7 +155,7 @@ public class JmyapilSpanController extends HttpServlet {
 
             try (JsonGenerator gen = Json.createGenerator(out)) {
                 gen.writeStartObject().writeStartArray("data");
-                if(stream == null) {
+                if (stream == null) {
                     // Didn't get a stream so presumably there is an errorReason
                 } else if (stream instanceof FloatEventStream) {
                     generateFloatStream(gen, (FloatEventStream) stream, (t != null),
@@ -208,17 +208,22 @@ public class JmyapilSpanController extends HttpServlet {
         while ((event = stream.read()) != null) {
             gen.writeStartObject();
             writeTimestamp(gen, event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
-            // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
-            gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
-            
-            // This is an alternative to the above
-            /*BigDecimal v = new BigDecimal(event.getValue()); // passing string would be safter than float
+
+            if (event.getCode() == EventCode.UPDATE) {
+                // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
+                gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
+
+                // This is an alternative to the above
+                /*BigDecimal v = new BigDecimal(event.getValue()); // passing string would be safter than float
             v = v.setScale(decimalFormatter.getMaximumFractionDigits(), BigDecimal.ROUND_HALF_EVEN); // Create new BigDecimal
             v = v.stripTrailingZeros(); // Create new BigDecimal
             gen.write("v", v);*/
-            
-            // This would always show maximum precision / scale
-            //gen.write("v", event.getValue());
+                // This would always show maximum precision / scale
+                //gen.write("v", event.getValue());
+            } else {
+                gen.write("v", event.getCode().name());
+            }
+
             gen.writeEnd();
         }
     }
