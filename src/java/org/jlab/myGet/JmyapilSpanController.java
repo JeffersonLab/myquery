@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
@@ -18,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jlab.mya.EventCode;
 import org.jlab.mya.EventStream;
+import org.jlab.mya.Metadata;
 import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.event.MultiStringEvent;
 import org.jlab.mya.stream.FloatEventStream;
@@ -58,6 +61,9 @@ public class JmyapilSpanController extends HttpServlet {
 
         String errorReason = null;
         EventStream stream = null;
+        Long count = null;
+        Metadata metadata = null;
+        boolean sample = false;
 
         String c = request.getParameter("c");
         String b = request.getParameter("b");
@@ -87,7 +93,32 @@ public class JmyapilSpanController extends HttpServlet {
             // Repace ' ' with 'T' if present
             b = b.replace(' ', 'T');
             e = e.replace(' ', 'T');
-            stream = service.openEventStream(c, b, e, l, p, M, M, d, f, s);
+
+            Instant begin = LocalDateTime.parse(b).atZone(
+                    ZoneId.systemDefault()).toInstant();
+            Instant end = LocalDateTime.parse(e).atZone(
+                    ZoneId.systemDefault()).toInstant();
+
+            metadata = service.findMetadata(c);
+
+            long limit = -1;
+
+            if (l != null && !l.trim().isEmpty()) {
+                limit = Long.parseLong(l);
+                // We were given a limit so we must count
+                count = service.count(metadata, begin, end, p, m, M, d);
+                // This query seems to take about 0.1 second, so we only do it if necessary
+                
+                if (count > limit) {
+                    sample = true;
+                }
+            }
+
+            if (sample) {
+                stream = service.openSampleEventStream(metadata, begin, end, limit, p, m, M, d);
+            } else {
+                stream = service.openEventStream(metadata, begin, end, p, m, M, d);
+            }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
@@ -154,7 +185,21 @@ public class JmyapilSpanController extends HttpServlet {
             }
 
             try (JsonGenerator gen = Json.createGenerator(out)) {
-                gen.writeStartObject().writeStartArray("data");
+                gen.writeStartObject();
+
+                if (metadata != null) {
+                    gen.write("datatype", metadata.getType().name());
+                    gen.write("datasize", metadata.getSize());
+                    gen.write("datahost", metadata.getHost());
+                }
+
+                gen.write("sampled", sample);
+
+                if (count != null) {
+                    gen.write("count", count);
+                }
+
+                gen.writeStartArray("data");
                 if (stream == null) {
                     // Didn't get a stream so presumably there is an errorReason
                 } else if (stream instanceof FloatEventStream) {
