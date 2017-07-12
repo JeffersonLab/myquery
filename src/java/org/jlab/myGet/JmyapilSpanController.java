@@ -115,7 +115,7 @@ public class JmyapilSpanController extends HttpServlet {
             }
 
             if (sample) {
-                stream = service.openSampleEventStream(metadata, begin, end, limit, p, m, M, d);
+                stream = service.openSampleEventStream(metadata, begin, end, limit, p, m, M, d, count);
             } else {
                 stream = service.openEventStream(metadata, begin, end, p, m, M, d);
             }
