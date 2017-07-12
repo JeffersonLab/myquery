@@ -7,6 +7,7 @@ import org.jlab.mya.Deployment;
 import org.jlab.mya.EventStream;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.nexus.PooledNexus;
+import org.jlab.mya.params.ImprovedSamplerParams;
 import org.jlab.mya.params.IntervalQueryParams;
 import org.jlab.mya.params.NaiveSamplerParams;
 import org.jlab.mya.service.IntervalService;
@@ -18,6 +19,8 @@ import org.jlab.mya.service.SamplingService;
  */
 public class JmyapiSpanService {
 
+    private static final long ALWAYS_STREAM_THRESHOLD = 100000; // Just fetch everything (and sample client-side) if under 100,000 points
+    private static final long EVENTS_PER_BIN_THRESHOLD = 1000; // Just fetch everything (and sample client-side) if bins contain less than 1,000 points
     private static final PooledNexus NEXUS;
     
     static {
@@ -46,9 +49,22 @@ public class JmyapiSpanService {
     }
 
     public EventStream openSampleEventStream(Metadata metadata, Instant begin, Instant end, long limit, String p, String m,
-            String M, String d) throws SQLException {
+            String M, String d, long count) throws SQLException {
+        EventStream stream;
         SamplingService sampler = new SamplingService(NEXUS);
-        NaiveSamplerParams params = new NaiveSamplerParams(metadata, begin, end, limit);
-        return sampler.openNaiveSamplerFloatStream(params);
+        
+        long eventsPerBin = count / limit;
+        
+        if(count < ALWAYS_STREAM_THRESHOLD || eventsPerBin < EVENTS_PER_BIN_THRESHOLD) {
+            System.out.println("Using 'improved' algorithm");
+            ImprovedSamplerParams params = new ImprovedSamplerParams(metadata, begin, end, limit, count);
+            stream = sampler.openImprovedSamplerFloatStream(params);
+        } else { // Perform n-queries
+            System.out.println("Using 'naive' algorithm");
+            NaiveSamplerParams params = new NaiveSamplerParams(metadata, begin, end, limit);
+            stream = sampler.openNaiveSamplerFloatStream(params);
+        }
+        
+        return stream;
     }
 }
