@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/myget">
-    <ResourceLink name="jdbc/opsmya0"
-                  global="jdbc/opsmya0"
-                  type="javax.sql.DataSource"/>
-    <ResourceLink name="jdbc/opsmya1"
-                  global="jdbc/opsmya1"
-                  type="javax.sql.DataSource"/>
-    <ResourceLink name="jdbc/opsmya2"
-                  global="jdbc/opsmya2"
-                  type="javax.sql.DataSource"/>
-    <ResourceLink name="jdbc/opsmya3"
-                  global="jdbc/opsmya3"
-                  type="javax.sql.DataSource"/>
-    <ResourceLink name="jdbc/opsmya4"
-                  global="jdbc/opsmya4"
-                  type="javax.sql.DataSource"/>
-    <ResourceLink name="jdbc/opsmya5"
-                  global="jdbc/opsmya5"
-                  type="javax.sql.DataSource"/>
+    <ResourceLink global="jdbc/opsmya0" name="jdbc/opsmya0" type="javax.sql.DataSource"/>
+    <ResourceLink global="jdbc/opsmya1" name="jdbc/opsmya1" type="javax.sql.DataSource"/>
+    <ResourceLink global="jdbc/opsmya2" name="jdbc/opsmya2" type="javax.sql.DataSource"/>
+    <ResourceLink global="jdbc/opsmya3" name="jdbc/opsmya3" type="javax.sql.DataSource"/>
+    <ResourceLink global="jdbc/opsmya4" name="jdbc/opsmya4" type="javax.sql.DataSource"/>
+    <ResourceLink global="jdbc/opsmya5" name="jdbc/opsmya5" type="javax.sql.DataSource"/>
+    <ResourceLink global="jdbc/opsmya6" name="jdbc/opsmya6" type="javax.sql.DataSource"/>
+    <ResourceLink global="jdbc/opsmya7" name="jdbc/opsmya7" type="javax.sql.DataSource"/>
+    <ResourceLink global="jdbc/opsmya8" name="jdbc/opsmya8" type="javax.sql.DataSource"/>
 </Context>

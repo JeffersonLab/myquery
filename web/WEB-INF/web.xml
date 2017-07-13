@@ -44,4 +44,16 @@
         <res-ref-name>jdbc/opsmya5</res-ref-name>
         <res-type>javax.sql.DataSource</res-type>
     </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/opsmya6</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/opsmya7</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/opsmya8</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
 </web-app>
