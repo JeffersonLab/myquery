@@ -19,8 +19,9 @@ import org.jlab.mya.service.SamplingService;
  */
 public class JmyapiSpanService {
 
-    private static final long ALWAYS_STREAM_THRESHOLD = 100000; // Just fetch everything (and sample client-side) if under 100,000 points
-    private static final long EVENTS_PER_BIN_THRESHOLD = 1000; // Just fetch everything (and sample client-side) if bins contain less than 1,000 points
+    private static final long ALWAYS_STREAM_THRESHOLD = 100000; // Just fetch everything (and sample application-side) if under this number of points
+    //private static final long EVENTS_PER_BIN_THRESHOLD = 1000; // Just fetch everything (and sample client-side) if bins contain less than 1,000 points (Assuming MAX_POINTS = MIN_SAMPLE_POINTS)
+    private static final long MIN_SAMPLE_POINTS = 3000; // If we're doing the iterative query thing we can "cheat" and actually return much less than the limit 
     private static final PooledNexus NEXUS;
     
     static {
@@ -55,13 +56,13 @@ public class JmyapiSpanService {
         
         long eventsPerBin = count / limit;
         
-        if(count < ALWAYS_STREAM_THRESHOLD || eventsPerBin < EVENTS_PER_BIN_THRESHOLD) {
+        if(count < ALWAYS_STREAM_THRESHOLD) {
             System.out.println("Using 'improved' algorithm");
             ImprovedSamplerParams params = new ImprovedSamplerParams(metadata, begin, end, limit, count);
             stream = sampler.openImprovedSamplerFloatStream(params);
         } else { // Perform n-queries
             System.out.println("Using 'naive' algorithm");
-            NaiveSamplerParams params = new NaiveSamplerParams(metadata, begin, end, limit);
+            NaiveSamplerParams params = new NaiveSamplerParams(metadata, begin, end, Math.min(limit, MIN_SAMPLE_POINTS));
             stream = sampler.openNaiveSamplerFloatStream(params);
         }
         
