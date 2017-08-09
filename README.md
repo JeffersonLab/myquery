@@ -34,7 +34,7 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
     "sampled":"_true if sampled, false otherwise_",   
     "data":[   
         {   
-            "d":"_ISO 8901 DATE-TIME_",   
+            "d":"_DATE-TIME_",   
             "v":"_VALUE_"   
         },   
         ...   
