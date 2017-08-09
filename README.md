@@ -24,7 +24,11 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |   
 | t     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                   | NO       | Timestamps are returned in ISO 8901 format |   
 
-**Response JSON Format**
+**Response JSON Format**    
+*On Success (HTTP 200 Response Code):*   
+{"datatype":"<EPICS datatype>","datasize":"<data vector size; 1 for scalar>","datahost":"<MYA hostname of data home>","data":[{"d":"<ISO 8901 DATE-TIME>","v":"<VALUE>"},...]}    
+*On Error (HTTP 400 Repsonse Code):*    
+{"error":"<error reason>"}   
 
 ### Single Event Query (Point)
 Query for a single event on the timeline closest to the specified point.  The direction to search from the point is determined by the 'w' parameter.
@@ -42,6 +46,8 @@ Query for a single event on the timeline closest to the specified point.  The di
 | w     | Get first recorded event before or equal time of interest    | Boolean, true if parameter exits                    | NO       | Get first recorded event after or equal time of interest |
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |
 
-**Response JSON Format**
-
-## Examples
+**Response JSON Format**   
+*On Success (HTTP 200 Response Code):*   
+{"data":{"date":"<ISO 8901 DATE-TIME>","value":"<VALUE>"}}    
+*On Error (HTTP 400 Repsonse Code):*    
+{"data":{}}    
