@@ -1,4 +1,4 @@
-package org.jlab.myGet;
+package org.jlab.wmyget;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,17 +16,18 @@ import java.util.logging.Logger;
  *
  * @author ryans
  */
-public class EventService {
+public class ShellSpanService {
 
-    private final static Logger LOGGER = Logger.getLogger(EventService.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(ShellSpanService.class.getName());
 
     private static final long MAX_EXECUTE_MILLIS = 300000;
 
-    public Record getRecord(String c, String t, String m, String M, String d, String f,
-            String w, String s) throws
+    public List<Record> getRecordList(String c, String b, String e,
+            String l, String p, String m, String M, String d, String f,
+            String s) throws
             Exception {
 
-        Record record = null;
+        List<Record> recordList = null;
 
         String execPath = System.getenv("MYGET_PATH");
 
@@ -41,11 +42,18 @@ public class EventService {
             command.add("-c");
             command.add(c);
         }
-        if (t == null || t.trim().isEmpty()) {
-            throw new Exception("Time of interest argument (t) is required");
+        if (b != null && !b.isEmpty()) {
+            command.add("-b");
+            command.add(b);
         }
-        command.add("-t");
-        command.add(t);
+        if (e != null && !e.isEmpty()) {
+            command.add("-e");
+            command.add(e);
+        }
+        if (l != null && !l.isEmpty()) {
+            command.add("-l");
+            command.add(l);
+        }
         if (m != null && !m.isEmpty()) {
             command.add("-m");
             command.add(m);
@@ -62,13 +70,13 @@ public class EventService {
             command.add("-f");
             command.add(f);
         }
-
+        
         // Boolean flags
-        if (w != null) {
-            command.add("-w+");
-        }        
         if (s != null) {
             command.add("-s");
+        }
+        if (p != null) {
+            command.add("-p");
         }
 
         LOGGER.log(Level.FINEST, "command = {0}", command.toString());
@@ -84,12 +92,13 @@ public class EventService {
         // blocked stream in a separate thread allows us to wait with a timeout and then "destroy"
         // the process that is making the gobbler thread block
         StreamGobbler gobbler = new StreamGobbler(proc.getInputStream());
-        Thread thread = new Thread(gobbler);
-        thread.start();
+        Thread t = new Thread(gobbler);
+        t.start();
 
         try {
             int status = proc.waitFor(); // This may result in InterruptedException
 
+            
             // I've observed it is possible for waitFor (process thread) to return yet gobbler 
             // thread is still running.
             // Though unlikely, worst case execution time could be close to MAX_EXECUTE_MILLIS X 2
@@ -111,7 +120,7 @@ public class EventService {
                         + gobbler.toString());
             }
 
-            record = parseOutput(gobbler.toString());
+            recordList = parseOutput(gobbler.toString());
         } catch (InterruptedException ex) {
             proc.destroy();
             throw new Exception("Interrupted while waiting for process", ex);
@@ -130,34 +139,35 @@ public class EventService {
             Thread.interrupted();
         }
 
-        return record;
+        return recordList;
     }
 
-    private Record parseOutput(String output) throws Exception {
+
+    private List<Record> parseOutput(String output) throws Exception {
         //LOGGER.log(Level.FINEST, "Output: {0}", output);
 
-        Record record = null;
+        List<Record> recordList = new ArrayList<>();
 
         try (Scanner scanner = new Scanner(output)) {
-
-            if (scanner.hasNextLine()) {
+            
+            while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 //LOGGER.log(Level.INFO, "Line: {0}", line);
                 String[] tokens = line.split("\\s+");
-                if (tokens.length >= 3) {
+                if (tokens.length >= 3 ) {
                     String date = tokens[0] + "T" + tokens[1];
                     String channelValue = tokens[2];
-                    for (int i = 3; i < tokens.length; i++) {
+                    for(int i=3; i < tokens.length; i++) {
                         channelValue = channelValue + " " + tokens[i];
                     }
-                    record = new Record(date, channelValue);
+                    recordList.add(new Record(date, channelValue));
                 } else {
                     throw new Exception("Unexpected number of tokens");
                 }
             }
         }
 
-        return record;
+        return recordList;
     }
 
     private class StreamGobbler implements Runnable {

@@ -1,4 +1,4 @@
-package org.jlab.myGet;
+package org.jlab.wmyget;
 
 
 /**
