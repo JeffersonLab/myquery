@@ -14,15 +14,15 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 | c     | EPICS Channel name                                           | YES      |                                            |  
 | b     | Inclusive begin date in ISO 8901 format with optional time (YYYY-MM-DD[Thh:mm:[ss]]) | YES |  |  
 | e     | Exclusive end date in ISO 8901 format with optional time (YYYY-MM-DD[Thh:mm:[ss]]) | YES |   |
-| l     | Limit by binning (sampling)                                  | NO       | No sampling is done                        | 
-| m     | MYA deployment (default opts                                 | NO       | 'ops'                                      |   
+| l     | Limit by binning / sampling (boolean, true if parameter exists) | NO       | No sampling is done                        | 
+| m     | MYA deployment                                               | NO       | 'ops'                                      |   
 | M     | MYA master host override                                     | NO       | Standard master used                       |   
 | d     | Expression to filter events                                  | NO       | No filter applied                          |   
 | f     | Fractional seconds time digits                               | NO       | No fractional seconds                      |    
 | v     | Fractional value digits                                      | NO       | 2                                          |   
-| p     | Include prior point (guarantee at least one point in result) | NO       | Prior point isn't included                 |   
-| s     | Enumerations as strings                                      | NO       | Enumerations presented as ordinal number   |   
-| t     | Timestamps as milliseconds from Epoch (1970)                 | NO       | Timestamps are returned in ISO 8901 format |   
+| p     | Include prior point as to guarantee at least one point in result (boolean, true if parameter exists) | NO       | Prior point isn't included                 |   
+| s     | Enumerations as strings (boolean, true if parameter exists)  | NO       | Enumerations presented as ordinal number   |   
+| t     | Timestamps as milliseconds from UNIX Epoch (boolean, true if parameter exists) | NO       | Timestamps are returned in ISO 8901 format |   
 
 **Response JSON Format**
 
@@ -35,12 +35,12 @@ Query for a single event on the timeline closest to the specified point.  The di
 |-------|--------------------------------------------------------------|----------|--------------------------------------------|   
 | c     | EPICS Channel name                                           | YES      |                                            |
 | t     | Time of interest date in ISO 8901 format with optional time (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                   |
-| m     | MYA deployment (default opts                                 | NO       | 'ops'                                      |   
+| m     | MYA deployment                                               | NO       | 'ops'                                      |   
 | M     | MYA master host override                                     | NO       | Standard master used                       |
 | d     | Expression to filter events                                  | NO       | No filter applied                          |   
-| f     | Fractional seconds time digits                               | NO       | No fractional seconds                      |
-| w     | Get first recorded event before or equal time of interest    | NO       | Get first recorded event after or equal time of interest |
-| s     | Enumerations as strings                                      | NO       | Enumerations presented as ordinal number   |
+| f     | Fractional seconds time digits (0 - 6)                       | NO       | No fractional seconds                      |
+| w     | Get first recorded event before or equal time of interest    | NO       | Get first recorded event after or equal time of interest (boolean, true if parameter exists) |
+| s     | Enumerations as strings (boolean, true if parameter exists)  | NO       | Enumerations presented as ordinal number   |
 
 **Response JSON Format**
 
