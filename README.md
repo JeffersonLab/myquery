@@ -9,11 +9,11 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 
 **Request URL Parameters**     
 
-| Name  | Description                                                  | Required | Default                                    |   
-|-------|--------------------------------------------------------------|----------|--------------------------------------------|   
-| c     | EPICS Channel name                                           | YES      |                                            |  
-| b     | Inclusive begin date in ISO 8901 format with optional time (YYYY-MM-DD[Thh:mm:[ss]]) | YES |  |  
-| e     | Exclusive end date in ISO 8901 format with optional time (YYYY-MM-DD[Thh:mm:[ss]]) | YES |   |
+| Name  | Description                                                  | Value Format | Required | Default                                    |   
+|-------|--------------------------------------------------------------|----------------------|----------|--------------------------------------------|   
+| c     | EPICS Channel name                                           | String       | YES      |                                            |  
+| b     | Inclusive begin date with optional time                      | String in ISO 8901 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES |  |  
+| e     | Exclusive end date with optional time                        | String in ISO 8901 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES |   |
 | l     | Limit by binning / sampling (boolean, true if parameter exists) | NO       | No sampling is done                        | 
 | m     | MYA deployment                                               | NO       | 'ops'                                      |   
 | M     | MYA master host override                                     | NO       | Standard master used                       |   
