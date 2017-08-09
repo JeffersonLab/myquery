@@ -40,7 +40,7 @@ Query for a single event on the timeline closest to the specified point.  The di
 | d     | Expression to filter events                                  | String                                              | NO       | No filter applied                          |   
 | f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0                                          |
 | w     | Get first recorded event before or equal time of interest    | Boolean, true if parameter exits                    | NO       | Get first recorded event after or equal time of interest |
-| s     | Enumerations as strings (boolean, true if parameter exists)  | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |
+| s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |
 
 **Response JSON Format**
 
