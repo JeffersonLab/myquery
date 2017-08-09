@@ -30,6 +30,7 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
     "datatype":"_EPICS datatype_",     
     "datasize":"_data vector size; 1 for scalar_",    
     "datahost":"_MYA hostname of data home_",      
+    "sampled":"_true if sampled, false otherwise_",   
     "data":[{"d":"_ISO 8901 DATE-TIME_","v":"_VALUE_"},...]    
 }     
 *On Error (HTTP 400 Repsonse Code):*    
@@ -63,5 +64,5 @@ Query for a single event on the timeline closest to the specified point.  The di
 }    
 *On Error (HTTP 400 Repsonse Code):*    
 {   
-    "data":{}
+    "data":{}   
 }       
