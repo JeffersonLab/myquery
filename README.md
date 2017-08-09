@@ -31,11 +31,17 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
     "datasize":"_data vector size; 1 for scalar_",    
     "datahost":"_MYA hostname of data home_",      
     "sampled":"_true if sampled, false otherwise_",   
-    "data":[{"d":"_ISO 8901 DATE-TIME_","v":"_VALUE_"},...]    
+    "data":[   
+        {   
+            "d":"_ISO 8901 DATE-TIME_",   
+            "v":"_VALUE_"   
+        },   
+        ...   
+    ]    
 }     
 *On Error (HTTP 400 Repsonse Code):*    
 {   
-    "error":"_error reason_"
+    "error":"_error reason_"   
 }      
 
 ### Single Event Query (Point)
@@ -60,7 +66,7 @@ Query for a single event on the timeline closest to the specified point.  The di
     "data":{   
         "date":"_ISO 8901 DATE-TIME_",   
         "value":"_VALUE_"    
-        }
+        }   
 }    
 *On Error (HTTP 400 Repsonse Code):*    
 {   
