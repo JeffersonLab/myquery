@@ -28,14 +28,14 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 *On Success (HTTP 200 Response Code):*   
 ````json
 {   
-    "datatype":"_EPICS datatype_",     
-    "datasize":"_data vector size; 1 for scalar_",    
-    "datahost":"_MYA hostname of data home_",      
-    "sampled":"_true if sampled, false otherwise_",   
+    "datatype":"<EPICS datatype>",     
+    "datasize":"<data vector size; 1 for scalar>",    
+    "datahost":"<MYA hostname of data home>",      
+    "sampled":"<true if sampled, false otherwise>",   
     "data":[   
         {   
-            "d":"_DATE-TIME_",   
-            "v":"_VALUE_"   
+            "d":"<DATE-TIME>",   
+            "v":"<VALUE>"   
         },   
         ...   
     ]    
@@ -45,7 +45,7 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 *On Error (HTTP 400 Repsonse Code):*    
 ````json
 {   
-    "error":"_error reason_"   
+    "error":"<error reason>"   
 }      
 ````
 
@@ -70,8 +70,8 @@ Query for a single event on the timeline closest to the specified point.  The di
 ````json
 {   
     "data":{   
-        "date":"_ISO 8901 DATE-TIME_",   
-        "value":"_VALUE_"    
+        "date":"<ISO 8901 DATE-TIME>",   
+        "value":"<VALUE>"    
         }   
 }    
 ````
@@ -79,6 +79,6 @@ Query for a single event on the timeline closest to the specified point.  The di
 *On Error (HTTP 400 Repsonse Code):*    
 ````json
 {   
-    "error":"_error reason_"   
+    "error":"<error reason>"   
 }       
 ````
