@@ -5,7 +5,7 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 
 ## API    
 
-### Interval (Span) Query
+### Multiple Event Query (Interval)
 
 **Request URL Parameters**     
 
@@ -26,7 +26,8 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 
 **Response JSON Format**
 
-### Single Event Query
+### Single Event Query (Point)
+Query for a single event on the timeline closest to the specified point.  The direction to search from the point is determined by the 'w' parameter.
 
 **Request Parameters**     
 
@@ -38,7 +39,7 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 | M     | MYA master host override                                     | NO       | Standard master used                       |
 | d     | Expression to filter events                                  | NO       | No filter applied                          |   
 | f     | Fractional seconds time digits                               | NO       | No fractional seconds                      |
-| w     | Get first recorded event                                     | NO       | Last recorded event queried                |
+| w     | Get first recorded event before or equal time of interest    | NO       | Get first recorded event after or equal time of interest |
 | s     | Enumerations as strings                                      | NO       | Enumerations presented as ordinal number   |
 
 **Response JSON Format**
