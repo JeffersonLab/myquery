@@ -14,14 +14,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 /**
- * This WebFilter sets both the browser cache headers and request/response character set/encoding.
+ * This WebFilter sets both the browser cache headers and request/response
+ * character set/encoding.
  *
- * This filter does not cause dynamically generated text/html to be cached - just static resources
- * like js, css, and images.
+ * This filter does not cause dynamically generated text/html to be cached -
+ * just static resources like js, css, and images.
  *
- * Note: By setting the Expires header you now must bust the file from the cache every time you make
- * a change to the file. A good way to do this is by adding a version string into the file path or
- * as a URL parameter.
+ * Note: By setting the Expires header you now must bust the file from the cache
+ * every time you make a change to the file. A good way to do this is by adding
+ * a version string into the file path or as a URL parameter.
  *
  * @author ryans
  */
@@ -32,9 +33,18 @@ public class CacheAndEncodingFilter implements Filter {
     public static final long EXPIRE_MILLIS = 31536000000L; // 365 days is max expires per spec
 
     public static final String[] CACHEABLE_CONTENT_TYPES = new String[]{
-        "text/css", "text/javascript", "application/javascript", "image/png", "image/jpeg",
+        "text/css",
+        "text/javascript",
+        "application/javascript",
+        "application/json",
+        "image/png",
+        "image/jpeg",
         "image/jpg",
-        "image/gif", "image/icon", "image/x-icon", "image/vnd.microsoft.icon", "image/svg+xml"
+        "image/gif",
+        "image/icon",
+        "image/x-icon",
+        "image/vnd.microsoft.icon",
+        "image/svg+xml"
     };
 
     static {
