@@ -12,13 +12,13 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 | Name  | Description                                                  | Value Format                                        | Required | Default                                    |   
 |-------|--------------------------------------------------------------|-----------------------------------------------------|----------|--------------------------------------------|   
 | c     | EPICS Channel name                                           | String                                              | YES      |                                            |  
-| b     | Inclusive begin date with optional time                      | String in ISO 8901 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES |  |  
-| e     | Exclusive end date with optional time                        | String in ISO 8901 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES |   |
+| b     | Inclusive begin date with optional time                      | String in ISO 8901 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                                            |  
+| e     | Exclusive end date with optional time                        | String in ISO 8901 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                                            |
 | l     | Limit by binning / sampling                                  | Boolean, true if parameter exists                   | NO       | No sampling is done                        | 
 | m     | MYA deployment                                               | String                                              | NO       | 'ops'                                      |   
 | M     | MYA master host override                                     | String                                              | NO       | Standard master used                       |   
 | d     | Expression to filter events                                  | String                                              | NO       | No filter applied                          |   
-| f     | Fractional seconds time digits                               | Integer                                             | NO       | No fractional seconds                      |    
+| f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0                                          |    
 | v     | Fractional value digits                                      | Integer                                             | NO       | 2                                          |   
 | p     | Include prior point (guarantee at least one point in result) | Boolean, true if parameter exists                   | NO       | Prior point isn't included                 |   
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |   
@@ -31,16 +31,16 @@ Query for a single event on the timeline closest to the specified point.  The di
 
 **Request Parameters**     
 
-| Name  | Description                                                  | Required | Default                                    |   
-|-------|--------------------------------------------------------------|----------|--------------------------------------------|   
-| c     | EPICS Channel name                                           | YES      |                                            |
-| t     | Time of interest date in ISO 8901 format with optional time (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                   |
-| m     | MYA deployment                                               | NO       | 'ops'                                      |   
-| M     | MYA master host override                                     | NO       | Standard master used                       |
-| d     | Expression to filter events                                  | NO       | No filter applied                          |   
-| f     | Fractional seconds time digits (0 - 6)                       | NO       | No fractional seconds                      |
-| w     | Get first recorded event before or equal time of interest    | NO       | Get first recorded event after or equal time of interest (boolean, true if parameter exists) |
-| s     | Enumerations as strings (boolean, true if parameter exists)  | NO       | Enumerations presented as ordinal number   |
+| Name  | Description                                                  | Value Format                                        | Required | Default                                    |   
+|-------|--------------------------------------------------------------|-----------------------------------------------------|----------|--------------------------------------------|   
+| c     | EPICS Channel name                                           | String                                              | YES      |                                            |
+| t     | Time of interest date with optional time                     | String in ISO 8901 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                                            |
+| m     | MYA deployment                                               | String                                              | NO       | 'ops'                                      |   
+| M     | MYA master host override                                     | String                                              | NO       | Standard master used                       |
+| d     | Expression to filter events                                  | String                                              | NO       | No filter applied                          |   
+| f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0                                          |
+| w     | Get first recorded event before or equal time of interest    | Boolean, true if parameter exits                    | NO       | Get first recorded event after or equal time of interest |
+| s     | Enumerations as strings (boolean, true if parameter exists)  | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |
 
 **Response JSON Format**
 
