@@ -16,10 +16,10 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author ryans
  */
-@WebServlet(name = "EventController", urlPatterns = {"/event-data"})
-public class EventController extends HttpServlet {
+@WebServlet(name = "PointController", urlPatterns = {"/point"})
+public class PointController extends HttpServlet {
 
-    private final static Logger LOGGER = Logger.getLogger(EventController.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(PointController.class.getName());
 
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -52,7 +52,7 @@ public class EventController extends HttpServlet {
         String w = request.getParameter("w");
         String s = request.getParameter("s");
 
-        EventService service = new EventService();
+        PointWebService service = new PointWebService();
 
         try {
             record = service.getRecord(c, t, m, M, d, f, w, s);

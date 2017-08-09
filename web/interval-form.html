@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="/myget/resources/css/span.css" />
-        <title>myget Span</title>
+        <link rel="stylesheet" type="text/css" href="resources/css/span.css" />
+        <title>wmyget interval</title>
         <meta charset="UTF-8">
+        <style type="text/css">
+            .test-option {
+                color: orange;
+            }
+        </style>
     </head>
     <body>
-        <h1>myGet Span</h1>
+        <h1>wmyget interval</h1>
         <p>All options but channel are optional.</p>
-        <form action="span-data" method="get">
+        <form action="interval" method="get">
             <div id ="input-panel">
                 <div id="text-panel">
                     <ul>
@@ -44,6 +49,10 @@
                             <label for="f">Fractional time digits (f): </label>
                             <input id="f" name="f" type="text" placeholder="default = 0"/> 
                         </li>
+                        <li class="test-option">
+                            <label for="f">Fractional value digits (v): </label>
+                            <input id="v" name="v" type="text" placeholder="default = 2"/> 
+                        </li>
                     </ul>
                 </div>
 
@@ -56,6 +65,10 @@
                         <li>
                             <label for="s">Enumerations as string (s): </label>
                             <input id="s" name="s" type="checkbox"/> 
+                        </li>
+                        <li class="test-option">
+                            <label for="v">Timestamps as milliseconds from Epoch (t): </label>
+                            <input id="t" name="t" type="checkbox"/> 
                         </li>
                     </ul>
                 </div>

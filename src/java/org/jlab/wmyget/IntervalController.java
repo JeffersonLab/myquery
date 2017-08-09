@@ -30,10 +30,10 @@ import org.jlab.mya.stream.MultiStringEventStream;
  *
  * @author ryans
  */
-@WebServlet(name = "JmyapiSpanController", urlPatterns = {"/jmyapi-span-data"})
-public class JmyapilSpanController extends HttpServlet {
+@WebServlet(name = "IntervalController", urlPatterns = {"/interval"})
+public class IntervalController extends HttpServlet {
 
-    private final static Logger LOGGER = Logger.getLogger(JmyapilSpanController.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(IntervalController.class.getName());
 
     private final static DateTimeFormatter DATE_TIME_NO_FRACTIONAL = DateTimeFormatter.ofPattern(
             "yyyy-MM-dd'T'hh:mm:ss");
@@ -78,7 +78,7 @@ public class JmyapilSpanController extends HttpServlet {
         String t = request.getParameter("t");
         String v = request.getParameter("v");
 
-        JmyapiSpanService service = new JmyapiSpanService();
+        IntervalWebService service = new IntervalWebService();
 
         try {
             if (c == null || c.trim().isEmpty()) {
@@ -108,7 +108,7 @@ public class JmyapilSpanController extends HttpServlet {
                 // We were given a limit so we must count
                 count = service.count(metadata, begin, end, p, m, M, d);
                 // This query seems to take about 0.1 second, so we only do it if necessary
-                
+
                 if (count > limit) {
                     sample = true;
                 }
@@ -187,34 +187,35 @@ public class JmyapilSpanController extends HttpServlet {
             try (JsonGenerator gen = Json.createGenerator(out)) {
                 gen.writeStartObject();
 
-                if (metadata != null) {
-                    gen.write("datatype", metadata.getType().name());
-                    gen.write("datasize", metadata.getSize());
-                    gen.write("datahost", metadata.getHost());
-                }
-
-                gen.write("sampled", sample);
-
-                if (count != null) {
-                    gen.write("count", count);
-                }
-
-                gen.writeStartArray("data");
-                if (stream == null) {
-                    // Didn't get a stream so presumably there is an errorReason
-                } else if (stream instanceof FloatEventStream) {
-                    generateFloatStream(gen, (FloatEventStream) stream, (t != null),
-                            timestampFormatter, decimalFormatter);
-                } else if (stream instanceof MultiStringEventStream) {
-                    generateMultiStringStream(gen, (MultiStringEventStream) stream, (t != null),
-                            timestampFormatter);
-                } else {
-                    errorReason = "Unsupported data type: " + stream.getClass();
-                }
-                gen.writeEnd();
                 if (errorReason != null) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     gen.write("error", errorReason);
+                } else {
+                    if (metadata != null) {
+                        gen.write("datatype", metadata.getType().name());
+                        gen.write("datasize", metadata.getSize());
+                        gen.write("datahost", metadata.getHost());
+                    }
+
+                    gen.write("sampled", sample);
+
+                    if (count != null) {
+                        gen.write("count", count);
+                    }
+
+                    gen.writeStartArray("data");
+                    if (stream == null) {
+                        // Didn't get a stream so presumably there is an errorReason
+                    } else if (stream instanceof FloatEventStream) {
+                        generateFloatStream(gen, (FloatEventStream) stream, (t != null),
+                                timestampFormatter, decimalFormatter);
+                    } else if (stream instanceof MultiStringEventStream) {
+                        generateMultiStringStream(gen, (MultiStringEventStream) stream, (t != null),
+                                timestampFormatter);
+                    } else {
+                        errorReason = "Unsupported data type: " + stream.getClass();
+                    }
+                    gen.writeEnd();
                 }
                 gen.writeEnd();
 
@@ -242,7 +243,7 @@ public class JmyapilSpanController extends HttpServlet {
         } else {
             gen.write("d",
                     timestamp.atZone(DEFAULT_ZONE).format(
-                    formatter));
+                            formatter));
         }
     }
 

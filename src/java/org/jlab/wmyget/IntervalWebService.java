@@ -17,7 +17,7 @@ import org.jlab.mya.service.SamplingService;
  *
  * @author ryans
  */
-public class JmyapiSpanService {
+public class IntervalWebService {
 
     private static final long ALWAYS_STREAM_THRESHOLD = 100000; // Just fetch everything (and sample application-side) if under this number of points
     //private static final long EVENTS_PER_BIN_THRESHOLD = 1000; // Just fetch everything (and sample client-side) if bins contain less than 1,000 points (Assuming MAX_POINTS = MIN_SAMPLE_POINTS)
