@@ -26,9 +26,9 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 
 **Response JSON Format**    
 *On Success (HTTP 200 Response Code):*   
-{"datatype":"<EPICS datatype>","datasize":"<data vector size; 1 for scalar>","datahost":"<MYA hostname of data home>","data":[{"d":"<ISO 8901 DATE-TIME>","v":"<VALUE>"},...]}    
+{"datatype":"_EPICS datatype_","datasize":"_data vector size; 1 for scalar_","datahost":"_MYA hostname of data home_","data":[{"d":"_ISO 8901 DATE-TIME_","v":"_VALUE_"},...]}    
 *On Error (HTTP 400 Repsonse Code):*    
-{"error":"<error reason>"}   
+{"error":"_error reason_"}   
 
 ### Single Event Query (Point)
 Query for a single event on the timeline closest to the specified point.  The direction to search from the point is determined by the 'w' parameter.
@@ -48,6 +48,6 @@ Query for a single event on the timeline closest to the specified point.  The di
 
 **Response JSON Format**   
 *On Success (HTTP 200 Response Code):*   
-{"data":{"date":"<ISO 8901 DATE-TIME>","value":"<VALUE>"}}    
+{"data":{"date":"_ISO 8901 DATE-TIME_","value":"_VALUE_"}}    
 *On Error (HTTP 400 Repsonse Code):*    
 {"data":{}}    
