@@ -1,4 +1,4 @@
-package org.jlab.myGet;
+package org.jlab.wmyget;
 
 import java.sql.SQLException;
 import java.time.Instant;
