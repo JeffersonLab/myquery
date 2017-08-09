@@ -9,20 +9,20 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 
 **Request URL Parameters**     
 
-| Name  | Description                                                  | Value Format | Required | Default                                    |   
-|-------|--------------------------------------------------------------|----------------------|----------|--------------------------------------------|   
-| c     | EPICS Channel name                                           | String       | YES      |                                            |  
+| Name  | Description                                                  | Value Format                                        | Required | Default                                    |   
+|-------|--------------------------------------------------------------|-----------------------------------------------------|----------|--------------------------------------------|   
+| c     | EPICS Channel name                                           | String                                              | YES      |                                            |  
 | b     | Inclusive begin date with optional time                      | String in ISO 8901 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES |  |  
 | e     | Exclusive end date with optional time                        | String in ISO 8901 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES |   |
-| l     | Limit by binning / sampling (boolean, true if parameter exists) | NO       | No sampling is done                        | 
-| m     | MYA deployment                                               | NO       | 'ops'                                      |   
-| M     | MYA master host override                                     | NO       | Standard master used                       |   
-| d     | Expression to filter events                                  | NO       | No filter applied                          |   
-| f     | Fractional seconds time digits                               | NO       | No fractional seconds                      |    
-| v     | Fractional value digits                                      | NO       | 2                                          |   
-| p     | Include prior point as to guarantee at least one point in result (boolean, true if parameter exists) | NO       | Prior point isn't included                 |   
-| s     | Enumerations as strings (boolean, true if parameter exists)  | NO       | Enumerations presented as ordinal number   |   
-| t     | Timestamps as milliseconds from UNIX Epoch (boolean, true if parameter exists) | NO       | Timestamps are returned in ISO 8901 format |   
+| l     | Limit by binning / sampling                                  | Boolean, true if parameter exists                   | NO       | No sampling is done                        | 
+| m     | MYA deployment                                               | String                                              | NO       | 'ops'                                      |   
+| M     | MYA master host override                                     | String                                              | NO       | Standard master used                       |   
+| d     | Expression to filter events                                  | String                                              | NO       | No filter applied                          |   
+| f     | Fractional seconds time digits                               | Integer                                             | NO       | No fractional seconds                      |    
+| v     | Fractional value digits                                      | Integer                                             | NO       | 2                                          |   
+| p     | Include prior point (guarantee at least one point in result) | Boolean, true if parameter exists                   | NO       | Prior point isn't included                 |   
+| s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |   
+| t     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                   | NO       | Timestamps are returned in ISO 8901 format |   
 
 **Response JSON Format**
 
