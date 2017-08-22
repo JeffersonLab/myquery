@@ -2,6 +2,12 @@ package org.jlab.myquery;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.Json;
@@ -11,6 +17,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.jlab.mya.Event;
+import org.jlab.mya.EventCode;
+import org.jlab.mya.event.FloatEvent;
+import org.jlab.mya.event.IntEvent;
+import org.jlab.mya.event.MultiStringEvent;
 
 /**
  *
@@ -41,7 +52,7 @@ public class PointController extends HttpServlet {
         }
 
         String errorReason = null;
-        Record record = null;
+        Event event = null;
 
         String c = request.getParameter("c");
         String t = request.getParameter("t");
@@ -64,11 +75,18 @@ public class PointController extends HttpServlet {
             // Repace ' ' with 'T' if present
             t = t.replace(' ', 'T');
 
-            record = service.getRecord(c, t, m, M, d, f, w, s);
+            Instant time = LocalDateTime.parse(t).atZone(
+                    ZoneId.systemDefault()).toInstant();
+
+            event = service.findEvent(c, time, m, M, d, w, s);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
         }
+
+        DateTimeFormatter timestampFormatter = service.getInstantFormatter(f);
+        DecimalFormat decimalFormatter = service.getDecimalFormat(null);
+
         OutputStream out = response.getOutputStream();
 
         if (jsonp != null) {
@@ -82,9 +100,23 @@ public class PointController extends HttpServlet {
                 gen.write("error", errorReason);
             } else {
                 gen.writeStartObject("data");
-                if (record != null) {
-                    gen.write("date", record.getDate());
-                    gen.write("value", record.getChannelValue());
+                if (event != null) {
+                    gen.write("date", timestampFormatter.format(event.getTimestamp()));
+
+                    if (event.getCode() == EventCode.UPDATE) {
+                        if (event instanceof IntEvent) {
+                            gen.write("value", ((IntEvent) event).getValue());
+                        } else if (event instanceof FloatEvent) {
+                            FloatEvent ev = (FloatEvent) event;
+                            gen.write("value", new BigDecimal(decimalFormatter.format(ev.getValue())));
+                        } else { // MultiStringEvent
+                            MultiStringEvent ev = (MultiStringEvent) event;
+                            gen.write("value", ev.getValue()[0]); // Just grab first one for now...
+                        }
+                    } else {
+                        gen.write("value", event.getCode().name());
+                    }
+
                 } // otherwise empty object
                 gen.writeEnd();
             }

@@ -35,11 +35,6 @@ public class IntervalController extends HttpServlet {
 
     private final static Logger LOGGER = Logger.getLogger(IntervalController.class.getName());
 
-    private final static DateTimeFormatter DATE_TIME_NO_FRACTIONAL = DateTimeFormatter.ofPattern(
-            "yyyy-MM-dd'T'hh:mm:ss");
-
-    private final static ZoneId DEFAULT_ZONE = ZoneId.systemDefault();
-
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -131,51 +126,8 @@ public class IntervalController extends HttpServlet {
             }
         }
 
-        DateTimeFormatter timestampFormatter;
-
-        if (f == null || f.trim().isEmpty()) {
-            timestampFormatter = DATE_TIME_NO_FRACTIONAL;
-        } else {
-            String pattern = "yyyy-MM-dd'T'hh:mm:ss";
-
-            int fint = Integer.parseInt(f);
-
-            if (fint > 9) {
-                fint = 9;
-            }
-
-            if (fint > 0) {
-                pattern = pattern + ".S";
-                for (int i = 1; i < fint; i++) {
-                    pattern = pattern + "S";
-                }
-            }
-
-            timestampFormatter = DateTimeFormatter.ofPattern(pattern);
-        }
-
-        int vint = 2;
-
-        if (v != null && !v.trim().isEmpty()) {
-            vint = Integer.parseInt(v);
-
-            if (vint > 16) {
-                vint = 16;
-            }
-        }
-
-        String decimalPattern = "0";
-
-        if (vint > 0) {
-            decimalPattern = decimalPattern + ".#";
-            for (int i = 1; i < vint; i++) {
-                decimalPattern = decimalPattern + "#";
-            }
-        }
-
-        //System.out.println(decimalPattern);
-        // Not thread safe so we just re-create each request
-        DecimalFormat decimalFormatter = new DecimalFormat(decimalPattern);
+        DateTimeFormatter timestampFormatter = service.getInstantFormatter(f);
+        DecimalFormat decimalFormatter = service.getDecimalFormat(v);
 
         try {
             OutputStream out = response.getOutputStream();
@@ -242,7 +194,7 @@ public class IntervalController extends HttpServlet {
                     + (timestamp.getLong(ChronoField.MILLI_OF_SECOND)));
         } else {
             gen.write("d",
-                    timestamp.atZone(DEFAULT_ZONE).format(
+                    timestamp.atZone(QueryWebService.DEFAULT_ZONE).format(
                             formatter));
         }
     }

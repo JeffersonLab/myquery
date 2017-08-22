@@ -2,11 +2,8 @@ package org.jlab.myquery;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import javax.naming.NamingException;
-import org.jlab.mya.Deployment;
 import org.jlab.mya.EventStream;
 import org.jlab.mya.Metadata;
-import org.jlab.mya.nexus.PooledNexus;
 import org.jlab.mya.params.ImprovedSamplerParams;
 import org.jlab.mya.params.IntervalQueryParams;
 import org.jlab.mya.params.NaiveSamplerParams;
@@ -17,20 +14,11 @@ import org.jlab.mya.service.SamplingService;
  *
  * @author ryans
  */
-public class IntervalWebService {
+public class IntervalWebService extends QueryWebService {
 
     private static final long ALWAYS_STREAM_THRESHOLD = 100000; // Just fetch everything (and sample application-side) if under this number of points
     //private static final long EVENTS_PER_BIN_THRESHOLD = 1000; // Just fetch everything (and sample client-side) if bins contain less than 1,000 points (Assuming MAX_POINTS = MIN_SAMPLE_POINTS)
     private static final long MIN_SAMPLE_POINTS = 3000; // If we're doing the iterative query thing we can "cheat" and actually return much less than the limit 
-    private static final PooledNexus NEXUS;
-    
-    static {
-        try {
-            NEXUS = new PooledNexus(Deployment.ops);
-        } catch (NamingException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
 
     private final IntervalService service = new IntervalService(NEXUS);
     
