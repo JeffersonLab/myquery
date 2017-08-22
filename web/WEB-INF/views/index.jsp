@@ -2,12 +2,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>wmyget</title>
+        <title>myquery</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <h1>wmyget functions</h1>
+        <h1>myquery functions</h1>
         <ul>
             <li>
                 <h2><a href="/wmyget/interval-form.html">interval</a></h2>
