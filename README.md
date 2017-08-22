@@ -8,7 +8,7 @@ Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service f
 ### Multiple Event Query (Interval)   
 Query for all events on the timeline between the begin (inclusive) and end (exclusive) dates.
 
-_**Path:** wmyget/interval_   
+_**Path:** myquery/interval_   
 
 **Request URL Parameters**     
 
@@ -55,7 +55,7 @@ _**Path:** wmyget/interval_
 ### Single Event Query (Point)
 Query for a single event on the timeline closest to the specified point.  The direction to search from the point is determined by the 'w' parameter.
 
-_**Path:** wmyget/point_    
+_**Path:** myquery/point_    
 
 **Request Parameters**     
 
