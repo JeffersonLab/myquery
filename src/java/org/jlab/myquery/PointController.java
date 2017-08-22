@@ -55,6 +55,15 @@ public class PointController extends HttpServlet {
         PointWebService service = new PointWebService();
 
         try {
+            if (c == null || c.trim().isEmpty()) {
+                throw new Exception("Channel (c) is required");
+            }
+            if (t == null || t.trim().isEmpty()) {
+                throw new Exception("Time of Interest (t) is required");
+            }
+            // Repace ' ' with 'T' if present
+            t = t.replace(' ', 'T');
+
             record = service.getRecord(c, t, m, M, d, f, w, s);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
@@ -67,16 +76,17 @@ public class PointController extends HttpServlet {
         }
 
         try (JsonGenerator gen = Json.createGenerator(out)) {
-            gen.writeStartObject().writeStartObject("data");
-            if (record != null) {
-                gen.write("date", record.getDate());
-                gen.write("value", record.getChannelValue());
-            } // otherwise empty object
-            gen.writeEnd();
-            gen.writeEnd();
+            gen.writeStartObject();
             if (errorReason != null) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 gen.write("error", errorReason);
+            } else {
+                gen.writeStartObject("data");
+                if (record != null) {
+                    gen.write("date", record.getDate());
+                    gen.write("value", record.getChannelValue());
+                } // otherwise empty object
+                gen.writeEnd();
             }
             gen.writeEnd();
 
