@@ -67,16 +67,21 @@ _**Path:** myquery/point_
 | M     | MYA master host override                                     | String                                              | NO       | Standard master used                       |
 | d     | Expression to filter events                                  | String                                              | NO       | No filter applied                          |   
 | f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0                                          |
+| v     | Fractional value digits                                      | Integer                                             | NO       | 2                                          |  
 | w     | Get first recorded event before or equal time of interest    | Boolean, true if parameter exits                    | NO       | Get first recorded event after or equal time of interest |
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |
+| t     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                   | NO       | Timestamps are returned in ISO 8901 format | 
 
 **Response JSON Format**   
 *On Success (HTTP 200 Response Code):*   
 ````json
 {   
+    "datatype":"<EPICS datatype>",     
+    "datasize":"<data vector size; 1 for scalar>",    
+    "datahost":"<MYA hostname of data home>",  
     "data":{   
-        "date":"<ISO 8901 DATE-TIME>",   
-        "value":"<VALUE>"    
+        "d":"<DATE-TIME>",   
+        "v":"<VALUE>"    
         }   
 }    
 ````
