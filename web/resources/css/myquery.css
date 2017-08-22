@@ -1,11 +1,3 @@
-/* 
-    Document   : span
-    Created on : Apr 11, 2017, 3:22:47 PM
-    Author     : adamc
-    Description:
-        Purpose of the stylesheet follows.
-*/
-
 #input-panel {
     display: table;
 }
@@ -23,4 +15,7 @@ label, input {
 }
 #text-panel input {
     width: 23em;
+}
+.new-option {
+    color: orange;
 }
