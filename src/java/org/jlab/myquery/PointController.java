@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jlab.mya.Event;
 import org.jlab.mya.EventCode;
+import org.jlab.mya.Metadata;
 import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.event.IntEvent;
 import org.jlab.mya.event.MultiStringEvent;
@@ -53,6 +54,7 @@ public class PointController extends HttpServlet {
 
         String errorReason = null;
         Event event = null;
+        Metadata metadata = null;
 
         String c = request.getParameter("c");
         String t = request.getParameter("t");
@@ -64,7 +66,7 @@ public class PointController extends HttpServlet {
         String w = request.getParameter("w");
         String s = request.getParameter("s");
         String u = request.getParameter("u");
-        
+
         PointWebService service = new PointWebService();
 
         try {
@@ -76,11 +78,18 @@ public class PointController extends HttpServlet {
             }
             // Repace ' ' with 'T' if present
             t = t.replace(' ', 'T');
-
+            
+            // If only date and no time then add explicit zero time
+            if(t.length() == 10) {
+                t = t + "T00:00:00";
+            }
+            
             Instant time = LocalDateTime.parse(t).atZone(
                     ZoneId.systemDefault()).toInstant();
 
-            event = service.findEvent(c, time, m, M, d, w, s);
+            metadata = service.findMetadata(c);
+
+            event = service.findEvent(metadata, time, m, M, d, w, s);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
@@ -102,6 +111,12 @@ public class PointController extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 gen.write("error", errorReason);
             } else {
+                if (metadata != null) {
+                    gen.write("datatype", metadata.getType().name());
+                    gen.write("datasize", metadata.getSize());
+                    gen.write("datahost", metadata.getHost());
+                }
+
                 gen.writeStartObject("data");
                 if (event != null) {
                     FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);

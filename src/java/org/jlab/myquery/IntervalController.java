@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.Json;
@@ -88,6 +87,14 @@ public class IntervalController extends HttpServlet {
             // Repace ' ' with 'T' if present
             b = b.replace(' ', 'T');
             e = e.replace(' ', 'T');
+
+            // If only date and no time then add explicit zero time
+            if (b.length() == 10) {
+                b = b + "T00:00:00";
+            }
+            if (e.length() == 10) {
+                e = e + "T00:00:00";
+            }
 
             Instant begin = LocalDateTime.parse(b).atZone(
                     ZoneId.systemDefault()).toInstant();
