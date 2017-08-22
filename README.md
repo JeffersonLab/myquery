@@ -92,6 +92,6 @@ _**Path:** myquery/point_
 The API also supports JSONP responses.  Simply provide an additional parameter:
 
 ````
-jsonp=<myvalue>
+jsonp=<function name>
 ````
-and the jsonp function name returned will be _&lt;myvalue&gt;_.
+and the jsonp function name returned will be _&lt;function name&gt;_.
