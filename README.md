@@ -87,3 +87,11 @@ _**Path:** myquery/point_
     "error":"<error reason>"   
 }       
 ````
+
+### JSONP
+The API also supports JSONP responses.  Simply provide an additional parameter:
+
+````
+jsonp=<myvalue>
+````
+and the jsonp function name returned will be _&lt;myvalue&gt;_.
