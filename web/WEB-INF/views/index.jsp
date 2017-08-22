@@ -10,10 +10,10 @@
         <h1>myquery functions</h1>
         <ul>
             <li>
-                <h2><a href="/wmyget/interval-form.html">interval</a></h2>
+                <h2><a href="/myquery/interval-form.html">interval</a></h2>
             </li>            
             <li>
-                <h2><a href="/wmyget/point-form.html">point</a></h2>
+                <h2><a href="/myquery/point-form.html">point</a></h2>
             </li>            
         </ul>
         <div id="version">Version: ${initParam.releaseNumber} (${initParam.releaseDate})</div> 
