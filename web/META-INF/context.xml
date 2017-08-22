@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/wmyget">
+<Context path="/myquery">
   <ResourceLink global="jdbc/opsmya0" name="jdbc/opsmya0" type="javax.sql.DataSource"/>
   <ResourceLink global="jdbc/opsmya1" name="jdbc/opsmya1" type="javax.sql.DataSource"/>
   <ResourceLink global="jdbc/opsmya2" name="jdbc/opsmya2" type="javax.sql.DataSource"/>
