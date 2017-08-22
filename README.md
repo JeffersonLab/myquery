@@ -1,4 +1,4 @@
-# wmyget
+# myquery
 MYA Query Web Service
 
 Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service for fetching data from the JLab Archiver 'MYA'.
