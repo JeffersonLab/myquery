@@ -70,7 +70,7 @@ public class IntervalController extends HttpServlet {
         String d = request.getParameter("d");
         String f = request.getParameter("f");
         String s = request.getParameter("s");
-        String t = request.getParameter("t");
+        String u = request.getParameter("u");
         String v = request.getParameter("v");
 
         IntervalWebService service = new IntervalWebService();
@@ -126,8 +126,8 @@ public class IntervalController extends HttpServlet {
             }
         }
 
-        DateTimeFormatter timestampFormatter = service.getInstantFormatter(f);
-        DecimalFormat decimalFormatter = service.getDecimalFormat(v);
+        DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
+        DecimalFormat decimalFormatter = FormatUtil.getDecimalFormat(v);
 
         try {
             OutputStream out = response.getOutputStream();
@@ -159,10 +159,10 @@ public class IntervalController extends HttpServlet {
                     if (stream == null) {
                         // Didn't get a stream so presumably there is an errorReason
                     } else if (stream instanceof FloatEventStream) {
-                        generateFloatStream(gen, (FloatEventStream) stream, (t != null),
+                        generateFloatStream(gen, (FloatEventStream) stream, (u != null),
                                 timestampFormatter, decimalFormatter);
                     } else if (stream instanceof MultiStringEventStream) {
-                        generateMultiStringStream(gen, (MultiStringEventStream) stream, (t != null),
+                        generateMultiStringStream(gen, (MultiStringEventStream) stream, (u != null),
                                 timestampFormatter);
                     } else {
                         errorReason = "Unsupported data type: " + stream.getClass();
@@ -187,25 +187,13 @@ public class IntervalController extends HttpServlet {
         }
     }
 
-    private void writeTimestamp(JsonGenerator gen, java.time.Instant timestamp,
-            boolean formatAsMillisSinceEpoch, DateTimeFormatter formatter) {
-        if (formatAsMillisSinceEpoch) {
-            gen.write("d", (timestamp.getEpochSecond() * 1000)
-                    + (timestamp.getLong(ChronoField.MILLI_OF_SECOND)));
-        } else {
-            gen.write("d",
-                    timestamp.atZone(QueryWebService.DEFAULT_ZONE).format(
-                            formatter));
-        }
-    }
-
     private void generateFloatStream(JsonGenerator gen, FloatEventStream stream,
             boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter,
             DecimalFormat decimalFormatter) throws IOException {
         FloatEvent event = null;
         while ((event = stream.read()) != null) {
             gen.writeStartObject();
-            writeTimestamp(gen, event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
+            FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
 
             if (event.getCode() == EventCode.UPDATE) {
                 // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
@@ -232,7 +220,7 @@ public class IntervalController extends HttpServlet {
         MultiStringEvent event = null;
         while ((event = stream.read()) != null) {
             gen.writeStartObject();
-            writeTimestamp(gen, event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
+            FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
             gen.write("v", event.getValue()[0]); // Just grab first value
             gen.writeEnd();
         }

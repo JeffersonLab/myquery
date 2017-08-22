@@ -60,9 +60,11 @@ public class PointController extends HttpServlet {
         String M = request.getParameter("M");
         String d = request.getParameter("d");
         String f = request.getParameter("f");
+        String v = request.getParameter("v");
         String w = request.getParameter("w");
         String s = request.getParameter("s");
-
+        String u = request.getParameter("u");
+        
         PointWebService service = new PointWebService();
 
         try {
@@ -84,8 +86,9 @@ public class PointController extends HttpServlet {
             errorReason = ex.getMessage();
         }
 
-        DateTimeFormatter timestampFormatter = service.getInstantFormatter(f);
-        DecimalFormat decimalFormatter = service.getDecimalFormat(null);
+        boolean formatAsMillisSinceEpoch = (u != null);
+        DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
+        DecimalFormat decimalFormatter = FormatUtil.getDecimalFormat(v);
 
         OutputStream out = response.getOutputStream();
 
@@ -101,20 +104,20 @@ public class PointController extends HttpServlet {
             } else {
                 gen.writeStartObject("data");
                 if (event != null) {
-                    gen.write("date", timestampFormatter.format(event.getTimestamp()));
+                    FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
 
                     if (event.getCode() == EventCode.UPDATE) {
                         if (event instanceof IntEvent) {
-                            gen.write("value", ((IntEvent) event).getValue());
+                            gen.write("v", ((IntEvent) event).getValue());
                         } else if (event instanceof FloatEvent) {
                             FloatEvent ev = (FloatEvent) event;
-                            gen.write("value", new BigDecimal(decimalFormatter.format(ev.getValue())));
+                            gen.write("v", new BigDecimal(decimalFormatter.format(ev.getValue())));
                         } else { // MultiStringEvent
                             MultiStringEvent ev = (MultiStringEvent) event;
-                            gen.write("value", ev.getValue()[0]); // Just grab first one for now...
+                            gen.write("v", ev.getValue()[0]); // Just grab first one for now...
                         }
                     } else {
-                        gen.write("value", event.getCode().name());
+                        gen.write("v", event.getCode().name());
                     }
 
                 } // otherwise empty object
