@@ -108,7 +108,9 @@ public class PointController extends HttpServlet {
                 throw new Exception("Unable to find channel: '" + c + "' in deployment: '" + deployment + "'");
             }
 
-            event = service.findEvent(metadata, time, d, w, s);
+            boolean lessThanOrEqual = (w == null);
+            
+            event = service.findEvent(metadata, time, d, lessThanOrEqual, s);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
