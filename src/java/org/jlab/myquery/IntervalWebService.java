@@ -29,7 +29,7 @@ public class IntervalWebService extends QueryWebService {
     public EventStream openEventStream(Metadata metadata, Instant begin, Instant end, String p, String m,
             String M, String d) throws Exception {
         IntervalQueryParams params = new IntervalQueryParams(metadata, begin, end);
-        return service.openFloatStream(params);  
+        return service.openEventStream(params);  
     }
 
     public Long count(Metadata metadata, Instant begin, Instant end, String p, String m, String M, String d) throws SQLException {
@@ -39,6 +39,9 @@ public class IntervalWebService extends QueryWebService {
 
     public EventStream openSampleEventStream(Metadata metadata, Instant begin, Instant end, long limit, String p, String m,
             String M, String d, long count) throws SQLException {
+        
+        // TODO: what about String or other non-numeric types?
+        
         EventStream stream;
         SamplingService sampler = new SamplingService(NEXUS);
         

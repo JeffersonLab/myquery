@@ -21,8 +21,10 @@ import org.jlab.mya.EventCode;
 import org.jlab.mya.EventStream;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.event.FloatEvent;
+import org.jlab.mya.event.IntEvent;
 import org.jlab.mya.event.MultiStringEvent;
 import org.jlab.mya.stream.FloatEventStream;
+import org.jlab.mya.stream.IntEventStream;
 import org.jlab.mya.stream.MultiStringEventStream;
 
 /**
@@ -165,6 +167,9 @@ public class IntervalController extends HttpServlet {
                     gen.writeStartArray("data");
                     if (stream == null) {
                         // Didn't get a stream so presumably there is an errorReason
+                    } else if (stream instanceof IntEventStream) {
+                        generateIntStream(gen, (IntEventStream) stream, (u != null),
+                                timestampFormatter);
                     } else if (stream instanceof FloatEventStream) {
                         generateFloatStream(gen, (FloatEventStream) stream, (u != null),
                                 timestampFormatter, decimalFormatter);
@@ -191,6 +196,23 @@ public class IntervalController extends HttpServlet {
             } catch (Exception closeIssue) {
                 System.err.println("Unable to close stream");
             }
+        }
+    }
+
+    private void generateIntStream(JsonGenerator gen, IntEventStream stream,
+            boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) throws IOException {
+        IntEvent event = null;
+        while ((event = stream.read()) != null) {
+            gen.writeStartObject();
+            FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
+
+            if (event.getCode() == EventCode.UPDATE) {
+                gen.write("v", event.getValue());
+            } else {
+                gen.write("v", event.getCode().name());
+            }
+
+            gen.writeEnd();
         }
     }
 
