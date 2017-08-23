@@ -17,6 +17,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.jlab.mya.Deployment;
 import org.jlab.mya.EventCode;
 import org.jlab.mya.EventStream;
 import org.jlab.mya.Metadata;
@@ -74,8 +75,6 @@ public class IntervalController extends HttpServlet {
         String u = request.getParameter("u");
         String v = request.getParameter("v");
 
-        IntervalWebService service = new IntervalWebService();
-
         try {
             if (c == null || c.trim().isEmpty()) {
                 throw new Exception("Channel (c) is required");
@@ -103,8 +102,28 @@ public class IntervalController extends HttpServlet {
             Instant end = LocalDateTime.parse(e).atZone(
                     ZoneId.systemDefault()).toInstant();
 
+            Deployment deployment = Deployment.ops;
+
+            if (M != null && !M.trim().isEmpty()) {
+                throw new Exception("Custom master hosts not supported");
+            }
+
+            if (m != null && !m.trim().isEmpty()) {
+                deployment = Deployment.valueOf(m);
+            }
+
+            if (deployment != Deployment.ops && deployment != Deployment.dev) {
+                throw new Exception("Unsupported deployment: " + deployment);
+            }            
+            
+            IntervalWebService service = new IntervalWebService(deployment);
+            
             metadata = service.findMetadata(c);
 
+            if (metadata == null) {
+                throw new Exception("Unable to find channel: '" + c + "' in deployment: '" + deployment + "'");
+            }            
+            
             long limit = -1;
 
             if (l != null && !l.trim().isEmpty()) {

@@ -77,32 +77,36 @@ public class PointController extends HttpServlet {
             }
             // Repace ' ' with 'T' if present
             t = t.replace(' ', 'T');
-            
+
             // If only date and no time then add explicit zero time
-            if(t.length() == 10) {
+            if (t.length() == 10) {
                 t = t + "T00:00:00";
             }
-            
+
             Instant time = LocalDateTime.parse(t).atZone(
                     ZoneId.systemDefault()).toInstant();
-            
+
             Deployment deployment = Deployment.ops;
-            
-            if(M != null && !M.trim().isEmpty()) {
+
+            if (M != null && !M.trim().isEmpty()) {
                 throw new Exception("Custom master hosts not supported");
             }
-            
-            if(m != null && !m.trim().isEmpty()) {
+
+            if (m != null && !m.trim().isEmpty()) {
                 deployment = Deployment.valueOf(m);
             }
-            
-            if(deployment != Deployment.ops && deployment != Deployment.dev) {
+
+            if (deployment != Deployment.ops && deployment != Deployment.dev) {
                 throw new Exception("Unsupported deployment: " + deployment);
             }
-            
-            PointWebService service = new PointWebService(deployment);            
-            
+
+            PointWebService service = new PointWebService(deployment);
+
             metadata = service.findMetadata(c);
+
+            if (metadata == null) {
+                throw new Exception("Unable to find channel: '" + c + "' in deployment: '" + deployment + "'");
+            }
 
             event = service.findEvent(metadata, time, d, w, s);
         } catch (Exception ex) {
