@@ -52,4 +52,28 @@
         <res-ref-name>jdbc/opsmya8</res-ref-name>
         <res-type>javax.sql.DataSource</res-type>
     </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/devmya0</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/devmya1</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/devmya2</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/devmya3</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/devmya4</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/devmya5</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>    
 </web-app>

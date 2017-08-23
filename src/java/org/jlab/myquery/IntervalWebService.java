@@ -20,7 +20,7 @@ public class IntervalWebService extends QueryWebService {
     //private static final long EVENTS_PER_BIN_THRESHOLD = 1000; // Just fetch everything (and sample client-side) if bins contain less than 1,000 points (Assuming MAX_POINTS = MIN_SAMPLE_POINTS)
     private static final long MIN_SAMPLE_POINTS = 3000; // If we're doing the iterative query thing we can "cheat" and actually return much less than the limit 
 
-    private final IntervalService service = new IntervalService(NEXUS);
+    private final IntervalService service = new IntervalService(OPS_NEXUS);
     
     public Metadata findMetadata(String c) throws SQLException {
         return service.findMetadata(c);
@@ -43,7 +43,7 @@ public class IntervalWebService extends QueryWebService {
         // TODO: what about String or other non-numeric types?
         
         EventStream stream;
-        SamplingService sampler = new SamplingService(NEXUS);
+        SamplingService sampler = new SamplingService(OPS_NEXUS);
         
         long eventsPerBin = count / limit;
         

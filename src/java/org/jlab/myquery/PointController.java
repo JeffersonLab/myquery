@@ -17,6 +17,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.jlab.mya.Deployment;
 import org.jlab.mya.Event;
 import org.jlab.mya.EventCode;
 import org.jlab.mya.Metadata;
@@ -67,8 +68,6 @@ public class PointController extends HttpServlet {
         String s = request.getParameter("s");
         String u = request.getParameter("u");
 
-        PointWebService service = new PointWebService();
-
         try {
             if (c == null || c.trim().isEmpty()) {
                 throw new Exception("Channel (c) is required");
@@ -86,10 +85,26 @@ public class PointController extends HttpServlet {
             
             Instant time = LocalDateTime.parse(t).atZone(
                     ZoneId.systemDefault()).toInstant();
-
+            
+            Deployment deployment = Deployment.ops;
+            
+            if(M != null && !M.trim().isEmpty()) {
+                throw new Exception("Custom master hosts not supported");
+            }
+            
+            if(m != null && !m.trim().isEmpty()) {
+                deployment = Deployment.valueOf(m);
+            }
+            
+            if(deployment != Deployment.ops && deployment != Deployment.dev) {
+                throw new Exception("Unsupported deployment: " + deployment);
+            }
+            
+            PointWebService service = new PointWebService(deployment);            
+            
             metadata = service.findMetadata(c);
 
-            event = service.findEvent(metadata, time, m, M, d, w, s);
+            event = service.findEvent(metadata, time, d, w, s);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();

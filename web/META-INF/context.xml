@@ -9,4 +9,10 @@
   <ResourceLink global="jdbc/opsmya6" name="jdbc/opsmya6" type="javax.sql.DataSource"/>
   <ResourceLink global="jdbc/opsmya7" name="jdbc/opsmya7" type="javax.sql.DataSource"/>
   <ResourceLink global="jdbc/opsmya8" name="jdbc/opsmya8" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/devmya0" name="jdbc/devmya0" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/devmya1" name="jdbc/devmya1" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/devmya2" name="jdbc/devmya2" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/devmya3" name="jdbc/devmya3" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/devmya4" name="jdbc/devmya4" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/devmya5" name="jdbc/devmya5" type="javax.sql.DataSource"/> 
 </Context>
