@@ -20,7 +20,7 @@ public class FormatUtil {
     public final static ZoneId DEFAULT_ZONE = ZoneId.systemDefault();
 
     public static DecimalFormat getDecimalFormat(String v) {
-        int vint = 2;
+        int vint = 6;
 
         if (v != null && !v.trim().isEmpty()) {
             vint = Integer.parseInt(v);
