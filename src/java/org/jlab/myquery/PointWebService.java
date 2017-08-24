@@ -27,8 +27,8 @@ public class PointWebService extends QueryWebService {
         return service.findMetadata(c);
     }    
     
-    public Event findEvent(Metadata metadata, Instant t, String d, boolean lessThanOrEqual, String s) throws SQLException {
-        PointQueryParams params = new PointQueryParams(metadata, t, lessThanOrEqual);
+    public Event findEvent(Metadata metadata, Instant t, String d, boolean lessThan, boolean orEqual, String s) throws SQLException {
+        PointQueryParams params = new PointQueryParams(metadata, t, lessThan, orEqual);
         
         return service.findEvent(params);
     }
