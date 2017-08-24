@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import javax.json.stream.JsonGenerator;
+import org.jlab.mya.TimeUtil;
 
 /**
  *
@@ -49,20 +50,7 @@ public class FormatUtil {
         if (f == null || f.trim().isEmpty()) {
             timestampFormatter = DATE_TIME_NO_FRACTIONAL;
         } else {
-            String pattern = "yyyy-MM-dd'T'hh:mm:ss";
-
-            int fint = Integer.parseInt(f);
-
-            if (fint > 9) {
-                fint = 9;
-            }
-
-            if (fint > 0) {
-                pattern = pattern + ".S";
-                for (int i = 1; i < fint; i++) {
-                    pattern = pattern + "S";
-                }
-            }
+            String pattern = TimeUtil.getFractionalSecondsTimestampFormat(Integer.parseInt(f));
 
             timestampFormatter = DateTimeFormatter.ofPattern(pattern);
         }
