@@ -34,7 +34,8 @@ _**Path:** myquery/interval_
     "datatype":"<EPICS datatype>",     
     "datasize":"<data vector size; 1 for scalar>",    
     "datahost":"<MYA hostname of data home>",      
-    "sampled":"<true if sampled, false otherwise>",   
+    "sampled":"<true if sampled, false otherwise>", 
+    "count":"<original count of events; only present if sampled = true>",
     "data":[   
         {   
             "d":"<DATE-TIME>",   
