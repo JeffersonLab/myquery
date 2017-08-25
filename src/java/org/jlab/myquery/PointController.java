@@ -65,6 +65,7 @@ public class PointController extends HttpServlet {
         String f = request.getParameter("f");
         String v = request.getParameter("v");
         String w = request.getParameter("w");
+        String x = request.getParameter("x");
         String s = request.getParameter("s");
         String u = request.getParameter("u");
 
@@ -109,8 +110,9 @@ public class PointController extends HttpServlet {
             }
 
             boolean lessThan = (w == null);
+            boolean orEqual = (x == null);
             
-            event = service.findEvent(metadata, time, d, lessThan, true, s);
+            event = service.findEvent(metadata, time, d, lessThan, orEqual, s);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
