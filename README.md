@@ -21,7 +21,7 @@ _**Path:** myquery/interval_
 | m     | MYA deployment                                               | String                                              | NO       | 'ops'                                      |   
 | M     | MYA master host override                                     | String                                              | NO       | Standard master used                       |   
 | d     | Expression to filter events                                  | String                                              | NO       | No filter applied                          |   
-| f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0                                          |    
+| f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0 (ISO 8601 only)                          |    
 | v     | Fractional floating value digits                             | Integer (0-9)                                       | NO       | 6 (floats only)                            |   
 | p     | Include prior point (guarantee at least one point in result) | Boolean, true if parameter exists                   | NO       | Prior point isn't included                 |   
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |   
@@ -34,7 +34,8 @@ _**Path:** myquery/interval_
     "datatype":"<EPICS datatype>",     
     "datasize":"<data vector size; 1 for scalar>",    
     "datahost":"<MYA hostname of data home>",      
-    "sampled":"<true if sampled, false otherwise>",   
+    "sampled":"<true if sampled, false otherwise>", 
+    "count":"<original count of events; only present if sampled = true>",
     "data":[   
         {   
             "d":"<DATE-TIME>",   
@@ -66,7 +67,7 @@ _**Path:** myquery/point_
 | m     | MYA deployment                                               | String                                              | NO       | 'ops'                                      |   
 | M     | MYA master host override                                     | String                                              | NO       | Standard master used                       |
 | d     | Expression to filter events                                  | String                                              | NO       | No filter applied                          |   
-| f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0                                          |
+| f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0 (ISO 8601 only)                          |
 | v     | Fractional floating value digits                             | Integer (0-9)                                       | NO       | 6 (floats only)                            |  
 | w     | Get closest event greater than or equal time of interest     | Boolean, true if parameter exits                    | NO       | Get closest event less than or equal time of interest |
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |
