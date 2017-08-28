@@ -120,11 +120,12 @@ public class IntervalController extends QueryController {
                 throw new Exception("Unable to find channel: '" + c + "' in deployment: '" + deployment + "'");
             }
 
+            boolean updatesOnly = (d != null);              
             boolean enumsAsStrings = (s != null);
 
             if (p != null) { // Include prior point
                 PointWebService pointService = new PointWebService(deployment);
-                priorEvent = pointService.findEvent(metadata, begin, d, true, false, enumsAsStrings);
+                priorEvent = pointService.findEvent(metadata, updatesOnly, begin, true, false, enumsAsStrings);
             }
 
             long limit = -1;
@@ -132,7 +133,7 @@ public class IntervalController extends QueryController {
             if (l != null && !l.trim().isEmpty()) {
                 limit = Long.parseLong(l);
                 // We were given a limit so we must count
-                count = service.count(metadata, begin, end, d);
+                count = service.count(metadata, updatesOnly, begin, end);
                 // This query seems to take about 0.1 second, so we only do it if necessary
 
                 if (count > limit) {
@@ -141,9 +142,9 @@ public class IntervalController extends QueryController {
             }
 
             if (sample) {
-                stream = service.openSampleEventStream(metadata, begin, end, limit, d, count, enumsAsStrings);
+                stream = service.openSampleEventStream(metadata, begin, end, limit, count, enumsAsStrings);
             } else {
-                stream = service.openEventStream(metadata, begin, end, d, enumsAsStrings);
+                stream = service.openEventStream(metadata, updatesOnly, begin, end, enumsAsStrings);
             }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);

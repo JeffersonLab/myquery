@@ -36,9 +36,9 @@ public class IntervalWebService extends QueryWebService {
         return service.findMetadata(c);
     }
 
-    public EventStream openEventStream(Metadata metadata, Instant begin, Instant end,
-            String d, boolean enumsAsStrings) throws Exception {
-        IntervalQueryParams params = new IntervalQueryParams(metadata, begin, end);
+    public EventStream openEventStream(Metadata metadata, boolean updatesOnly, Instant begin, Instant end,
+            boolean enumsAsStrings) throws Exception {
+        IntervalQueryParams params = new IntervalQueryParams(metadata, updatesOnly, begin, end);
         EventStream stream = service.openEventStream(params);
 
         if (enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
@@ -49,13 +49,13 @@ public class IntervalWebService extends QueryWebService {
         return stream;
     }
 
-    public Long count(Metadata metadata, Instant begin, Instant end, String d) throws SQLException {
-        IntervalQueryParams params = new IntervalQueryParams(metadata, begin, end);
+    public Long count(Metadata metadata, boolean updatesOnly, Instant begin, Instant end) throws SQLException {
+        IntervalQueryParams params = new IntervalQueryParams(metadata, updatesOnly, begin, end);
         return service.count(params);
     }
 
     public EventStream openSampleEventStream(Metadata metadata, Instant begin, Instant end, long limit,
-            String d, long count, boolean enumsAsStrings) throws SQLException {
+            long count, boolean enumsAsStrings) throws SQLException {
 
         // TODO: what about String or other non-numeric types?
         EventStream stream;
