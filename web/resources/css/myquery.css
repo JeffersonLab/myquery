@@ -19,6 +19,3 @@ label, input {
 .new-option {
     color: orange;
 }
-.new-option:after {
-    content: "*";
-}

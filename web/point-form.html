@@ -7,8 +7,7 @@
     </head>
     <body>
         <h1>myquery point</h1>
-        <p>All options but channel and time are optional.</p>
-        <p class="new-option">New Option</p>         
+        <p>All options but channel and time are optional.</p>  
         <form action="point" method="get">
             <div id ="input-panel">
                 <div id="text-panel">
@@ -26,14 +25,10 @@
                             <input id="m" name="m" type="text" placeholder="default = ops"/> 
                         </li>
                         <li>
-                            <label for="d">Data events only (d): </label>
-                            <input id="d" name="d" type="text" placeholder="filter expression"/> 
-                        </li>
-                        <li>
                             <label for="f">Fractional time digits (f): </label>
                             <input id="f" name="f" type="text" placeholder="default = 0"/> 
                         </li>
-                        <li class="new-option">
+                        <li>
                             <label for="v">Fractional value digits (v): </label>
                             <input id="v" name="v" type="text" placeholder="default = 6"/> 
                         </li>                        
@@ -43,10 +38,14 @@
                 <div id="checkbox-panel">
                     <ul>
                         <li>
+                            <label for="d">Data update events only (d): </label>
+                            <input id="d" name="d" type="checkbox"/> 
+                        </li>                        
+                        <li>
                             <label for="w">Get closest event greater than or equal time of interest (w): </label>
                             <input id="w" name="w" type="checkbox"/> 
                         </li>
-                        <li class="new-option">
+                        <li>
                             <label for="x">Closest event is exclusive of time of interest (x): </label>
                             <input id="x" name="x" type="checkbox"/> 
                         </li>                        
@@ -54,7 +53,7 @@
                             <label for="s">Enumerations as string (s): </label>
                             <input id="s" name="s" type="checkbox"/> 
                         </li>
-                        <li class="new-option">
+                        <li>
                             <label for="u">Timestamps as milliseconds from UNIX Epoch (u): </label>
                             <input id="u" name="u" type="checkbox"/> 
                         </li>                                    
