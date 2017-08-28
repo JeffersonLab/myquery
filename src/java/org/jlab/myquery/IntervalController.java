@@ -2,7 +2,6 @@ package org.jlab.myquery;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -14,11 +13,10 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jlab.mya.Deployment;
-import org.jlab.mya.EventCode;
+import org.jlab.mya.Event;
 import org.jlab.mya.EventStream;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.event.FloatEvent;
@@ -33,7 +31,7 @@ import org.jlab.mya.stream.MultiStringEventStream;
  * @author ryans
  */
 @WebServlet(name = "IntervalController", urlPatterns = {"/interval"})
-public class IntervalController extends HttpServlet {
+public class IntervalController extends QueryController {
 
     private final static Logger LOGGER = Logger.getLogger(IntervalController.class.getName());
 
@@ -58,6 +56,7 @@ public class IntervalController extends HttpServlet {
 
         String errorReason = null;
         EventStream stream = null;
+        Event priorEvent = null;
         Long count = null;
         Metadata metadata = null;
         boolean sample = false;
@@ -114,22 +113,27 @@ public class IntervalController extends HttpServlet {
 
             if (deployment != Deployment.ops && deployment != Deployment.dev) {
                 throw new Exception("Unsupported deployment: " + deployment);
-            }            
-            
+            }
+
             IntervalWebService service = new IntervalWebService(deployment);
-            
+
             metadata = service.findMetadata(c);
 
             if (metadata == null) {
                 throw new Exception("Unable to find channel: '" + c + "' in deployment: '" + deployment + "'");
-            }            
-            
+            }
+
+            if (p != null) { // Include prior point
+                PointWebService pointService = new PointWebService(deployment);
+                priorEvent = pointService.findEvent(metadata, begin, d, true, false, s);
+            }
+
             long limit = -1;
 
             if (l != null && !l.trim().isEmpty()) {
                 limit = Long.parseLong(l);
                 // We were given a limit so we must count
-                count = service.count(metadata, begin, end, p, m, M, d);
+                count = service.count(metadata, begin, end, m, M, d);
                 // This query seems to take about 0.1 second, so we only do it if necessary
 
                 if (count > limit) {
@@ -138,9 +142,9 @@ public class IntervalController extends HttpServlet {
             }
 
             if (sample) {
-                stream = service.openSampleEventStream(metadata, begin, end, limit, p, m, M, d, count);
+                stream = service.openSampleEventStream(metadata, begin, end, limit, m, M, d, count);
             } else {
-                stream = service.openEventStream(metadata, begin, end, p, m, M, d);
+                stream = service.openEventStream(metadata, begin, end, m, M, d);
             }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
@@ -156,6 +160,7 @@ public class IntervalController extends HttpServlet {
 
         DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
         DecimalFormat decimalFormatter = FormatUtil.getDecimalFormat(v);
+        boolean formatAsMillisSinceEpoch = (u != null);
 
         try {
             OutputStream out = response.getOutputStream();
@@ -184,16 +189,29 @@ public class IntervalController extends HttpServlet {
                     }
 
                     gen.writeStartArray("data");
+
+                    if (priorEvent != null) {
+                        if (priorEvent instanceof IntEvent) {
+                            writeIntEvent(gen, (IntEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
+                        } else if (priorEvent instanceof FloatEvent) {
+                            writeFloatEvent(gen, (FloatEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
+                        } else if (priorEvent instanceof MultiStringEvent) {
+                            writeMultiStringEvent(gen, (MultiStringEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
+                        } else {
+                            errorReason = "Unsupported data type: " + priorEvent.getClass();
+                        }
+                    }
+
                     if (stream == null) {
                         // Didn't get a stream so presumably there is an errorReason
                     } else if (stream instanceof IntEventStream) {
-                        generateIntStream(gen, (IntEventStream) stream, (u != null),
+                        generateIntStream(gen, (IntEventStream) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter);
                     } else if (stream instanceof FloatEventStream) {
-                        generateFloatStream(gen, (FloatEventStream) stream, (u != null),
+                        generateFloatStream(gen, (FloatEventStream) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter, decimalFormatter);
                     } else if (stream instanceof MultiStringEventStream) {
-                        generateMultiStringStream(gen, (MultiStringEventStream) stream, (u != null),
+                        generateMultiStringStream(gen, (MultiStringEventStream) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter);
                     } else {
                         errorReason = "Unsupported data type: " + stream.getClass();
@@ -215,62 +233,6 @@ public class IntervalController extends HttpServlet {
             } catch (Exception closeIssue) {
                 System.err.println("Unable to close stream");
             }
-        }
-    }
-
-    private void generateIntStream(JsonGenerator gen, IntEventStream stream,
-            boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) throws IOException {
-        IntEvent event = null;
-        while ((event = stream.read()) != null) {
-            gen.writeStartObject();
-            FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
-
-            if (event.getCode() == EventCode.UPDATE) {
-                gen.write("v", event.getValue());
-            } else {
-                gen.write("v", event.getCode().name());
-            }
-
-            gen.writeEnd();
-        }
-    }
-
-    private void generateFloatStream(JsonGenerator gen, FloatEventStream stream,
-            boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter,
-            DecimalFormat decimalFormatter) throws IOException {
-        FloatEvent event = null;
-        while ((event = stream.read()) != null) {
-            gen.writeStartObject();
-            FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
-
-            if (event.getCode() == EventCode.UPDATE) {
-                // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
-                gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
-
-                // This is an alternative to the above
-                /*BigDecimal v = new BigDecimal(event.getValue()); // passing string would be safter than float
-            v = v.setScale(decimalFormatter.getMaximumFractionDigits(), BigDecimal.ROUND_HALF_EVEN); // Create new BigDecimal
-            v = v.stripTrailingZeros(); // Create new BigDecimal
-            gen.write("v", v);*/
-                // This would always show maximum precision / scale
-                //gen.write("v", event.getValue());
-            } else {
-                gen.write("v", event.getCode().name());
-            }
-
-            gen.writeEnd();
-        }
-    }
-
-    private void generateMultiStringStream(JsonGenerator gen,
-            MultiStringEventStream stream, boolean formatAsMillisSinceEpoch,
-            DateTimeFormatter timestampFormatter) throws IOException {
-        MultiStringEvent event = null;
-        while ((event = stream.read()) != null) {
-            gen.writeStartObject();
-            FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
-            gen.write("v", event.getValue()[0]); // Just grab first value
-            gen.writeEnd();
         }
     }
 }

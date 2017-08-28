@@ -31,18 +31,18 @@ public class IntervalWebService extends QueryWebService {
         return service.findMetadata(c);
     }
 
-    public EventStream openEventStream(Metadata metadata, Instant begin, Instant end, String p, String m,
+    public EventStream openEventStream(Metadata metadata, Instant begin, Instant end, String m,
             String M, String d) throws Exception {
         IntervalQueryParams params = new IntervalQueryParams(metadata, begin, end);
         return service.openEventStream(params);
     }
 
-    public Long count(Metadata metadata, Instant begin, Instant end, String p, String m, String M, String d) throws SQLException {
+    public Long count(Metadata metadata, Instant begin, Instant end, String m, String M, String d) throws SQLException {
         IntervalQueryParams params = new IntervalQueryParams(metadata, begin, end);
         return service.count(params);
     }
 
-    public EventStream openSampleEventStream(Metadata metadata, Instant begin, Instant end, long limit, String p, String m,
+    public EventStream openSampleEventStream(Metadata metadata, Instant begin, Instant end, long limit, String m,
             String M, String d, long count) throws SQLException {
 
         // TODO: what about String or other non-numeric types?

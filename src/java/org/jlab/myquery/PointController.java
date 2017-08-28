@@ -14,7 +14,6 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jlab.mya.Deployment;
@@ -30,7 +29,7 @@ import org.jlab.mya.event.MultiStringEvent;
  * @author ryans
  */
 @WebServlet(name = "PointController", urlPatterns = {"/point"})
-public class PointController extends HttpServlet {
+public class PointController extends QueryController {
 
     private final static Logger LOGGER = Logger.getLogger(PointController.class.getName());
 
@@ -111,7 +110,7 @@ public class PointController extends HttpServlet {
 
             boolean lessThan = (w == null);
             boolean orEqual = (x == null);
-            
+
             event = service.findEvent(metadata, time, d, lessThan, orEqual, s);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
@@ -144,18 +143,14 @@ public class PointController extends HttpServlet {
                 if (event != null) {
                     FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
 
-                    if (event.getCode() == EventCode.UPDATE) {
-                        if (event instanceof IntEvent) {
-                            gen.write("v", ((IntEvent) event).getValue());
-                        } else if (event instanceof FloatEvent) {
-                            FloatEvent ev = (FloatEvent) event;
-                            gen.write("v", new BigDecimal(decimalFormatter.format(ev.getValue())));
-                        } else { // MultiStringEvent
-                            MultiStringEvent ev = (MultiStringEvent) event;
-                            gen.write("v", ev.getValue()[0]); // Just grab first one for now...
-                        }
+                    if (event instanceof IntEvent) {
+                        writeIntEvent(gen, (IntEvent) event, formatAsMillisSinceEpoch, timestampFormatter);
+                    } else if (event instanceof FloatEvent) {
+                        writeFloatEvent(gen, (FloatEvent) event, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
+                    } else if (event instanceof MultiStringEvent) { // MultiStringEvent
+                        writeMultiStringEvent(gen, (MultiStringEvent) event, formatAsMillisSinceEpoch, timestampFormatter);
                     } else {
-                        gen.write("v", event.getCode().name());
+                        throw new ServletException("Unsupported data type: " + event.getClass());
                     }
 
                 } // otherwise empty object
