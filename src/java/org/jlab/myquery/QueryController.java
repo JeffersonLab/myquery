@@ -24,9 +24,9 @@ import org.jlab.mya.stream.wrapped.LabeledEnumStream;
 public class QueryController extends HttpServlet {
 
     private void writeInformationalEvent(JsonGenerator gen, Event event) {
-        //gen.write("t", event.getCode().name());
+        gen.write("t", event.getCode().name());
         if (event.getCode().isDisconnection()) {
-            //gen.write("x", true);
+            gen.write("x", true);
         }
     }
 
