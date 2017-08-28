@@ -69,7 +69,8 @@ _**Path:** myquery/point_
 | d     | Expression to filter events                                  | String                                              | NO       | No filter applied                          |   
 | f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0 (ISO 8601 only)                          |
 | v     | Fractional floating value digits                             | Integer (0-9)                                       | NO       | 6 (floats only)                            |  
-| w     | Get closest event greater than or equal time of interest     | Boolean, true if parameter exits                    | NO       | Get closest event less than or equal time of interest |
+| w     | Get closest event greater than time of interest              | Boolean, true if parameter exists                   | NO       | Get closest event less than time of interest   |
+| x     | Closest event is exclusive of time of interest               | Boolean, true if parameter exists                   | NO       | Closest event is inclusive of time of interest |
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |
 | u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                   | NO       | Timestamps are returned in ISO 8601 format | 
 
