@@ -19,7 +19,6 @@ _**Path:** myquery/interval_
 | e     | Exclusive end date with optional time                        | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                                            |
 | l     | Limit by binning / sampling                                  | Boolean, true if parameter exists                   | NO       | No sampling is done                        | 
 | m     | MYA deployment                                               | String                                              | NO       | 'ops'                                      |   
-| M     | MYA master host override                                     | String                                              | NO       | Standard master used                       |   
 | d     | Expression to filter events                                  | String                                              | NO       | No filter applied                          |   
 | f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0 (ISO 8601 only)                          |    
 | v     | Fractional floating value digits                             | Integer (0-9)                                       | NO       | 6 (floats only)                            |   
@@ -65,7 +64,6 @@ _**Path:** myquery/point_
 | c     | EPICS Channel name                                           | String                                              | YES      |                                            |
 | t     | Time of interest date with optional time                     | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                                            |
 | m     | MYA deployment                                               | String                                              | NO       | 'ops'                                      |   
-| M     | MYA master host override                                     | String                                              | NO       | Standard master used                       |
 | d     | Expression to filter events                                  | String                                              | NO       | No filter applied                          |   
 | f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0 (ISO 8601 only)                          |
 | v     | Fractional floating value digits                             | Integer (0-9)                                       | NO       | 6 (floats only)                            |  
