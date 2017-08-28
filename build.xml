@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="myquery" default="clean-build" basedir=".">    
-    <property name="project.release.version" value="0.5.0"/>
-    <property name="project.release.date" value="22 Aug 2017"/>
+    <property name="project.release.version" value="0.1.0"/>
+    <property name="project.release.date" value="28 Aug 2017"/>
     <property name="project.release.production" value="true"/>
     <property environment="env"/>   
     <fail unless="env.CATALINA_HOME" message="Environment variable CATALINA_HOME must be set in order to include Tomcat libraries in classpath"/>
@@ -42,26 +42,14 @@
                 <include name="**/*.css"/>
             </fileset>
         </concat>
-        <concat destfile="${build.dir}/web/resources/js/combined.min.js" encoding="UTF-8" outputencoding="UTF-8" fixlastline="true">
-            <fileset dir="web/resources/js/src">
-                <exclude name="combined.min.js"/>
-                <include name="**/*.js"/>
-            </fileset>
-        </concat>
         <java jar="build-lib/yuicompressor-2.4.8.jar" fork="true">
             <arg value="-o"/>
             <arg value="${build.dir}/web/resources/css/combined.min.css"/>
             <arg value="${build.dir}/web/resources/css/combined.min.css"/>
-        </java>       
-        <java jar="build-lib/yuicompressor-2.4.8.jar" fork="true">
-            <arg value="-o"/>
-            <arg value="${build.dir}/web/resources/js/combined.min.js"/>
-            <arg value="${build.dir}/web/resources/js/combined.min.js"/>
-        </java>          
+        </java>                 
         <war destfile="${dist.war}" basedir="${build.dir}/web" webxml="${build.dir}/web/WEB-INF/web.xml">
             <lib dir="${lib.dir}"/>
             <classes dir="${classes.dir}"/>
-            <classes dir="${config.dir}"/>
         </war>
     </target>
     <target name="clean">
