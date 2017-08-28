@@ -2,14 +2,19 @@ package org.jlab.myquery;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.List;
+import org.jlab.mya.DataType;
 import org.jlab.mya.Deployment;
 import org.jlab.mya.EventStream;
+import org.jlab.mya.ExtraInfo;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.params.ImprovedSamplerParams;
 import org.jlab.mya.params.IntervalQueryParams;
 import org.jlab.mya.params.NaiveSamplerParams;
 import org.jlab.mya.service.IntervalService;
 import org.jlab.mya.service.SamplingService;
+import org.jlab.mya.stream.IntEventStream;
+import org.jlab.mya.stream.wrapped.LabeledEnumStream;
 
 /**
  *
@@ -32,9 +37,16 @@ public class IntervalWebService extends QueryWebService {
     }
 
     public EventStream openEventStream(Metadata metadata, Instant begin, Instant end, String m,
-            String M, String d) throws Exception {
+            String M, String d, boolean enumsAsStrings) throws Exception {
         IntervalQueryParams params = new IntervalQueryParams(metadata, begin, end);
-        return service.openEventStream(params);
+        EventStream stream = service.openEventStream(params);
+        
+        if(enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
+            List<ExtraInfo> extraInfoList = service.findExtraInfo(metadata, "enum_strings");
+            stream = new LabeledEnumStream((IntEventStream)stream, extraInfoList);
+        }
+        
+        return stream;
     }
 
     public Long count(Metadata metadata, Instant begin, Instant end, String m, String M, String d) throws SQLException {
@@ -43,7 +55,7 @@ public class IntervalWebService extends QueryWebService {
     }
 
     public EventStream openSampleEventStream(Metadata metadata, Instant begin, Instant end, long limit, String m,
-            String M, String d, long count) throws SQLException {
+            String M, String d, long count, boolean enumsAsStrings) throws SQLException {
 
         // TODO: what about String or other non-numeric types?
         EventStream stream;
@@ -60,6 +72,11 @@ public class IntervalWebService extends QueryWebService {
             NaiveSamplerParams params = new NaiveSamplerParams(metadata, begin, end, Math.min(limit, MIN_SAMPLE_POINTS));
             stream = sampler.openNaiveSamplerFloatStream(params);
         }
+        
+        if(enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
+            List<ExtraInfo> extraInfoList = service.findExtraInfo(metadata, "enum_strings");
+            stream = new LabeledEnumStream((IntEventStream)stream, extraInfoList);
+        }        
 
         return stream;
     }

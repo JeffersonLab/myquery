@@ -110,8 +110,9 @@ public class PointController extends QueryController {
 
             boolean lessThan = (w == null);
             boolean orEqual = (x == null);
+            boolean enumsAsStrings = (s != null);
 
-            event = service.findEvent(metadata, time, d, lessThan, orEqual, s);
+            event = service.findEvent(metadata, time, d, lessThan, orEqual, enumsAsStrings);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
