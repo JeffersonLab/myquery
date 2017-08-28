@@ -24,14 +24,19 @@ import org.jlab.mya.stream.wrapped.LabeledEnumStream;
 public class QueryController extends HttpServlet {
 
     private void writeInformationalEvent(JsonGenerator gen, Event event) {
-        gen.write("t", event.getCode().name());
+        //gen.write("t", event.getCode().name());
         if (event.getCode().isDisconnection()) {
-            gen.write("x", true);
+            //gen.write("x", true);
         }
     }
 
-    public void writeIntEvent(JsonGenerator gen, IntEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) {
-        gen.writeStartObject();
+    public void writeIntEvent(String name, JsonGenerator gen, IntEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) {
+        if (name != null) {
+            gen.writeStartObject(name);
+        } else {
+            gen.writeStartObject();
+        }
+        
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
@@ -43,8 +48,13 @@ public class QueryController extends HttpServlet {
         gen.writeEnd();
     }
 
-    public void writeFloatEvent(JsonGenerator gen, FloatEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter) {
-        gen.writeStartObject();
+    public void writeFloatEvent(String name, JsonGenerator gen, FloatEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter) {
+        if (name != null) {
+            gen.writeStartObject(name);
+        } else {
+            gen.writeStartObject();
+        }
+
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
@@ -57,8 +67,13 @@ public class QueryController extends HttpServlet {
         gen.writeEnd();
     }
 
-    public void writeLabeledEnumEvent(JsonGenerator gen, LabeledEnumEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) {
-        gen.writeStartObject();
+    public void writeLabeledEnumEvent(String name, JsonGenerator gen, LabeledEnumEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) {
+        if (name != null) {
+            gen.writeStartObject(name);
+        } else {
+            gen.writeStartObject();
+        }
+        
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
@@ -70,8 +85,13 @@ public class QueryController extends HttpServlet {
         gen.writeEnd();
     }
 
-    public void writeMultiStringEvent(JsonGenerator gen, MultiStringEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) {
-        gen.writeStartObject();
+    public void writeMultiStringEvent(String name, JsonGenerator gen, MultiStringEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) {
+        if (name != null) {
+            gen.writeStartObject(name);
+        } else {
+            gen.writeStartObject();
+        }
+        
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
@@ -92,7 +112,7 @@ public class QueryController extends HttpServlet {
             boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) throws IOException {
         IntEvent event;
         while ((event = stream.read()) != null) {
-            writeIntEvent(gen, event, formatAsMillisSinceEpoch, timestampFormatter);
+            writeIntEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter);
         }
     }
 
@@ -101,7 +121,7 @@ public class QueryController extends HttpServlet {
             DecimalFormat decimalFormatter) throws IOException {
         FloatEvent event;
         while ((event = stream.read()) != null) {
-            writeFloatEvent(gen, event, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
+            writeFloatEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
         }
     }
 
@@ -110,7 +130,7 @@ public class QueryController extends HttpServlet {
             DateTimeFormatter timestampFormatter) throws IOException {
         LabeledEnumEvent event;
         while ((event = stream.read()) != null) {
-            writeLabeledEnumEvent(gen, event, formatAsMillisSinceEpoch, timestampFormatter);
+            writeLabeledEnumEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter);
         }
     }
 
@@ -119,7 +139,7 @@ public class QueryController extends HttpServlet {
             DateTimeFormatter timestampFormatter) throws IOException {
         MultiStringEvent event;
         while ((event = stream.read()) != null) {
-            writeMultiStringEvent(gen, event, formatAsMillisSinceEpoch, timestampFormatter);
+            writeMultiStringEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter);
         }
     }
 }

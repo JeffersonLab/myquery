@@ -21,6 +21,7 @@ import org.jlab.mya.EventStream;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.event.IntEvent;
+import org.jlab.mya.event.LabeledEnumEvent;
 import org.jlab.mya.event.MultiStringEvent;
 import org.jlab.mya.stream.FloatEventStream;
 import org.jlab.mya.stream.IntEventStream;
@@ -119,8 +120,8 @@ public class IntervalController extends QueryController {
                 throw new Exception("Unable to find channel: '" + c + "' in deployment: '" + deployment + "'");
             }
 
-            boolean enumsAsStrings = (s != null);            
-            
+            boolean enumsAsStrings = (s != null);
+
             if (p != null) { // Include prior point
                 PointWebService pointService = new PointWebService(deployment);
                 priorEvent = pointService.findEvent(metadata, begin, d, true, false, enumsAsStrings);
@@ -137,13 +138,13 @@ public class IntervalController extends QueryController {
                 if (count > limit) {
                     sample = true;
                 }
-            }            
-            
+            }
+
             if (sample) {
                 stream = service.openSampleEventStream(metadata, begin, end, limit, d, count, enumsAsStrings);
             } else {
                 stream = service.openEventStream(metadata, begin, end, d, enumsAsStrings);
-            }            
+            }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
@@ -190,11 +191,13 @@ public class IntervalController extends QueryController {
 
                     if (priorEvent != null) {
                         if (priorEvent instanceof IntEvent) {
-                            writeIntEvent(gen, (IntEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
+                            writeIntEvent(null, gen, (IntEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
                         } else if (priorEvent instanceof FloatEvent) {
-                            writeFloatEvent(gen, (FloatEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
+                            writeFloatEvent(null, gen, (FloatEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
+                        } else if (priorEvent instanceof LabeledEnumEvent) {
+                            writeLabeledEnumEvent(null, gen, (LabeledEnumEvent)priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
                         } else if (priorEvent instanceof MultiStringEvent) {
-                            writeMultiStringEvent(gen, (MultiStringEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
+                            writeMultiStringEvent(null, gen, (MultiStringEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
                         } else {
                             throw new ServletException("Unsupported data type: " + priorEvent.getClass());
                         }
@@ -208,8 +211,8 @@ public class IntervalController extends QueryController {
                     } else if (stream instanceof FloatEventStream) {
                         generateFloatStream(gen, (FloatEventStream) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter, decimalFormatter);
-                    } else if(stream instanceof LabeledEnumStream) {
-                        generateLabeledEnumStream(gen, (LabeledEnumStream)stream, formatAsMillisSinceEpoch, timestampFormatter);
+                    } else if (stream instanceof LabeledEnumStream) {
+                        generateLabeledEnumStream(gen, (LabeledEnumStream) stream, formatAsMillisSinceEpoch, timestampFormatter);
                     } else if (stream instanceof MultiStringEventStream) {
                         generateMultiStringStream(gen, (MultiStringEventStream) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter);

@@ -22,6 +22,7 @@ import org.jlab.mya.EventCode;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.event.IntEvent;
+import org.jlab.mya.event.LabeledEnumEvent;
 import org.jlab.mya.event.MultiStringEvent;
 
 /**
@@ -134,23 +135,23 @@ public class PointController extends QueryController {
                     gen.write("datasize", metadata.getSize());
                     gen.write("datahost", metadata.getHost());
                 }
-
-                gen.writeStartObject("data");
                 if (event != null) {
-                    FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
-
                     if (event instanceof IntEvent) {
-                        writeIntEvent(gen, (IntEvent) event, formatAsMillisSinceEpoch, timestampFormatter);
+                        writeIntEvent("data", gen, (IntEvent) event, formatAsMillisSinceEpoch, timestampFormatter);
                     } else if (event instanceof FloatEvent) {
-                        writeFloatEvent(gen, (FloatEvent) event, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
-                    } else if (event instanceof MultiStringEvent) { // MultiStringEvent
-                        writeMultiStringEvent(gen, (MultiStringEvent) event, formatAsMillisSinceEpoch, timestampFormatter);
+                        writeFloatEvent("data", gen, (FloatEvent) event, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
+                    } else if (event instanceof LabeledEnumEvent) {
+                        writeLabeledEnumEvent(null, gen, (LabeledEnumEvent) event, formatAsMillisSinceEpoch, timestampFormatter);
+                    } else if (event instanceof MultiStringEvent) {
+                        writeMultiStringEvent("data", gen, (MultiStringEvent) event, formatAsMillisSinceEpoch, timestampFormatter);
                     } else {
                         throw new ServletException("Unsupported data type: " + event.getClass());
                     }
 
-                } // otherwise empty object
-                gen.writeEnd();
+                } else { // empty data
+                    gen.writeStartObject("data");
+                    gen.writeEnd();
+                }
             }
             gen.writeEnd();
 
