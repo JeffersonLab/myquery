@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServlet;
+import org.jlab.mya.Event;
 import org.jlab.mya.EventCode;
 import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.event.IntEvent;
@@ -22,6 +23,13 @@ import org.jlab.mya.stream.wrapped.LabeledEnumStream;
  */
 public class QueryController extends HttpServlet {
 
+    private void writeInformationalEvent(JsonGenerator gen, Event event) {
+        gen.write("t", event.getCode().name());
+        if (event.getCode().isDisconnection()) {
+            gen.write("x", true);
+        }
+    }
+
     public void writeIntEvent(JsonGenerator gen, IntEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) {
         gen.writeStartObject();
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
@@ -29,7 +37,7 @@ public class QueryController extends HttpServlet {
         if (event.getCode() == EventCode.UPDATE) {
             gen.write("v", event.getValue());
         } else {
-            gen.write("v", event.getCode().name());
+            writeInformationalEvent(gen, event);
         }
 
         gen.writeEnd();
@@ -43,7 +51,7 @@ public class QueryController extends HttpServlet {
             // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
             gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
         } else {
-            gen.write("v", event.getCode().name());
+            writeInformationalEvent(gen, event);
         }
 
         gen.writeEnd();
@@ -56,7 +64,7 @@ public class QueryController extends HttpServlet {
         if (event.getCode() == EventCode.UPDATE) {
             gen.write("v", event.getLabel());
         } else {
-            gen.write("v", event.getCode().name());
+            writeInformationalEvent(gen, event);
         }
 
         gen.writeEnd();
@@ -74,7 +82,7 @@ public class QueryController extends HttpServlet {
             }
             gen.writeEnd();
         } else {
-            gen.write("v", event.getCode().name());
+            writeInformationalEvent(gen, event);
         }
 
         gen.writeEnd();
