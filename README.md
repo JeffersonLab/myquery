@@ -118,3 +118,5 @@ Miscellaneous Events
    - ORIGIN_OF_CHANNELS_HISTORY
    - CHANNELS_PRIOR_DATA_MOVED_OFFLINE
    - CHANNELS_PRIOR_DATA_DISCARDED
+
+Disconnection events are flagged with the presence of the attribute 'x' for convenience. 
