@@ -39,7 +39,7 @@ _**Path:** myquery/interval_
         {   
             "d":"<DATE-TIME>",   
             "v":"<VALUE>",  
-            "t":"<TYPE (only present if not UPDATE)>",  
+            "t":"<TYPE (only present if not update)>",  
             "x":"<DISCONNECTION-TRUE/FALSE (only present if disconnection)>"    
         },   
         ...   
@@ -84,8 +84,8 @@ _**Path:** myquery/point_
     "data":{   
         "d":"<DATE-TIME>",   
         "v":"<VALUE>",  
-        "t":"<TYPE (only present if not UPDATE)>",  
-        "x":"<DISCONNECTION (only present if disconnection)>"            
+        "t":"<TYPE (only present if not update)>",  
+        "x":"<DISCONNECTION-TRUE/FALSE (only present if disconnection)>"            
         }   
 }    
 ````
