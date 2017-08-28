@@ -104,13 +104,13 @@ and the jsonp function name returned will be _&lt;function name&gt;_.
 ### Event Types
 Use the 'd' parameter to limit events to updates only.  The primary event type is an 'update', which is a normal data value.   Other event types are informational and replace the 'v' field with one of the following strings:
 
-Disconnection Events
-   - NETWORK_DISCONNECTION
-   - ARCHIVING_OF_CHANNEL_TURNED_OFF
-   - ARCHIVER_SHUTDOWN
-   - UNKNOWN_UNAVAILABILTY
+Disconnection (DIS) Events
+   - DIS_NETWORK_DISCONNECTION
+   - DIS_ARCHIVING_OF_CHANNEL_TURNED_OFF
+   - DIS_ARCHIVER_SHUTDOWN
+   - DIS_UNKNOWN_UNAVAILABILTY
    
-Miscellaneous Events
-   - ORIGIN_OF_CHANNELS_HISTORY
-   - CHANNELS_PRIOR_DATA_MOVED_OFFLINE
-   - CHANNELS_PRIOR_DATA_DISCARDED
+Miscellaneous (MIS) Events
+   - MIS_ORIGIN_OF_CHANNELS_HISTORY
+   - MIS_CHANNELS_PRIOR_DATA_MOVED_OFFLINE
+   - MIS_CHANNELS_PRIOR_DATA_DISCARDED
