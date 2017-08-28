@@ -38,7 +38,9 @@ _**Path:** myquery/interval_
     "data":[   
         {   
             "d":"<DATE-TIME>",   
-            "v":"<VALUE>"   
+            "v":"<VALUE>",  
+            "t":"<TYPE (only present if not UPDATE)>",  
+            "x":"<DISCONNECTION-TRUE/FALSE (only present if disconnection)>"    
         },   
         ...   
     ]    
@@ -81,7 +83,9 @@ _**Path:** myquery/point_
     "datahost":"<MYA hostname of data home>",  
     "data":{   
         "d":"<DATE-TIME>",   
-        "v":"<VALUE>"    
+        "v":"<VALUE>",  
+        "t":"<TYPE (only present if not UPDATE)>",  
+        "x":"<DISCONNECTION (only present if disconnection)>"            
         }   
 }    
 ````
@@ -102,15 +106,15 @@ jsonp=<function name>
 and the jsonp function name returned will be _&lt;function name&gt;_.
 
 ### Event Types
-Use the 'd' parameter to limit events to updates only.  The primary event type is an 'update', which is a normal data value.   Other event types are informational and replace the 'v' field with one of the following strings:
+Use the 'd' parameter to limit events to updates only.  The primary event type is an 'update', which is a normal data value.  Other event types are informational and set the 't' field with one of the following strings:
 
-Disconnection (DIS) Events
-   - DIS_NETWORK_DISCONNECTION
-   - DIS_ARCHIVING_OF_CHANNEL_TURNED_OFF
-   - DIS_ARCHIVER_SHUTDOWN
-   - DIS_UNKNOWN_UNAVAILABILTY
+Disconnection Events
+   - NETWORK_DISCONNECTION
+   - ARCHIVING_OF_CHANNEL_TURNED_OFF
+   - ARCHIVER_SHUTDOWN
+   - UNKNOWN_UNAVAILABILTY
    
-Miscellaneous (MIS) Events
-   - MIS_ORIGIN_OF_CHANNELS_HISTORY
-   - MIS_CHANNELS_PRIOR_DATA_MOVED_OFFLINE
-   - MIS_CHANNELS_PRIOR_DATA_DISCARDED
+Miscellaneous Events
+   - ORIGIN_OF_CHANNELS_HISTORY
+   - CHANNELS_PRIOR_DATA_MOVED_OFFLINE
+   - CHANNELS_PRIOR_DATA_DISCARDED
