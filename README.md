@@ -21,7 +21,7 @@ _**Path:** myquery/interval_
 | m     | MYA deployment                                               | String                                              | NO       | 'ops'                                      |      
 | f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0 (ISO 8601 only)                          |    
 | v     | Fractional floating value digits                             | Integer (0-9)                                       | NO       | 6 (floats only)                            |
-| d     | Data update events only (ignore info events)                 | Boolean, true if parameter exits                    | NO       | All events returnd (update and info)       |
+| d     | Data update events only (ignore info events)                 | Boolean, true if parameter exits                    | NO       | All events returned (update and info)      |
 | p     | Include prior point (guarantee at least one point in result) | Boolean, true if parameter exists                   | NO       | Prior point isn't included                 |   
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |   
 | u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                   | NO       | Timestamps are returned in ISO 8601 format |   
@@ -59,18 +59,18 @@ _**Path:** myquery/point_
 
 **Request Parameters**     
 
-| Name  | Description                                                  | Value Format                                        | Required | Default                                    |   
-|-------|--------------------------------------------------------------|-----------------------------------------------------|----------|--------------------------------------------|   
-| c     | EPICS Channel name                                           | String                                              | YES      |                                            |
-| t     | Time of interest date with optional time                     | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                                            |
-| m     | MYA deployment                                               | String                                              | NO       | 'ops'                                      |      
-| f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0 (ISO 8601 only)                          |
-| v     | Fractional floating value digits                             | Integer (0-9)                                       | NO       | 6 (floats only)                            |  
-| d     | Data update events only (ignore info events)                 | Boolean, true if parameter exits                    | NO       | All events returnd (update and info)       |
+| Name  | Description                                                  | Value Format                                        | Required | Default                                        |   
+|-------|--------------------------------------------------------------|-----------------------------------------------------|----------|------------------------------------------------|   
+| c     | EPICS Channel name                                           | String                                              | YES      |                                                |
+| t     | Time of interest date with optional time                     | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                                                |
+| m     | MYA deployment                                               | String                                              | NO       | 'ops'                                          |      
+| f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0 (ISO 8601 only)                              |
+| v     | Fractional floating value digits                             | Integer (0-9)                                       | NO       | 6 (floats only)                                |  
+| d     | Data update events only (ignore info events)                 | Boolean, true if parameter exits                    | NO       | All events returned (update and info)          |
 | w     | Get closest event greater than time of interest              | Boolean, true if parameter exists                   | NO       | Get closest event less than time of interest   |
 | x     | Closest event is exclusive of time of interest               | Boolean, true if parameter exists                   | NO       | Closest event is inclusive of time of interest |
-| s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |
-| u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                   | NO       | Timestamps are returned in ISO 8601 format | 
+| s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number       |
+| u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                   | NO       | Timestamps are returned in ISO 8601 format     | 
 
 **Response JSON Format**   
 *On Success (HTTP 200 Response Code):*   
