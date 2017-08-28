@@ -59,7 +59,6 @@ public class PointController extends QueryController {
         String c = request.getParameter("c");
         String t = request.getParameter("t");
         String m = request.getParameter("m");
-        String M = request.getParameter("M");
         String d = request.getParameter("d");
         String f = request.getParameter("f");
         String v = request.getParameter("v");
@@ -87,10 +86,6 @@ public class PointController extends QueryController {
                     ZoneId.systemDefault()).toInstant();
 
             Deployment deployment = Deployment.ops;
-
-            if (M != null && !M.trim().isEmpty()) {
-                throw new Exception("Custom master hosts not supported");
-            }
 
             if (m != null && !m.trim().isEmpty()) {
                 deployment = Deployment.valueOf(m);

@@ -36,26 +36,26 @@ public class IntervalWebService extends QueryWebService {
         return service.findMetadata(c);
     }
 
-    public EventStream openEventStream(Metadata metadata, Instant begin, Instant end, String m,
-            String M, String d, boolean enumsAsStrings) throws Exception {
+    public EventStream openEventStream(Metadata metadata, Instant begin, Instant end,
+            String d, boolean enumsAsStrings) throws Exception {
         IntervalQueryParams params = new IntervalQueryParams(metadata, begin, end);
         EventStream stream = service.openEventStream(params);
-        
-        if(enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
+
+        if (enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
             List<ExtraInfo> extraInfoList = service.findExtraInfo(metadata, "enum_strings");
-            stream = new LabeledEnumStream((IntEventStream)stream, extraInfoList);
+            stream = new LabeledEnumStream((IntEventStream) stream, extraInfoList);
         }
-        
+
         return stream;
     }
 
-    public Long count(Metadata metadata, Instant begin, Instant end, String m, String M, String d) throws SQLException {
+    public Long count(Metadata metadata, Instant begin, Instant end, String d) throws SQLException {
         IntervalQueryParams params = new IntervalQueryParams(metadata, begin, end);
         return service.count(params);
     }
 
-    public EventStream openSampleEventStream(Metadata metadata, Instant begin, Instant end, long limit, String m,
-            String M, String d, long count, boolean enumsAsStrings) throws SQLException {
+    public EventStream openSampleEventStream(Metadata metadata, Instant begin, Instant end, long limit,
+            String d, long count, boolean enumsAsStrings) throws SQLException {
 
         // TODO: what about String or other non-numeric types?
         EventStream stream;
@@ -72,11 +72,11 @@ public class IntervalWebService extends QueryWebService {
             NaiveSamplerParams params = new NaiveSamplerParams(metadata, begin, end, Math.min(limit, MIN_SAMPLE_POINTS));
             stream = sampler.openNaiveSamplerFloatStream(params);
         }
-        
-        if(enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
+
+        if (enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
             List<ExtraInfo> extraInfoList = service.findExtraInfo(metadata, "enum_strings");
-            stream = new LabeledEnumStream((IntEventStream)stream, extraInfoList);
-        }        
+            stream = new LabeledEnumStream((IntEventStream) stream, extraInfoList);
+        }
 
         return stream;
     }
