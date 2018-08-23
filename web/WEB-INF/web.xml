@@ -62,27 +62,31 @@
         <res-type>javax.sql.DataSource</res-type>
     </resource-ref>
     <resource-ref>
+        <res-ref-name>jdbc/opsmya9</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/opsmya10</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/opsmya11</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/opsmya12</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>
+    <resource-ref>
+        <res-ref-name>jdbc/opsmya13</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+    </resource-ref>    
+    <resource-ref>
         <res-ref-name>jdbc/devmya0</res-ref-name>
         <res-type>javax.sql.DataSource</res-type>
     </resource-ref>
     <resource-ref>
         <res-ref-name>jdbc/devmya1</res-ref-name>
         <res-type>javax.sql.DataSource</res-type>
-    </resource-ref>
-    <resource-ref>
-        <res-ref-name>jdbc/devmya2</res-ref-name>
-        <res-type>javax.sql.DataSource</res-type>
-    </resource-ref>
-    <resource-ref>
-        <res-ref-name>jdbc/devmya3</res-ref-name>
-        <res-type>javax.sql.DataSource</res-type>
-    </resource-ref>
-    <resource-ref>
-        <res-ref-name>jdbc/devmya4</res-ref-name>
-        <res-type>javax.sql.DataSource</res-type>
-    </resource-ref>
-    <resource-ref>
-        <res-ref-name>jdbc/devmya5</res-ref-name>
-        <res-type>javax.sql.DataSource</res-type>
-    </resource-ref>    
+    </resource-ref>   
 </web-app>
