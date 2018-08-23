@@ -37,7 +37,7 @@ public class QueryController extends HttpServlet {
             gen.writeStartObject();
         }
         
-        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
+        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
             gen.write("v", event.getValue());
@@ -55,7 +55,7 @@ public class QueryController extends HttpServlet {
             gen.writeStartObject();
         }
 
-        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
+        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
             // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
@@ -74,7 +74,7 @@ public class QueryController extends HttpServlet {
             gen.writeStartObject();
         }
         
-        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
+        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
             gen.write("v", event.getLabel());
@@ -92,7 +92,7 @@ public class QueryController extends HttpServlet {
             gen.writeStartObject();
         }
         
-        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestamp(), formatAsMillisSinceEpoch, timestampFormatter);
+        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
             String[] values = event.getValue();
