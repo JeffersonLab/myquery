@@ -2,4 +2,6 @@
 /dist/
 /build/
 /nbbuild.xml
-/.idea
+/.idea/
+/out/
+/.gradle
