@@ -20,21 +20,21 @@ public class FormatUtil {
     public final static ZoneId DEFAULT_ZONE = ZoneId.systemDefault();
 
     public static DecimalFormat getDecimalFormat(String v) {
-        int vint = 6;
+        int vInt = 6;
 
         if (v != null && !v.trim().isEmpty()) {
-            vint = Integer.parseInt(v);
+            vInt = Integer.parseInt(v);
 
-            if (vint > 9) {
-                vint = 9;
+            if (vInt > 9) {
+                vInt = 9;
             }
         }
 
         String decimalPattern = "0";
 
-        if (vint > 0) {
+        if (vInt > 0) {
             decimalPattern = decimalPattern + ".#";
-            for (int i = 1; i < vint; i++) {
+            for (int i = 1; i < vInt; i++) {
                 decimalPattern = decimalPattern + "#";
             }
         }

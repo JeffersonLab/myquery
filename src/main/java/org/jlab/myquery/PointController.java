@@ -15,7 +15,6 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.jlab.mya.Deployment;
 import org.jlab.mya.Event;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.event.FloatEvent;
@@ -84,14 +83,10 @@ public class PointController extends QueryController {
             Instant time = LocalDateTime.parse(t).atZone(
                     ZoneId.systemDefault()).toInstant();
 
-            Deployment deployment = Deployment.ops;
+            String deployment = "ops";
 
             if (m != null && !m.trim().isEmpty()) {
-                deployment = Deployment.valueOf(m);
-            }
-
-            if (deployment != Deployment.ops && deployment != Deployment.dev) {
-                throw new Exception("Unsupported deployment: " + deployment);
+                deployment = m;
             }
 
             PointWebService service = new PointWebService(deployment);

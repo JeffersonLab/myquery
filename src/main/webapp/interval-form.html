@@ -26,7 +26,15 @@
                         </li>
                         <li>
                             <label for="l">Limit by binning (l): </label>
-                            <input id="l" name="l" type="text" placeholder="disabled by default"/> 
+                            <input id="l" name="l" type="text" placeholder="disabled by default"/>
+                        </li>
+                        <li>
+                            <label for="s">Sampling type: (t): </label>
+                            <select id="t" name="t">
+                                <option value="graphical" title="Provides a better graphical representation">Graphical</option>
+                                <option value="binned" title="Returns at most one event from each time-based bin.">Binned</option>
+                                <option value="event" title="Returns every nth event">Event</option>
+                            </select>
                         </li>
                         <li>
                             <label for="m">Mya Deployment (m): </label>

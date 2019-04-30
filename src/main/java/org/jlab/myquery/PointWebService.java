@@ -3,12 +3,8 @@ package org.jlab.myquery;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
-import java.util.logging.Logger;
-import org.jlab.mya.DataType;
-import org.jlab.mya.Deployment;
-import org.jlab.mya.Event;
-import org.jlab.mya.ExtraInfo;
-import org.jlab.mya.Metadata;
+
+import org.jlab.mya.*;
 import org.jlab.mya.event.IntEvent;
 import org.jlab.mya.event.LabeledEnumEvent;
 import org.jlab.mya.params.PointQueryParams;
@@ -16,16 +12,15 @@ import org.jlab.mya.service.PointService;
 
 /**
  *
- * @author ryans
+ * @author ryans, adamc
  */
 public class PointWebService extends QueryWebService {
 
-    private final static Logger LOGGER = Logger.getLogger(PointWebService.class.getName());
-
-    private final PointService service; 
+    private final PointService service;
     
-    public PointWebService(Deployment deployment) {
-        service = new PointService(getNexus(deployment));
+    public PointWebService(String deployment) {
+        DataNexus nexus = getNexus(deployment);
+        service = new PointService(nexus);
     }
     
     public Metadata findMetadata(String c) throws SQLException {

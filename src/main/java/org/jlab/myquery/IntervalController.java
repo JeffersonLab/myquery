@@ -15,7 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.jlab.mya.Deployment;
+
 import org.jlab.mya.Event;
 import org.jlab.mya.EventStream;
 import org.jlab.mya.Metadata;
@@ -29,7 +29,6 @@ import org.jlab.mya.stream.MultiStringEventStream;
 import org.jlab.mya.stream.wrapped.LabeledEnumStream;
 
 /**
- *
  * @author ryans
  */
 @WebServlet(name = "IntervalController", urlPatterns = {"/interval"})
@@ -40,11 +39,12 @@ public class IntervalController extends QueryController {
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
+    @SuppressWarnings("Duplicates")
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -74,6 +74,7 @@ public class IntervalController extends QueryController {
         String s = request.getParameter("s");
         String u = request.getParameter("u");
         String v = request.getParameter("v");
+        String t = request.getParameter("t");
 
         try {
             if (c == null || c.trim().isEmpty()) {
@@ -85,7 +86,7 @@ public class IntervalController extends QueryController {
             if (e == null || e.trim().isEmpty()) {
                 throw new Exception("End Date (e) is required");
             }
-            // Repace ' ' with 'T' if present
+            // Replace ' ' with 'T' if present
             b = b.replace(' ', 'T');
             e = e.replace(' ', 'T');
 
@@ -102,14 +103,10 @@ public class IntervalController extends QueryController {
             Instant end = LocalDateTime.parse(e).atZone(
                     ZoneId.systemDefault()).toInstant();
 
-            Deployment deployment = Deployment.ops;
+            String deployment = "ops";
 
             if (m != null && !m.trim().isEmpty()) {
-                deployment = Deployment.valueOf(m);
-            }
-
-            if (deployment != Deployment.ops && deployment != Deployment.dev) {
-                throw new Exception("Unsupported deployment: " + deployment);
+                deployment = m;
             }
 
             IntervalWebService service = new IntervalWebService(deployment);
@@ -120,7 +117,7 @@ public class IntervalController extends QueryController {
                 throw new Exception("Unable to find channel: '" + c + "' in deployment: '" + deployment + "'");
             }
 
-            boolean updatesOnly = (d != null);              
+            boolean updatesOnly = (d != null);
             boolean enumsAsStrings = (s != null);
 
             if (p != null) { // Include prior point
@@ -138,11 +135,14 @@ public class IntervalController extends QueryController {
 
                 if (count > limit) {
                     sample = true;
-                }
-            }
 
-            if (sample) {
-                stream = service.openSampleEventStream(metadata, begin, end, limit, count, enumsAsStrings);
+                    // Default to graphical sampling if nothing is specified.
+                    if (t == null || t.isEmpty()) {
+                        t = "graphical";
+                    }
+                }
+
+                stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, enumsAsStrings);
             } else {
                 stream = service.openEventStream(metadata, updatesOnly, begin, end, enumsAsStrings);
             }
@@ -151,8 +151,10 @@ public class IntervalController extends QueryController {
             errorReason = ex.getMessage();
 
             try {
-                stream.close();
-                stream = null;
+                if (stream != null) {
+                    stream.close();
+                    stream = null;
+                }
             } catch (Exception closeIssue) {
                 System.err.println("Unable to close stream");
             }
@@ -185,7 +187,10 @@ public class IntervalController extends QueryController {
                     gen.write("sampled", sample);
 
                     if (count != null) {
-                        gen.write("count", count);
+                        gen.write("rawCount", count);
+                    }
+                    if (sample) {
+                        gen.write("sampleType", t);
                     }
 
                     gen.writeStartArray("data");
@@ -196,7 +201,7 @@ public class IntervalController extends QueryController {
                         } else if (priorEvent instanceof FloatEvent) {
                             writeFloatEvent(null, gen, (FloatEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
                         } else if (priorEvent instanceof LabeledEnumEvent) {
-                            writeLabeledEnumEvent(null, gen, (LabeledEnumEvent)priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
+                            writeLabeledEnumEvent(null, gen, (LabeledEnumEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
                         } else if (priorEvent instanceof MultiStringEvent) {
                             writeMultiStringEvent(null, gen, (MultiStringEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
                         } else {
@@ -204,23 +209,26 @@ public class IntervalController extends QueryController {
                         }
                     }
 
+                    long dataLength = 0;
                     if (stream == null) {
                         // Didn't get a stream so presumably there is an errorReason
                     } else if (stream instanceof IntEventStream) {
-                        generateIntStream(gen, (IntEventStream) stream, formatAsMillisSinceEpoch,
+                        dataLength = generateIntStream(gen, (IntEventStream) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter);
                     } else if (stream instanceof FloatEventStream) {
-                        generateFloatStream(gen, (FloatEventStream) stream, formatAsMillisSinceEpoch,
+                        dataLength = generateFloatStream(gen, (FloatEventStream) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter, decimalFormatter);
                     } else if (stream instanceof LabeledEnumStream) {
-                        generateLabeledEnumStream(gen, (LabeledEnumStream) stream, formatAsMillisSinceEpoch, timestampFormatter);
+                        dataLength = generateLabeledEnumStream(gen, (LabeledEnumStream) stream, formatAsMillisSinceEpoch, timestampFormatter);
                     } else if (stream instanceof MultiStringEventStream) {
-                        generateMultiStringStream(gen, (MultiStringEventStream) stream, formatAsMillisSinceEpoch,
+                        dataLength = generateMultiStringStream(gen, (MultiStringEventStream) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter);
                     } else {
                         throw new ServletException("Unsupported data type: " + stream.getClass());
                     }
                     gen.writeEnd();
+
+                    gen.write("returnCount", dataLength);
                 }
                 gen.writeEnd();
 

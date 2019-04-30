@@ -21,6 +21,7 @@ import org.jlab.mya.stream.wrapped.LabeledEnumStream;
  *
  * @author ryans
  */
+@SuppressWarnings("JavaDoc")
 public class QueryController extends HttpServlet {
 
     private void writeInformationalEvent(JsonGenerator gen, Event event) {
@@ -108,38 +109,87 @@ public class QueryController extends HttpServlet {
         gen.writeEnd();
     }
 
-    public void generateIntStream(JsonGenerator gen, IntEventStream stream,
+    /**
+     * Write out the IntEventStream to a JsonGenerator.
+     * @param gen
+     * @param stream
+     * @param formatAsMillisSinceEpoch
+     * @param timestampFormatter
+     * @return The number of events written to the JSON generator
+     * @throws IOException
+     */
+    public long generateIntStream(JsonGenerator gen, IntEventStream stream,
             boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) throws IOException {
+        long count = 0;
         IntEvent event;
         while ((event = stream.read()) != null) {
+            count++;
             writeIntEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter);
         }
+        return count;
     }
 
-    public void generateFloatStream(JsonGenerator gen, FloatEventStream stream,
+    /**
+     * Write out the FloatEventStream to a JsonGenerator.
+     * @param gen
+     * @param stream
+     * @param formatAsMillisSinceEpoch
+     * @param timestampFormatter
+     * @param decimalFormatter
+     * @return The count of events written to the JsonGenerator
+     * @throws IOException
+     */
+    public long generateFloatStream(JsonGenerator gen, FloatEventStream stream,
             boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter,
             DecimalFormat decimalFormatter) throws IOException {
+        long count = 0;
         FloatEvent event;
         while ((event = stream.read()) != null) {
+            count++;
             writeFloatEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
         }
+        return count;
     }
 
-    public void generateLabeledEnumStream(JsonGenerator gen,
+    /**
+     * Write out the LabeledEnumStream to a JsonGenerator
+     * @param gen
+     * @param stream
+     * @param formatAsMillisSinceEpoch
+     * @param timestampFormatter
+     * @return The count of events written to the JsonGenerator
+     * @throws IOException
+     */
+    public long generateLabeledEnumStream(JsonGenerator gen,
             LabeledEnumStream stream, boolean formatAsMillisSinceEpoch,
             DateTimeFormatter timestampFormatter) throws IOException {
         LabeledEnumEvent event;
+        long count = 0;
         while ((event = stream.read()) != null) {
+            count++;
             writeLabeledEnumEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter);
         }
+        return count;
     }
 
-    public void generateMultiStringStream(JsonGenerator gen,
+    /**
+     * Write out a MultiStringStream to a JsonGenerator
+     * @param gen
+     * @param stream
+     * @param formatAsMillisSinceEpoch
+     * @param timestampFormatter
+     * @return The count of events written to the JsonGenerator
+     * @throws IOException
+     */
+    public long generateMultiStringStream(JsonGenerator gen,
             MultiStringEventStream stream, boolean formatAsMillisSinceEpoch,
             DateTimeFormatter timestampFormatter) throws IOException {
         MultiStringEvent event;
+        long count = 0;
         while ((event = stream.read()) != null) {
+            count++;
             writeMultiStringEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter);
         }
+        return count;
     }
 }
