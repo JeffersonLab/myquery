@@ -14,7 +14,7 @@ plugins {
 }
 
 description = "MYA web-based query tool"
-version = '0.3.0'
+version = '1.0.0'
 //releaseDate = 'TBD'
 
 apply plugin: "com.jfrog.artifactory"
@@ -27,8 +27,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.jlab', name: 'jmyapi', version: '1.1.0'
-//    compile group: 'org.jlab', name: 'jmyapi', version: '2.0.0-gs-snapshot'
+    compile group: 'org.jlab', name: 'jmyapi', version: '2.1.2'
     compile 'org.glassfish:javax.json:1.0.4'
     providedCompile 'javax.json:javax.json-api:1.1.4'
 	providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
@@ -55,7 +54,7 @@ artifactory {
 war {
     ext.webXmlProperties = 'webXml.properties'
     inputs.file webXmlProperties
-    filesMatching('/WEB-INF/web.xml') {
+    filesMatching('WEB-INF/web.xml') {
         filter org.apache.tools.ant.filters.ReplaceTokens, propertiesResource: ant.file(file: webXmlProperties)
     }
 }
