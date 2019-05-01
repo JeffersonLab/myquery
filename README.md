@@ -12,19 +12,20 @@ _**Path:** myquery/interval_
 
 **Request URL Parameters**     
 
-| Name  | Description                                                  | Value Format                                        | Required | Default                                    |   
-|-------|--------------------------------------------------------------|-----------------------------------------------------|----------|--------------------------------------------|   
-| c     | EPICS Channel name                                           | String                                              | YES      |                                            |  
-| b     | Inclusive begin date with optional time                      | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                                            |  
-| e     | Exclusive end date with optional time                        | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                                            |
-| l     | Limit by binning / sampling                                  | Boolean, true if parameter exists                   | NO       | No sampling is done                        | 
-| m     | MYA deployment                                               | String                                              | NO       | 'ops'                                      |      
-| f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0 (ISO 8601 only)                          |    
-| v     | Fractional floating value digits                             | Integer (0-9)                                       | NO       | 6 (floats only)                            |
-| d     | Data update events only (ignore info events)                 | Boolean, true if parameter exits                    | NO       | All events returned (update and info)      |
-| p     | Include prior point (guarantee at least one point in result) | Boolean, true if parameter exists                   | NO       | Prior point isn't included                 |   
-| s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number   |   
-| u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                   | NO       | Timestamps are returned in ISO 8601 format |   
+| Name  | Description                                                  | Value Format                                               | Required | Default                                    |   
+|-------|--------------------------------------------------------------|------------------------------------------------------------|----------|--------------------------------------------|   
+| c     | EPICS Channel name                                           | String                                                     | YES      |                                            |  
+| b     | Inclusive begin date with optional time                      | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]])        | YES      |                                            |  
+| e     | Exclusive end date with optional time                        | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]])        | YES      |                                            |
+| l     | Limit by binning / sampling                                  | Integer, number of samples or bins.  No sampling if absent | NO       | No sampling is done                        | 
+| t     | type of sampling                                             | String,  binned, event, or graphical (default)             | NO       | 'graphical'                                |      
+| m     | MYA deployment                                               | String                                                     | NO       | 'ops'                                      |      
+| f     | Fractional seconds time digits                               | Integer (0-6)                                              | NO       | 0 (ISO 8601 only)                          |    
+| v     | Fractional floating value digits                             | Integer (0-9)                                              | NO       | 6 (floats only)                            |
+| d     | Data update events only (ignore info events)                 | Boolean, true if parameter exits                           | NO       | All events returned (update and info)      |
+| p     | Include prior point (guarantee at least one point in result) | Boolean, true if parameter exists                          | NO       | Prior point isn't included                 |   
+| s     | Enumerations as strings                                      | Boolean, true if parameter exists                          | NO       | Enumerations presented as ordinal number   |   
+| u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                          | NO       | Timestamps are returned in ISO 8601 format |   
 
 **Response JSON Format**    
 *On Success (HTTP 200 Response Code):*   
@@ -34,6 +35,7 @@ _**Path:** myquery/interval_
     "datasize":"<data vector size; 1 for scalar>",    
     "datahost":"<MYA hostname of data home>",      
     "sampled":"<true if sampled, false otherwise>", 
+    "sampleType":"<binned, event, graphical; only present if sampled = true>",
     "count":"<original count of events; only present if sampled = true>",
     "data":[   
         {   
