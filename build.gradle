@@ -14,7 +14,7 @@ plugins {
 }
 
 description = "MYA web-based query tool"
-version = '1.0.0'
+version = '1.0.1'
 //releaseDate = 'TBD'
 
 apply plugin: "com.jfrog.artifactory"
