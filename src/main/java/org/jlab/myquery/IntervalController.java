@@ -141,7 +141,9 @@ public class IntervalController extends QueryController {
                         t = "graphical";
                     }
                 }
+            }
 
+            if (sample) {
                 stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, enumsAsStrings);
             } else {
                 stream = service.openEventStream(metadata, updatesOnly, begin, end, enumsAsStrings);
@@ -187,7 +189,7 @@ public class IntervalController extends QueryController {
                     gen.write("sampled", sample);
 
                     if (count != null) {
-                        gen.write("rawCount", count);
+                        gen.write("count", count);
                     }
                     if (sample) {
                         gen.write("sampleType", t);
