@@ -1,13 +1,11 @@
 # myquery
 MYA Query Web Service
 
+The myquer web service provides a simple MYA query interface.  It's primary goal is to allow users simple, programatic access to MYA data without the dependency on a specific language or wrapping a command line tool.
+
+Currently, myquery supports two types of data queries, channel history over an time interval and channel history at a specific point int time.  myquery includes simple forms that allow users to easily generate a valid query string for each type of supported query.
+
 Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service for fetching data from the JLab Archiver 'MYA'.
-
-A brief discussion of the sampling routines is probably warranted.  Here is a brief description of the three choices.
-
-- The **binned** routine splits the time range up into the number of specified bins (l) and returns the first data point from each bin.  This tries to give equal representation throughout the signal.
-- The **event** routine returns every nth event (where n is specified using the "l" parameter).  This gives greater detail to portions of the signal that are "busier", but may leave portions of the time domain sparsely represented.  
-- The **graphical** routine returns a data set that attempts to maintain graphical fidelity.  The signal is split into approximately the number of specified bins (l), which each bin returning important characteristics such as min, max, non-update events, largest triangluar three bucket (LTTB) point.  This makes the return size somewhat unpredicatable, but generally gives very good graphical results even for heavily downsampled signals.
 
 ## API    
 
@@ -15,6 +13,14 @@ A brief discussion of the sampling routines is probably warranted.  Here is a br
 Query for all events on the timeline between the begin (inclusive) and end (exclusive) dates.
 
 _**Path:** myquery/interval_   
+
+A detailed table of request parameters are given below.  Most are fairly straightforward, but a brief discussion of the sampling routines is probably warranted.
+
+- The **binned** routine splits the time range up into the number of equally sized specified bins (l) and returns the first data point from each bin.  This tries to give equal time-representation throughout the channel history.
+- The **event** routine returns every nth event, where n is based on the "l" parameter and the number of events in the requested channel history (n = count/l).  This gives greater detail to portions of the signal that are "busier", but may leave portions of the time domain sparsely represented.  
+- The **graphical** routine returns a data set that attempts to maintain graphical fidelity.  The signal is split into approximately the number of specified bins (l), with each bin returning important characteristics such as min, max, non-update events, largest triangluar three bucket (LTTB) point.  This makes the number of returned data points somewhat unpredicatable, but generally gives very good graphical results even for heavily downsampled signals.
+
+
 
 **Request URL Parameters**     
 
