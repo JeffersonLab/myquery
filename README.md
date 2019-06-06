@@ -134,3 +134,53 @@ Miscellaneous Events
    - CHANNELS_PRIOR_DATA_DISCARDED
 
 Disconnection events are also flagged with the presence of the attribute 'x' for convenience. 
+
+## Examples
+A common problem for developers is that our interal web service uses an SSL certificate anchored by our internal JLab PKI.  JLab computers are configured at the system level to include th JLab root CA in the certificate trust store.  Software run onsite should refernce the system store, which many do by default.  However, some applications, modules, etc. referrence an embedded CA certificate store.  This reuiqers some additional effort on the part of the developer to reference the system storeas described below.  Alternatively, developers can download the JLab root CA certificate and reference it in place of the system store.
+
+The JLab root certifcate authority certificates can be downloaded from http://pki.jlab.org.
+
+### Python
+The commonly used HTTP request module, requests, ships with an embedded certificate trust store and does not by default use the system trust store.  On Linux, this means that you must specify the path to the system trust store (a PEM file) as the value to the verify parameter.
+
+````
+import requests
+import pandas as pd
+
+url = "https://myaweb.acc.jlab.org/myquery/interval?c=RBM09_DsRt_LE&b=2019-01-01&e=2019-03-03&l=&t=graphical&m=&f=&v="
+r = requests.get(url, verify='/etc/pki/tls/cert.pem')  # <<< This references the RHEL System CA trust anchors explicitly
+
+
+df = pd.DataFrame(r.json()['data'])
+df.rename(columns={'d':'Date', 'v':'JWS_Humidity'}, inplace=True)
+print(df)
+````
+
+Windows is more complicated since it's trust store is in the registry.  Base Python uses this system trust store database, and the responses module lets you pass your own SSL context.  This SSL context references Python's default certificate trust store and allows your response object to verify our internal certificate.
+
+This is a modified example pulled from https://stackoverflow.com/questions/42981429/ssl-failure-on-windows-using-python-requests
+
+````
+import requests
+import pandas as pd
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.ssl_ import create_urllib3_context
+
+class SSLContextAdapter(HTTPAdapter):
+    def init_poolmanager(self, *args, **kwargs):
+        context = create_urllib3_context()
+        kwargs['ssl_context'] = context
+        context.load_default_certs() # this loads the OS defaults on Windows
+        return super(SSLContextAdapter, self).init_poolmanager(*args, **kwargs)
+
+s = requests.Session()
+adapter = SSLContextAdapter()
+url = "https://myaweb.acc.jlab.org/myquery/interval?c=RBM09_DsRt_LE&b=2019-01-01&e=2019-03-03&l=&t=graphical&m=&f=&v="
+s.mount(url, adapter)
+r = s.get(url)
+
+df = pd.DataFrame(r.json()['data'])
+df.rename(columns={'d':'Date', 'v':'JWS_Humidity'}, inplace=True)
+print(df)
+````
+
