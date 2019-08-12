@@ -136,7 +136,7 @@ Miscellaneous Events
 Disconnection events are also flagged with the presence of the attribute 'x' for convenience. 
 
 ## Examples
-A common problem for developers is that our interal web service uses an SSL certificate anchored by our internal JLab PKI.  JLab computers are configured at the system level to include th JLab root CA in the certificate trust store.  Software run onsite should refernce the system store, which many do by default.  However, some applications, modules, etc. referrence an embedded CA certificate store.  This reuiqers some additional effort on the part of the developer to reference the system storeas described below.  Alternatively, developers can download the JLab root CA certificate and reference it in place of the system store.
+A common problem for developers is that our interal web service uses an SSL certificate anchored by our internal JLab PKI.  JLab computers are configured at the system level to include th JLab root CA in the certificate trust store.  Software run onsite should refernce the system store, which many do by default.  However, some applications, modules, etc. referrence an embedded CA certificate store.  This requires some additional effort on the part of the developer to reference the system store as described below.  Alternatively, developers can download the JLab root CA certificate and reference it in place of the system store.
 
 The JLab root certifcate authority certificates can be downloaded from http://pki.jlab.org.
 
