@@ -112,12 +112,14 @@ _**Path:** myquery/point_
 ````
 
 ### JSONP
-The API also supports JSONP responses.  Simply provide an additional parameter:
+The API also supports JSONP responses (to work around browser same-origin policy).  Simply provide an additional parameter:
 
 ````
 jsonp=<function name>
 ````
 and the jsonp function name returned will be _&lt;function name&gt;_.
+
+*Note*: JSONP should generally be avoided as it is a hack; instead setup your web server to reverse proxy the myquery server if they are not the same.
 
 ### Event Types
 Use the 'd' parameter to limit events to updates only.  The primary event type is an 'update', which is a normal data value.  Other event types are informational and set the 't' field with one of the following strings:
