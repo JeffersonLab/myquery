@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 
-import com.mysql.jdbc.NotImplemented;
-import jdk.jshell.spi.ExecutionControl;
 import org.jlab.mya.*;
 import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.params.*;
