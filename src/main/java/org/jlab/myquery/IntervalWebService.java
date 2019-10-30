@@ -105,7 +105,7 @@ public class IntervalWebService extends QueryWebService {
                 stream = sourceSampler.openMySamplerFloatStream(new MySamplerParams(metadata, begin, stepMillis, count));
                 break;
             default:
-                throw new IllegalArgumentException("Unrecognized sampleType - " + sampleType + ".  Options include graphical, event, binned");
+                throw new IllegalArgumentException("Unrecognized sampleType - " + sampleType + ".  Options include graphical, eventsimple, myget, mysampler");
         }
 
         if (enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
