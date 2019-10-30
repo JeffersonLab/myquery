@@ -4,14 +4,17 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 
+import com.mysql.jdbc.NotImplemented;
+import jdk.jshell.spi.ExecutionControl;
 import org.jlab.mya.*;
-import org.jlab.mya.params.BinnedSamplerParams;
-import org.jlab.mya.params.EventSamplerParams;
-import org.jlab.mya.params.GraphicalSamplerParams;
-import org.jlab.mya.params.IntervalQueryParams;
+import org.jlab.mya.event.FloatEvent;
+import org.jlab.mya.params.*;
 import org.jlab.mya.service.IntervalService;
-import org.jlab.mya.service.SamplingService;
+import org.jlab.mya.service.SourceSamplingService;
 import org.jlab.mya.stream.IntEventStream;
+import org.jlab.mya.stream.wrapped.FloatGraphicalEventBinSampleStream;
+import org.jlab.mya.stream.wrapped.FloatIntegrationStream;
+import org.jlab.mya.stream.wrapped.FloatSimpleEventBinSampleStream;
 import org.jlab.mya.stream.wrapped.LabeledEnumStream;
 
 /**
@@ -52,25 +55,54 @@ public class IntervalWebService extends QueryWebService {
 
 
     public EventStream openSampleEventStream(String sampleType, Metadata metadata, Instant begin, Instant end, long limit,
-            long count, boolean enumsAsStrings) throws SQLException {
+            long count, boolean enumsAsStrings, boolean integrate) throws SQLException, UnsupportedOperationException {
 
         // TODO: what about String or other non-numeric types?
         EventStream stream;
-        SamplingService sampler = new SamplingService(nexus);
+        SourceSamplingService sourceSampler = new SourceSamplingService(nexus);
+        IntervalService intervalService = new IntervalService(nexus);
 
         if (sampleType == null || sampleType.isEmpty()){
             throw new IllegalArgumentException("sampleType required.  Options include graphical, event, binned");
         }
 
+        EventStream<FloatEvent> innerStream;
+
         switch(sampleType) {
             case "graphical":
-                stream = sampler.openGraphicalSamplerFloatStream(new GraphicalSamplerParams(metadata, begin, end, limit, count));
+                innerStream = intervalService.openFloatStream(new IntervalQueryParams(metadata, begin, end));
+
+                if(integrate) { // Careful, we have two inner streams now
+                    innerStream = new FloatIntegrationStream(innerStream);
+                }
+
+                stream = new FloatGraphicalEventBinSampleStream(innerStream, new GraphicalEventBinSamplerParams(limit, count));
                 break;
-            case "binned":
-                stream = sampler.openBinnedSamplerFloatStream(new BinnedSamplerParams(metadata, begin, end, limit));
+            case "eventsimple": // This is likely never a good sampler option given above...
+                innerStream = intervalService.openFloatStream(new IntervalQueryParams(metadata, begin, end));
+
+                if(integrate) { // Careful, we have two inner streams now
+                    innerStream = new FloatIntegrationStream(innerStream);
+                }
+
+                stream = new FloatSimpleEventBinSampleStream(innerStream, new SimpleEventBinSamplerParams(limit, count));
                 break;
-            case "event":
-                stream = sampler.openEventSamplerFloatStream(new EventSamplerParams(metadata, begin, end, limit, count));
+            case "myget": // Fastest?  Worst graphical fidelity?
+
+                if(integrate) {
+                    throw new UnsupportedOperationException("Integration of input into myget sampler algorithm has not been implemented");
+                }
+
+                stream = sourceSampler.openMyGetSampleFloatStream(new MyGetSampleParams(metadata, begin, end, limit));
+                break;
+            case "mysampler": // Is this one ever a good idea?  Results in n-queries against database.
+
+                if(integrate) {
+                    throw new UnsupportedOperationException("Integration of input into mysampler algorithm has not been implemented");
+                }
+
+                long stepMillis = ((end.getEpochSecond() - begin.getEpochSecond()) / count) * 1000;  // TODO: Is this right?
+                stream = sourceSampler.openMySamplerFloatStream(new MySamplerParams(metadata, begin, stepMillis, count));
                 break;
             default:
                 throw new IllegalArgumentException("Unrecognized sampleType - " + sampleType + ".  Options include graphical, event, binned");

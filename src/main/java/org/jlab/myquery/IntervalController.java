@@ -26,6 +26,7 @@ import org.jlab.mya.event.MultiStringEvent;
 import org.jlab.mya.stream.FloatEventStream;
 import org.jlab.mya.stream.IntEventStream;
 import org.jlab.mya.stream.MultiStringEventStream;
+import org.jlab.mya.stream.wrapped.FloatIntegrationStream;
 import org.jlab.mya.stream.wrapped.LabeledEnumStream;
 
 /**
@@ -75,6 +76,7 @@ public class IntervalController extends QueryController {
         String u = request.getParameter("u");
         String v = request.getParameter("v");
         String t = request.getParameter("t");
+        String i = request.getParameter("i");
 
         try {
             if (c == null || c.trim().isEmpty()) {
@@ -143,10 +145,20 @@ public class IntervalController extends QueryController {
                 }
             }
 
+            boolean integrate = false;
+
+            if(i != null && !t.trim().isEmpty()) {
+                integrate = true;
+            }
+
             if (sample) {
-                stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, enumsAsStrings);
+                stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, enumsAsStrings, integrate);
             } else {
                 stream = service.openEventStream(metadata, updatesOnly, begin, end, enumsAsStrings);
+
+                if(integrate) {
+                    stream = new FloatIntegrationStream(stream);
+                }
             }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
