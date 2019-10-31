@@ -16,10 +16,10 @@ _**Path:** myquery/interval_
 
 A detailed table of request parameters are given below.  Most are fairly straightforward, but a brief discussion of the sampling routines is probably warranted.
 
-- The **binned** routine splits the time range up into the number of equally sized specified bins (l) and returns the first data point from each bin.  This tries to give equal time-representation throughout the channel history.
-- The **event** routine returns every nth event, where n is based on the "l" parameter and the number of events in the requested channel history (n = count/l).  This gives greater detail to portions of the signal that are "busier", but may leave portions of the time domain sparsely represented.  
-- The **graphical** routine returns a data set that attempts to maintain graphical fidelity.  The signal is split into approximately the number of specified bins (l), with each bin returning important characteristics such as min, max, non-update events, largest triangluar three bucket (LTTB) point.  This makes the number of returned data points somewhat unpredicatable, but generally gives very good graphical results even for heavily downsampled signals.
-
+- The **graphical** (default) application-level event-based routine returns a data set that attempts to maintain graphical fidelity.  The signal is split into approximately the number of specified bins (l), with each bin returning important characteristics such as min, max, non-update events, largest triangluar three bucket (LTTB) point.  This makes the number of returned data points somewhat unpredicatable, but generally gives very good graphical results even for heavily downsampled signals.
+- The **simpleevent** application-level event-based routine returns every nth event, where n is based on the "l" parameter and the number of events in the requested channel history (n = count/l).  This gives greater detail to portions of the signal that are "busier", but may leave portions of the time domain sparsely represented.  
+- The **myget** database-level time-based routine splits the time range up into the number of equally sized specified bins (l) and returns the first data point from each bin.  This tries to give equal time-representation throughout the channel history.
+- The **mysampler** database-level time-based routine splits the time range up into the number of equally sized specified bins (l) and returns the previous data point from each bin.  This tries to give regularly spaced datapoints by creating them from implied values.
 
 
 **Request URL Parameters**     
@@ -30,7 +30,7 @@ A detailed table of request parameters are given below.  Most are fairly straigh
 | b     | Inclusive begin date with optional time                      | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]])        | YES      |                                            |  
 | e     | Exclusive end date with optional time                        | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]])        | YES      |                                            |
 | l     | Limit by binning / sampling                                  | Integer, number of samples or bins.  No sampling if absent | NO       | No sampling is done                        | 
-| t     | type of sampling                                             | String,  binned, event, or graphical (default)             | NO       | 'graphical'                                |      
+| t     | type of sampling                                             | String,  graphical (default), simpleevent, myget, mysampler            | NO       | 'graphical'                                |      
 | m     | MYA deployment                                               | String                                                     | NO       | 'ops'                                      |      
 | f     | Fractional seconds time digits                               | Integer (0-6)                                              | NO       | 0 (ISO 8601 only)                          |    
 | v     | Fractional floating value digits                             | Integer (0-9)                                              | NO       | 6 (floats only)                            |
