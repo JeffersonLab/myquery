@@ -67,7 +67,7 @@ public class IntervalWebService extends QueryWebService {
         EventStream<FloatEvent> innerStream;
 
         switch(sampleType) {
-            case "graphical":  // Application-level event-based
+            case "graphical":  // Application-level event-based, high graphical fidelity
                 innerStream = intervalService.openFloatStream(new IntervalQueryParams(metadata, begin, end));
 
                 if(integrate) { // Careful, we have two inner streams now
