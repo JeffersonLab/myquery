@@ -67,7 +67,7 @@ public class IntervalWebService extends QueryWebService {
         EventStream<FloatEvent> innerStream;
 
         switch(sampleType) {
-            case "graphical":
+            case "graphical":  // Application-level event-based
                 innerStream = intervalService.openFloatStream(new IntervalQueryParams(metadata, begin, end));
 
                 if(integrate) { // Careful, we have two inner streams now
@@ -76,7 +76,7 @@ public class IntervalWebService extends QueryWebService {
 
                 stream = new FloatGraphicalEventBinSampleStream(innerStream, new GraphicalEventBinSamplerParams(limit, count));
                 break;
-            case "eventsimple": // This is likely never a good sampler option given above...
+            case "eventsimple": // Application-level event-based. This is likely never a good sampler option given above...
                 innerStream = intervalService.openFloatStream(new IntervalQueryParams(metadata, begin, end));
 
                 if(integrate) { // Careful, we have two inner streams now
@@ -85,7 +85,7 @@ public class IntervalWebService extends QueryWebService {
 
                 stream = new FloatSimpleEventBinSampleStream(innerStream, new SimpleEventBinSamplerParams(limit, count));
                 break;
-            case "myget": // Fastest?  Worst graphical fidelity?
+            case "myget": // Database-level time-based.  Stored Procedure: Fastest.  "Basic" graphical fidelity.  Takes first/next actual point at timed intervals
 
                 if(integrate) {
                     throw new UnsupportedOperationException("Integration of input into myget sampler algorithm has not been implemented");
@@ -93,7 +93,7 @@ public class IntervalWebService extends QueryWebService {
 
                 stream = sourceSampler.openMyGetSampleFloatStream(new MyGetSampleParams(metadata, begin, end, limit));
                 break;
-            case "mysampler": // Is this one ever a good idea?  Results in n-queries against database.
+            case "mysampler": // Database-level time-based. Results in n-queries against database.  Takes value at timed intervals (by looking for prior point)
 
                 if(integrate) {
                     throw new UnsupportedOperationException("Integration of input into mysampler algorithm has not been implemented");
