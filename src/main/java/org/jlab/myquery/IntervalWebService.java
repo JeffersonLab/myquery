@@ -99,8 +99,8 @@ public class IntervalWebService extends QueryWebService {
                     throw new UnsupportedOperationException("Integration of input into mysampler algorithm has not been implemented");
                 }
 
-                long stepMillis = ((end.getEpochSecond() - begin.getEpochSecond()) / count) * 1000;  // TODO: Is this right?
-                stream = sourceSampler.openMySamplerFloatStream(new MySamplerParams(metadata, begin, stepMillis, count));
+                long stepMillis = ((end.getEpochSecond() - begin.getEpochSecond()) / limit) * 1000;
+                stream = sourceSampler.openMySamplerFloatStream(new MySamplerParams(metadata, begin, stepMillis, limit));
                 break;
             default:
                 throw new IllegalArgumentException("Unrecognized sampleType - " + sampleType + ".  Options include graphical, eventsimple, myget, mysampler");
