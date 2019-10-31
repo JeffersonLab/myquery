@@ -32,8 +32,9 @@
                             <label for="s">Sampling type: (t): </label>
                             <select id="t" name="t">
                                 <option value="graphical" title="Provides a better graphical representation">Graphical</option>
-                                <option value="binned" title="Returns at most one event from each time-based bin.">Binned</option>
-                                <option value="event" title="Returns every nth event">Event</option>
+                                <option value="eventsimple" title="Returns every nth event">Event Simple</option>
+                                <option value="myget" title="Returns at most one event from each time-based bin.">myGet</option>
+                                <option value="mysampler" title="Returns one event from each time-based bin at fixed frequency.">mySampler</option>
                             </select>
                         </li>
                         <li>
@@ -68,6 +69,10 @@
                         <li>
                             <label for="u">Timestamps as milliseconds from UNIX Epoch (u): </label>
                             <input id="u" name="u" type="checkbox"/> 
+                        </li>
+                        <li>
+                            <label for="i">Integrate [float events only] (i): </label>
+                            <input id="i" name="i" type="checkbox"/>
                         </li>
                     </ul>
                 </div>
