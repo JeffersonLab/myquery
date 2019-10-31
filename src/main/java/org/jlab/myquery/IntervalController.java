@@ -47,7 +47,7 @@ public class IntervalController extends QueryController {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException      if an I/O error occurs
      */
-    @SuppressWarnings("Duplicates")
+    @SuppressWarnings({"unchecked"})
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
