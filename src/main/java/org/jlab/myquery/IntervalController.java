@@ -26,7 +26,9 @@ import org.jlab.mya.event.MultiStringEvent;
 import org.jlab.mya.stream.FloatEventStream;
 import org.jlab.mya.stream.IntEventStream;
 import org.jlab.mya.stream.MultiStringEventStream;
+import org.jlab.mya.stream.wrapped.FloatGraphicalEventBinSampleStream;
 import org.jlab.mya.stream.wrapped.FloatIntegrationStream;
+import org.jlab.mya.stream.wrapped.FloatSimpleEventBinSampleStream;
 import org.jlab.mya.stream.wrapped.LabeledEnumStream;
 
 /**
@@ -229,8 +231,8 @@ public class IntervalController extends QueryController {
                     } else if (stream instanceof IntEventStream) {
                         dataLength = generateIntStream(gen, (IntEventStream) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter);
-                    } else if (stream instanceof FloatEventStream) {
-                        dataLength = generateFloatStream(gen, (FloatEventStream) stream, formatAsMillisSinceEpoch,
+                    } else if (stream instanceof FloatEventStream || stream instanceof FloatGraphicalEventBinSampleStream || stream instanceof FloatSimpleEventBinSampleStream) {
+                        dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter, decimalFormatter);
                     } else if (stream instanceof LabeledEnumStream) {
                         dataLength = generateLabeledEnumStream(gen, (LabeledEnumStream) stream, formatAsMillisSinceEpoch, timestampFormatter);

@@ -8,6 +8,7 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServlet;
 import org.jlab.mya.Event;
 import org.jlab.mya.EventCode;
+import org.jlab.mya.EventStream;
 import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.event.IntEvent;
 import org.jlab.mya.event.LabeledEnumEvent;
@@ -139,7 +140,7 @@ public class QueryController extends HttpServlet {
      * @return The count of events written to the JsonGenerator
      * @throws IOException
      */
-    public long generateFloatStream(JsonGenerator gen, FloatEventStream stream,
+    public long generateFloatStream(JsonGenerator gen, EventStream<FloatEvent> stream,
             boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter,
             DecimalFormat decimalFormatter) throws IOException {
         long count = 0;
