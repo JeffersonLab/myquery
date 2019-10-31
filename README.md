@@ -22,7 +22,7 @@ _**Path:** myquery/interval_
 | b     | Inclusive begin date with optional time                      | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]])        | YES      |                                            |  
 | e     | Exclusive end date with optional time                        | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]])        | YES      |                                            |
 | l     | Limit by binning / sampling                                  | Integer, number of samples or bins.  No sampling if absent | NO       | No sampling is done                        | 
-| t     | type of sampling                                             | String,  graphical, simpleevent, myget, mysampler          | NO       | 'graphical'                                |      
+| t     | type of sampling                                             | String: 'graphical', 'simpleevent', 'myget', 'mysampler'          | NO       | 'graphical'                                |      
 | m     | MYA deployment                                               | String                                                     | NO       | 'ops'                                      |      
 | f     | Fractional seconds time digits                               | Integer (0-6)                                              | NO       | 0 (ISO 8601 only)                          |    
 | v     | Fractional floating value digits                             | Integer (0-9)                                              | NO       | 6 (floats only)                            |
