@@ -231,7 +231,7 @@ public class IntervalController extends QueryController {
                     } else if (stream instanceof IntEventStream) {
                         dataLength = generateIntStream(gen, (IntEventStream) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter);
-                    } else if (stream instanceof FloatEventStream || stream instanceof FloatGraphicalEventBinSampleStream || stream instanceof FloatSimpleEventBinSampleStream) {
+                    } else if (stream instanceof FloatEventStream || stream instanceof FloatGraphicalEventBinSampleStream || stream instanceof FloatSimpleEventBinSampleStream || stream instanceof FloatIntegrationStream) {
                         dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch,
                                 timestampFormatter, decimalFormatter);
                     } else if (stream instanceof LabeledEnumStream) {
