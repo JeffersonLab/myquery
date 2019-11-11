@@ -29,8 +29,11 @@ _**Path:** myquery/interval_
 | d     | Data update events only (ignore info events)                 | Boolean, true if parameter exits                           | NO       | All events returned (update and info)      |
 | p     | Include prior point (guarantee at least one point in result) | Boolean, true if parameter exists                          | NO       | Prior point isn't included                 |   
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                          | NO       | Enumerations presented as ordinal number   |   
-| u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                          | NO       | Timestamps are returned in ISO 8601 format |   
+| u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                          | NO       | Timestamps are returned in ISO 8601 format (local server time) |
+| a     | Timestamps as milliseconds at the server zone offset*        | Boolean, true if parameter exists                          | NO       | Timestamps milliseconds in UTC             |
 | i     | Integrate (float data-types only)                            | Boolean, true if parameter exists                          | NO       | No integration is performed                |
+
+*Some clients like web browsers have limited access to an IANA timezone database so it is convenient if the server does local timezone (America/New_York - EST and EDT) shifting of historic time series and clients can interpret time series as timezone-less UTC internally yet present it as local time.  Note: this does mean results may contain two data points for 1:00 AM where that Fall hour is duplicated due to the daylight savings boundary and an hour in the Spring that is skipped.  In other words: The data values are identical, just timestamps can differ: two 1:00 AM vs both a 1:00 AM EST and 1:00 AM EDT.
 
 **Response JSON Format**    
 *On Success (HTTP 200 Response Code):*   
@@ -87,7 +90,7 @@ _**Path:** myquery/point_
 | x     | Closest event is exclusive of time of interest               | Boolean, true if parameter exists                   | NO       | Closest event is inclusive of time of interest |
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number       |
 | u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                   | NO       | Timestamps are returned in ISO 8601 format     | 
-
+| a     | Timestamps as milliseconds at the server zone offset         | Boolean, true if parameter exists                   | NO       | Timestamps milliseconds in UTC                 |
 **Response JSON Format**   
 *On Success (HTTP 200 Response Code):*   
 ````json

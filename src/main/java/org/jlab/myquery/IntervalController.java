@@ -76,6 +76,7 @@ public class IntervalController extends QueryController {
         String f = request.getParameter("f");
         String s = request.getParameter("s");
         String u = request.getParameter("u");
+        String a = request.getParameter("a");
         String v = request.getParameter("v");
         String t = request.getParameter("t");
         String i = request.getParameter("i");
@@ -179,6 +180,7 @@ public class IntervalController extends QueryController {
         DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
         DecimalFormat decimalFormatter = FormatUtil.getDecimalFormat(v);
         boolean formatAsMillisSinceEpoch = (u != null);
+        boolean adjustMillisWithServerOffset = (a != null);
 
         try {
             OutputStream out = response.getOutputStream();
@@ -213,13 +215,13 @@ public class IntervalController extends QueryController {
 
                     if (priorEvent != null) {
                         if (priorEvent instanceof IntEvent) {
-                            writeIntEvent(null, gen, (IntEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
+                            writeIntEvent(null, gen, (IntEvent) priorEvent, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                         } else if (priorEvent instanceof FloatEvent) {
-                            writeFloatEvent(null, gen, (FloatEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
+                            writeFloatEvent(null, gen, (FloatEvent) priorEvent, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
                         } else if (priorEvent instanceof LabeledEnumEvent) {
-                            writeLabeledEnumEvent(null, gen, (LabeledEnumEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
+                            writeLabeledEnumEvent(null, gen, (LabeledEnumEvent) priorEvent, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                         } else if (priorEvent instanceof MultiStringEvent) {
-                            writeMultiStringEvent(null, gen, (MultiStringEvent) priorEvent, formatAsMillisSinceEpoch, timestampFormatter);
+                            writeMultiStringEvent(null, gen, (MultiStringEvent) priorEvent, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                         } else {
                             throw new ServletException("Unsupported data type: " + priorEvent.getClass());
                         }
@@ -229,15 +231,15 @@ public class IntervalController extends QueryController {
                     if (stream == null) {
                         // Didn't get a stream so presumably there is an errorReason
                     } else if (stream instanceof IntEventStream) {
-                        dataLength = generateIntStream(gen, (IntEventStream) stream, formatAsMillisSinceEpoch,
+                        dataLength = generateIntStream(gen, (IntEventStream) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
                                 timestampFormatter);
                     } else if (stream instanceof FloatEventStream || stream instanceof FloatGraphicalEventBinSampleStream || stream instanceof FloatSimpleEventBinSampleStream || stream instanceof FloatIntegrationStream) {
-                        dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch,
+                        dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
                                 timestampFormatter, decimalFormatter);
                     } else if (stream instanceof LabeledEnumStream) {
-                        dataLength = generateLabeledEnumStream(gen, (LabeledEnumStream) stream, formatAsMillisSinceEpoch, timestampFormatter);
+                        dataLength = generateLabeledEnumStream(gen, (LabeledEnumStream) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                     } else if (stream instanceof MultiStringEventStream) {
-                        dataLength = generateMultiStringStream(gen, (MultiStringEventStream) stream, formatAsMillisSinceEpoch,
+                        dataLength = generateMultiStringStream(gen, (MultiStringEventStream) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
                                 timestampFormatter);
                     } else {
                         throw new ServletException("Unsupported data type: " + stream.getClass());

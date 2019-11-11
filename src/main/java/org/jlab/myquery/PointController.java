@@ -64,6 +64,7 @@ public class PointController extends QueryController {
         String x = request.getParameter("x");
         String s = request.getParameter("s");
         String u = request.getParameter("u");
+        String a = request.getParameter("a");
 
         try {
             if (c == null || c.trim().isEmpty()) {
@@ -110,6 +111,7 @@ public class PointController extends QueryController {
         }
 
         boolean formatAsMillisSinceEpoch = (u != null);
+        boolean adjustMillisWithServerOffset = (a != null);
         DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
         DecimalFormat decimalFormatter = FormatUtil.getDecimalFormat(v);
 
@@ -132,13 +134,13 @@ public class PointController extends QueryController {
                 }
                 if (event != null) {
                     if (event instanceof IntEvent) {
-                        writeIntEvent("data", gen, (IntEvent) event, formatAsMillisSinceEpoch, timestampFormatter);
+                        writeIntEvent("data", gen, (IntEvent) event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                     } else if (event instanceof FloatEvent) {
-                        writeFloatEvent("data", gen, (FloatEvent) event, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
+                        writeFloatEvent("data", gen, (FloatEvent) event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
                     } else if (event instanceof LabeledEnumEvent) {
-                        writeLabeledEnumEvent(null, gen, (LabeledEnumEvent) event, formatAsMillisSinceEpoch, timestampFormatter);
+                        writeLabeledEnumEvent(null, gen, (LabeledEnumEvent) event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                     } else if (event instanceof MultiStringEvent) {
-                        writeMultiStringEvent("data", gen, (MultiStringEvent) event, formatAsMillisSinceEpoch, timestampFormatter);
+                        writeMultiStringEvent("data", gen, (MultiStringEvent) event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                     } else {
                         throw new ServletException("Unsupported data type: " + event.getClass());
                     }

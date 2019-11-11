@@ -32,14 +32,14 @@ public class QueryController extends HttpServlet {
         }
     }
 
-    public void writeIntEvent(String name, JsonGenerator gen, IntEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) {
+    public void writeIntEvent(String name, JsonGenerator gen, IntEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter) {
         if (name != null) {
             gen.writeStartObject(name);
         } else {
             gen.writeStartObject();
         }
         
-        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, timestampFormatter);
+        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
             gen.write("v", event.getValue());
@@ -50,14 +50,14 @@ public class QueryController extends HttpServlet {
         gen.writeEnd();
     }
 
-    public void writeFloatEvent(String name, JsonGenerator gen, FloatEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter) {
+    public void writeFloatEvent(String name, JsonGenerator gen, FloatEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter) {
         if (name != null) {
             gen.writeStartObject(name);
         } else {
             gen.writeStartObject();
         }
 
-        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, timestampFormatter);
+        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
             // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
@@ -69,14 +69,14 @@ public class QueryController extends HttpServlet {
         gen.writeEnd();
     }
 
-    public void writeLabeledEnumEvent(String name, JsonGenerator gen, LabeledEnumEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) {
+    public void writeLabeledEnumEvent(String name, JsonGenerator gen, LabeledEnumEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter) {
         if (name != null) {
             gen.writeStartObject(name);
         } else {
             gen.writeStartObject();
         }
         
-        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, timestampFormatter);
+        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
             gen.write("v", event.getLabel());
@@ -87,14 +87,14 @@ public class QueryController extends HttpServlet {
         gen.writeEnd();
     }
 
-    public void writeMultiStringEvent(String name, JsonGenerator gen, MultiStringEvent event, boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) {
+    public void writeMultiStringEvent(String name, JsonGenerator gen, MultiStringEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter) {
         if (name != null) {
             gen.writeStartObject(name);
         } else {
             gen.writeStartObject();
         }
         
-        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, timestampFormatter);
+        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
 
         if (event.getCode() == EventCode.UPDATE) {
             String[] values = event.getValue();
@@ -120,12 +120,12 @@ public class QueryController extends HttpServlet {
      * @throws IOException
      */
     public long generateIntStream(JsonGenerator gen, IntEventStream stream,
-            boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter) throws IOException {
+            boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter) throws IOException {
         long count = 0;
         IntEvent event;
         while ((event = stream.read()) != null) {
             count++;
-            writeIntEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter);
+            writeIntEvent(null, gen, event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
         }
         return count;
     }
@@ -141,13 +141,13 @@ public class QueryController extends HttpServlet {
      * @throws IOException
      */
     public long generateFloatStream(JsonGenerator gen, EventStream<FloatEvent> stream,
-            boolean formatAsMillisSinceEpoch, DateTimeFormatter timestampFormatter,
+            boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter,
             DecimalFormat decimalFormatter) throws IOException {
         long count = 0;
         FloatEvent event;
         while ((event = stream.read()) != null) {
             count++;
-            writeFloatEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter, decimalFormatter);
+            writeFloatEvent(null, gen, event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
         }
         return count;
     }
@@ -162,13 +162,13 @@ public class QueryController extends HttpServlet {
      * @throws IOException
      */
     public long generateLabeledEnumStream(JsonGenerator gen,
-            LabeledEnumStream stream, boolean formatAsMillisSinceEpoch,
+            LabeledEnumStream stream, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
             DateTimeFormatter timestampFormatter) throws IOException {
         LabeledEnumEvent event;
         long count = 0;
         while ((event = stream.read()) != null) {
             count++;
-            writeLabeledEnumEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter);
+            writeLabeledEnumEvent(null, gen, event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
         }
         return count;
     }
@@ -183,13 +183,13 @@ public class QueryController extends HttpServlet {
      * @throws IOException
      */
     public long generateMultiStringStream(JsonGenerator gen,
-            MultiStringEventStream stream, boolean formatAsMillisSinceEpoch,
+            MultiStringEventStream stream, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
             DateTimeFormatter timestampFormatter) throws IOException {
         MultiStringEvent event;
         long count = 0;
         while ((event = stream.read()) != null) {
             count++;
-            writeMultiStringEvent(null, gen, event, formatAsMillisSinceEpoch, timestampFormatter);
+            writeMultiStringEvent(null, gen, event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
         }
         return count;
     }
