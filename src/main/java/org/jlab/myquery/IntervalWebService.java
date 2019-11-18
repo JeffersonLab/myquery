@@ -33,12 +33,12 @@ public class IntervalWebService extends QueryWebService {
     }
 
     public EventStream openEventStream(Metadata metadata, boolean updatesOnly, Instant begin, Instant end,
-            boolean enumsAsStrings, Event priorEvent) throws Exception {
+            boolean enumsAsStrings, Event priorEvent, Class type) throws Exception {
         IntervalQueryParams params = new IntervalQueryParams(metadata, updatesOnly, IntervalQueryParams.IntervalQueryFetchStrategy.STREAM, begin, end);
         EventStream stream = service.openEventStream(params);
 
         if(priorEvent != null) {
-            stream = new BoundaryAwareStream<>(stream, begin, end, priorEvent, updatesOnly, null);
+            stream = new BoundaryAwareStream<>(stream, begin, end, priorEvent, updatesOnly, type);
         }
 
         if (enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
@@ -56,9 +56,12 @@ public class IntervalWebService extends QueryWebService {
 
 
     public EventStream openSampleEventStream(String sampleType, Metadata metadata, Instant begin, Instant end, long limit,
-            long count, boolean enumsAsStrings, boolean updatesOnly, boolean integrate, Event priorEvent) throws SQLException, UnsupportedOperationException {
+            long count, boolean enumsAsStrings, boolean updatesOnly, boolean integrate, Event priorEvent, Class type) throws SQLException, UnsupportedOperationException {
 
-        // TODO: what about String or other non-numeric types?
+        if(type != FloatEvent.class) {
+            throw new IllegalArgumentException("Only float events can be sampled");
+        }
+
         EventStream stream;
 
         if (sampleType == null || sampleType.isEmpty()){

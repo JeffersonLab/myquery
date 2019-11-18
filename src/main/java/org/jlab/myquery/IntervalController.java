@@ -152,10 +152,30 @@ public class IntervalController extends QueryController {
                 integrate = true;
             }
 
+            Class type;
+
+            switch(metadata.getType()) {
+                case DBR_FLOAT:
+                case DBR_DOUBLE:
+                    type = FloatEvent.class;
+                    break;
+                case DBR_ENUM:
+                case DBR_SHORT:
+                case DBR_LONG:
+                case DBR_CHAR:
+                    type = IntEvent.class;
+                    break;
+                case DBR_STRING:
+                    type = MultiStringEvent.class;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown type: " + metadata.getType());
+            }
+
             if (sample) {
-                stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, enumsAsStrings, updatesOnly, integrate, priorEvent);
+                stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, enumsAsStrings, updatesOnly, integrate, priorEvent, type);
             } else {
-                stream = service.openEventStream(metadata, updatesOnly, begin, end, enumsAsStrings, priorEvent);
+                stream = service.openEventStream(metadata, updatesOnly, begin, end, enumsAsStrings, priorEvent, type);
 
                 if(integrate) {
                     stream = new FloatAnalysisStream(stream, new short[]{RunningStatistics.INTEGRATION});
@@ -214,8 +234,8 @@ public class IntervalController extends QueryController {
                     long dataLength = 0;
                     if (stream == null) {
                         // Didn't get a stream so presumably there is an errorReason
-                    } else if (stream instanceof IntEventStream) {
-                        dataLength = generateIntStream(gen, (IntEventStream) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
+                    } else if (stream.getType() == IntEvent.class) {
+                        dataLength = generateIntStream(gen, (EventStream<IntEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
                                 timestampFormatter);
                     } else if (stream.getType() == FloatEvent.class) {
                         dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
@@ -223,10 +243,10 @@ public class IntervalController extends QueryController {
                     } else if(stream.getType() == AnalyzedFloatEvent.class) {
                         dataLength = generateAnalyzedFloatStream(gen, (EventStream<AnalyzedFloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
                                 timestampFormatter, decimalFormatter);
-                    } else if (stream instanceof LabeledEnumStream) {
-                        dataLength = generateLabeledEnumStream(gen, (LabeledEnumStream) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
-                    } else if (stream instanceof MultiStringEventStream) {
-                        dataLength = generateMultiStringStream(gen, (MultiStringEventStream) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
+                    } else if (stream.getType() == LabeledEnumEvent.class) {
+                        dataLength = generateLabeledEnumStream(gen, (EventStream<LabeledEnumEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
+                    } else if (stream.getType() == MultiStringEvent.class) {
+                        dataLength = generateMultiStringStream(gen, (EventStream<MultiStringEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
                                 timestampFormatter);
                     } else {
                         throw new ServletException("Unsupported data type: " + stream.getClass());

@@ -142,7 +142,7 @@ public class QueryController extends HttpServlet {
      * @return The number of events written to the JSON generator
      * @throws IOException
      */
-    public long generateIntStream(JsonGenerator gen, IntEventStream stream,
+    public long generateIntStream(JsonGenerator gen, EventStream<IntEvent> stream,
             boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter) throws IOException {
         long count = 0;
         IntEvent event;
@@ -209,7 +209,7 @@ public class QueryController extends HttpServlet {
      * @throws IOException
      */
     public long generateLabeledEnumStream(JsonGenerator gen,
-            LabeledEnumStream stream, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
+            EventStream<LabeledEnumEvent> stream, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
             DateTimeFormatter timestampFormatter) throws IOException {
         LabeledEnumEvent event;
         long count = 0;
@@ -230,7 +230,7 @@ public class QueryController extends HttpServlet {
      * @throws IOException
      */
     public long generateMultiStringStream(JsonGenerator gen,
-            MultiStringEventStream stream, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
+            EventStream<MultiStringEvent> stream, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
             DateTimeFormatter timestampFormatter) throws IOException {
         MultiStringEvent event;
         long count = 0;
