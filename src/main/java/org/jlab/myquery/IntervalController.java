@@ -153,9 +153,9 @@ public class IntervalController extends QueryController {
             }
 
             if (sample) {
-                stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, enumsAsStrings, integrate);
+                stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, enumsAsStrings, updatesOnly, integrate, priorEvent);
             } else {
-                stream = service.openEventStream(metadata, updatesOnly, begin, end, enumsAsStrings);
+                stream = service.openEventStream(metadata, updatesOnly, begin, end, enumsAsStrings, priorEvent);
 
                 if(integrate) {
                     stream = new FloatAnalysisStream(stream, new short[]{RunningStatistics.INTEGRATION});
@@ -210,20 +210,6 @@ public class IntervalController extends QueryController {
                     }
 
                     gen.writeStartArray("data");
-
-                    if (priorEvent != null) {
-                        if (priorEvent instanceof IntEvent) {
-                            writeIntEvent(null, gen, (IntEvent) priorEvent, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
-                        } else if (priorEvent instanceof FloatEvent) {
-                            writeFloatEvent(null, gen, (FloatEvent) priorEvent, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
-                        } else if (priorEvent instanceof LabeledEnumEvent) {
-                            writeLabeledEnumEvent(null, gen, (LabeledEnumEvent) priorEvent, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
-                        } else if (priorEvent instanceof MultiStringEvent) {
-                            writeMultiStringEvent(null, gen, (MultiStringEvent) priorEvent, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
-                        } else {
-                            throw new ServletException("Unsupported data type: " + priorEvent.getClass());
-                        }
-                    }
 
                     long dataLength = 0;
                     if (stream == null) {
