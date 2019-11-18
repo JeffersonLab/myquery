@@ -5,13 +5,15 @@ import java.time.Instant;
 import java.util.List;
 
 import org.jlab.mya.*;
+import org.jlab.mya.analysis.RunningStatistics;
+import org.jlab.mya.event.AnalyzedFloatEvent;
 import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.params.*;
 import org.jlab.mya.service.IntervalService;
 import org.jlab.mya.service.SourceSamplingService;
 import org.jlab.mya.stream.IntEventStream;
+import org.jlab.mya.stream.wrapped.FloatAnalysisStream;
 import org.jlab.mya.stream.wrapped.FloatGraphicalEventBinSampleStream;
-import org.jlab.mya.stream.wrapped.FloatIntegrationStream;
 import org.jlab.mya.stream.wrapped.FloatSimpleEventBinSampleStream;
 import org.jlab.mya.stream.wrapped.LabeledEnumStream;
 
@@ -35,7 +37,7 @@ public class IntervalWebService extends QueryWebService {
 
     public EventStream openEventStream(Metadata metadata, boolean updatesOnly, Instant begin, Instant end,
             boolean enumsAsStrings) throws Exception {
-        IntervalQueryParams params = new IntervalQueryParams(metadata, updatesOnly, begin, end);
+        IntervalQueryParams params = new IntervalQueryParams(metadata, updatesOnly, IntervalQueryParams.IntervalQueryFetchStrategy.STREAM, begin, end);
         EventStream stream = service.openEventStream(params);
 
         if (enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
@@ -47,7 +49,7 @@ public class IntervalWebService extends QueryWebService {
     }
 
     public Long count(Metadata metadata, boolean updatesOnly, Instant begin, Instant end) throws SQLException {
-        IntervalQueryParams params = new IntervalQueryParams(metadata, updatesOnly, begin, end);
+        IntervalQueryParams params = new IntervalQueryParams(metadata, updatesOnly, IntervalQueryParams.IntervalQueryFetchStrategy.STREAM, begin, end);
         return service.count(params);
     }
 
@@ -64,26 +66,28 @@ public class IntervalWebService extends QueryWebService {
             throw new IllegalArgumentException("sampleType required.  Options include graphical, event, binned");
         }
 
-        EventStream<FloatEvent> innerStream;
+        EventStream innerStream;
+        Class type = FloatEvent.class;
 
         switch(sampleType) {
             case "graphical":  // Application-level event-based, high graphical fidelity
                 innerStream = intervalService.openFloatStream(new IntervalQueryParams(metadata, begin, end));
 
                 if(integrate) { // Careful, we have two inner streams now
-                    innerStream = new FloatIntegrationStream(innerStream);
+                    innerStream = new FloatAnalysisStream(innerStream, new short[]{RunningStatistics.INTEGRATION});
+                    type = AnalyzedFloatEvent.class;
                 }
 
-                stream = new FloatGraphicalEventBinSampleStream(innerStream, new GraphicalEventBinSamplerParams(limit, count));
+                stream = new FloatGraphicalEventBinSampleStream(innerStream, new GraphicalEventBinSamplerParams(limit, count), type);
                 break;
             case "eventsimple": // Application-level event-based. This is likely never a good sampler option given above...
                 innerStream = intervalService.openFloatStream(new IntervalQueryParams(metadata, begin, end));
 
                 if(integrate) { // Careful, we have two inner streams now
-                    innerStream = new FloatIntegrationStream(innerStream);
+                    innerStream = new FloatAnalysisStream(innerStream, new short[]{RunningStatistics.INTEGRATION});
                 }
 
-                stream = new FloatSimpleEventBinSampleStream(innerStream, new SimpleEventBinSamplerParams(limit, count));
+                stream = new FloatSimpleEventBinSampleStream(innerStream, new SimpleEventBinSamplerParams(limit, count), FloatEvent.class);
                 break;
             case "myget": // Database-level time-based.  Stored Procedure: Fastest.  "Basic" graphical fidelity.  Takes first/next actual point at timed intervals
 

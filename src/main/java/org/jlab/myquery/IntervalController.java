@@ -19,15 +19,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.jlab.mya.Event;
 import org.jlab.mya.EventStream;
 import org.jlab.mya.Metadata;
-import org.jlab.mya.event.FloatEvent;
-import org.jlab.mya.event.IntEvent;
-import org.jlab.mya.event.LabeledEnumEvent;
-import org.jlab.mya.event.MultiStringEvent;
+import org.jlab.mya.analysis.RunningStatistics;
+import org.jlab.mya.event.*;
 import org.jlab.mya.stream.FloatEventStream;
 import org.jlab.mya.stream.IntEventStream;
 import org.jlab.mya.stream.MultiStringEventStream;
 import org.jlab.mya.stream.wrapped.FloatGraphicalEventBinSampleStream;
-import org.jlab.mya.stream.wrapped.FloatIntegrationStream;
+import org.jlab.mya.stream.wrapped.FloatAnalysisStream;
 import org.jlab.mya.stream.wrapped.FloatSimpleEventBinSampleStream;
 import org.jlab.mya.stream.wrapped.LabeledEnumStream;
 
@@ -160,7 +158,7 @@ public class IntervalController extends QueryController {
                 stream = service.openEventStream(metadata, updatesOnly, begin, end, enumsAsStrings);
 
                 if(integrate) {
-                    stream = new FloatIntegrationStream(stream);
+                    stream = new FloatAnalysisStream(stream, new short[]{RunningStatistics.INTEGRATION});
                 }
             }
         } catch (Exception ex) {
@@ -233,8 +231,11 @@ public class IntervalController extends QueryController {
                     } else if (stream instanceof IntEventStream) {
                         dataLength = generateIntStream(gen, (IntEventStream) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
                                 timestampFormatter);
-                    } else if (stream instanceof FloatEventStream || stream instanceof FloatGraphicalEventBinSampleStream || stream instanceof FloatSimpleEventBinSampleStream || stream instanceof FloatIntegrationStream) {
+                    } else if (stream.getType() == FloatEvent.class) {
                         dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
+                                timestampFormatter, decimalFormatter);
+                    } else if(stream.getType() == AnalyzedFloatEvent.class) {
+                        dataLength = generateAnalyzedFloatStream(gen, (EventStream<AnalyzedFloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
                                 timestampFormatter, decimalFormatter);
                     } else if (stream instanceof LabeledEnumStream) {
                         dataLength = generateLabeledEnumStream(gen, (LabeledEnumStream) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);

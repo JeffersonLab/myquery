@@ -9,10 +9,7 @@ import javax.servlet.http.HttpServlet;
 import org.jlab.mya.Event;
 import org.jlab.mya.EventCode;
 import org.jlab.mya.EventStream;
-import org.jlab.mya.event.FloatEvent;
-import org.jlab.mya.event.IntEvent;
-import org.jlab.mya.event.LabeledEnumEvent;
-import org.jlab.mya.event.MultiStringEvent;
+import org.jlab.mya.event.*;
 import org.jlab.mya.stream.FloatEventStream;
 import org.jlab.mya.stream.IntEventStream;
 import org.jlab.mya.stream.MultiStringEventStream;
@@ -62,6 +59,32 @@ public class QueryController extends HttpServlet {
         if (event.getCode() == EventCode.UPDATE) {
             // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
             gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
+        } else {
+            writeInformationalEvent(gen, event);
+        }
+
+        gen.writeEnd();
+    }
+
+    public void writeAnalyzedFloatEvent(String name, JsonGenerator gen, AnalyzedFloatEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter) {
+        if (name != null) {
+            gen.writeStartObject(name);
+        } else {
+            gen.writeStartObject();
+        }
+
+        FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
+
+        if (event.getCode() == EventCode.UPDATE) {
+            // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
+            gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
+            double[] stats = event.getEventStats();
+            if(stats != null && stats.length == 1) {
+                // We only support integration at this point.  Once more are supported this will have to be a loop that
+                // references short[] map for position/index of each stat
+                // i for integration?   Good enough for now
+                gen.write("i", new BigDecimal(decimalFormatter.format(stats[0])));
+            }
         } else {
             writeInformationalEvent(gen, event);
         }
@@ -131,7 +154,8 @@ public class QueryController extends HttpServlet {
     }
 
     /**
-     * Write out the FloatEventStream to a JsonGenerator.
+     * Write out the FloatEvents to a JsonGenerator.
+     *
      * @param gen
      * @param stream
      * @param formatAsMillisSinceEpoch
@@ -148,6 +172,29 @@ public class QueryController extends HttpServlet {
         while ((event = stream.read()) != null) {
             count++;
             writeFloatEvent(null, gen, event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
+        }
+        return count;
+    }
+
+    /**
+     * Write out the AnalyzedFloatEvents to a JsonGenerator.
+     *
+     * @param gen
+     * @param stream
+     * @param formatAsMillisSinceEpoch
+     * @param timestampFormatter
+     * @param decimalFormatter
+     * @return The count of events written to the JsonGenerator
+     * @throws IOException
+     */
+    public long generateAnalyzedFloatStream(JsonGenerator gen, EventStream<AnalyzedFloatEvent> stream,
+                                    boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter,
+                                    DecimalFormat decimalFormatter) throws IOException {
+        long count = 0;
+        AnalyzedFloatEvent event;
+        while ((event = stream.read()) != null) {
+            count++;
+            writeAnalyzedFloatEvent(null, gen, event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
         }
         return count;
     }
