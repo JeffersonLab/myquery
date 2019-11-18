@@ -31,9 +31,11 @@ _**Path:** myquery/interval_
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                          | NO       | Enumerations presented as ordinal number   |   
 | u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                          | NO       | Timestamps are returned in ISO 8601 format (local server time) |
 | a     | Timestamps as milliseconds at the server zone offset*        | Boolean, true if parameter exists                          | NO       | Timestamps milliseconds in UTC             |
-| i     | Integrate (float data-types only)                            | Boolean, true if parameter exists                          | NO       | No integration is performed                |
+| i     | Integrate (float data-types only)†                          | Boolean, true if parameter exists                          | NO       | No integration is performed                |
 
 *Some clients like web browsers have limited access to an IANA timezone database so it is convenient if the server does local timezone (America/New_York - EST and EDT) shifting of historic time series and clients can interpret time series as timezone-less UTC internally yet present it as local time.  Note: this does mean results may contain two data points for 1:00 AM where that Fall hour is duplicated due to the daylight savings boundary and an hour in the Spring that is skipped.  In other words: The data values are identical, just timestamps can differ: two 1:00 AM vs both a 1:00 AM EST and 1:00 AM EDT.
+
+†Both integrated and non integrated values are returned.  The "raw" value has key "v" and the integrated value key is "i".
 
 **Response JSON Format**    
 *On Success (HTTP 200 Response Code):*   
@@ -101,7 +103,8 @@ _**Path:** myquery/point_
     "data":{   
         "d":"<DATE-TIME>",   
         "v":"<VALUE>",  
-        "t":"<TYPE (only present if not update)>",  
+        "t":"<TYPE (only present if not update)>",
+        "i":"<INTEGRATED VALUE (only present if requested with i option)>",
         "x":"<DISCONNECTION-TRUE/FALSE (only present if disconnection)>"            
         }   
 }    
