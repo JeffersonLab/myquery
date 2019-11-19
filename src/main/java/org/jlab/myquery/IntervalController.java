@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.Json;
@@ -16,9 +17,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jlab.mya.Event;
-import org.jlab.mya.EventStream;
-import org.jlab.mya.Metadata;
+import org.jlab.mya.*;
 import org.jlab.mya.analysis.RunningStatistics;
 import org.jlab.mya.event.*;
 import org.jlab.mya.stream.FloatEventStream;
@@ -162,24 +161,31 @@ public class IntervalController extends QueryController {
                 case DBR_ENUM:
                 case DBR_SHORT:
                 case DBR_LONG:
-                case DBR_CHAR:
                     type = IntEvent.class;
                     break;
                 case DBR_STRING:
-                    type = MultiStringEvent.class;
-                    break;
+                case DBR_CHAR:
                 default:
-                    throw new IllegalArgumentException("Unknown type: " + metadata.getType());
+                    type = MultiStringEvent.class;
             }
 
             if (sample) {
-                stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, enumsAsStrings, updatesOnly, integrate, priorEvent, type);
+                if(type != FloatEvent.class) {
+                    throw new IllegalArgumentException("Only float events can be sampled");
+                }
+
+                stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, updatesOnly, integrate, (FloatEvent)priorEvent, type);
             } else {
-                stream = service.openEventStream(metadata, updatesOnly, begin, end, enumsAsStrings, priorEvent, type);
+                stream = service.openEventStream(metadata, updatesOnly, begin, end, priorEvent, type);
 
                 if(integrate) {
                     stream = new FloatAnalysisStream(stream, new short[]{RunningStatistics.INTEGRATION});
                 }
+            }
+
+            if (enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
+                List<ExtraInfo> extraInfoList = service.findExtraInfo(metadata, "enum_strings");
+                stream = new LabeledEnumStream((IntEventStream) stream, extraInfoList);
             }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
