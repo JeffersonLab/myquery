@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class IntervalQueryTest {
     @Test
-    public void doTest() throws IOException, InterruptedException {
+    public void doBasicTest() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8888/myquery/interval?c=R123GSET&b=2019-08-01&e=2019-08-11")).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -39,6 +39,25 @@ public class IntervalQueryTest {
             int count = json.getInt("returnCount");
 
             assertEquals(52, count);
+        }
+    }
+
+    @Test
+    public void doIntegratedAndSampledTest() throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8888/myquery/interval?c=R123GSET&b=2019-08-01&e=2019-08-11&l=10&t=graphical&p=on&i=on")).build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        //System.out.println(response.body());
+
+        assertEquals(200, response.statusCode());
+
+        try(JsonReader reader = Json.createReader(new StringReader(response.body()))) {
+            JsonObject json = reader.readObject();
+
+            int count = json.getInt("returnCount");
+
+            assertEquals(20, count);
         }
     }
 }
