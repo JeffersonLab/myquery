@@ -7,8 +7,8 @@ Currently, myquery supports querying channel history over a time interval and ch
 
 Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service for fetching data from the JLab Archiver 'MYA'.
 
-Internet Access (Authentication Required): [Public MYA Web Service](https://epicsweb.jlab.org/myquery/)
-Intranet Access: [Internal MYA Web Service](https://myaweb.acc.jlab.org/myquery/)
+Access via Internet (Authentication Required): [Public MYA Web Service](https://epicsweb.jlab.org/myquery/)   
+Access via Intranet: [Internal MYA Web Service](https://myaweb.acc.jlab.org/myquery/)
 
 ## API    
 
