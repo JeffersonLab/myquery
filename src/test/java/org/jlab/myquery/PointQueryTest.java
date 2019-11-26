@@ -36,9 +36,12 @@ public class PointQueryTest {
         try(JsonReader reader = Json.createReader(new StringReader(response.body()))) {
             JsonObject json = reader.readObject();
 
-            int count = json.getInt("returnCount");
+            JsonObject data = json.getJsonObject("data");
 
-            assertEquals(52, count);
+            String d = data.getString("d");
+
+            // myget -c IBCAD00CRCUR6 -t "2019-06-06" returns 47 seconds, not 46 seconds... probably because java.time formatting doesn't round
+            assertEquals("2019-06-05T23:59:46", d);
         }
     }
 }
