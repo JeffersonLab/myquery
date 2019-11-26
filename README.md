@@ -97,6 +97,7 @@ _**Path:** myquery/point_
 | s     | Enumerations as strings                                      | Boolean, true if parameter exists                   | NO       | Enumerations presented as ordinal number       |
 | u     | Timestamps as milliseconds from UNIX Epoch                   | Boolean, true if parameter exists                   | NO       | Timestamps are returned in ISO 8601 format     | 
 | a     | Timestamps as milliseconds at the server zone offset         | Boolean, true if parameter exists                   | NO       | Timestamps milliseconds in UTC                 |
+
 **Response JSON Format**   
 *On Success (HTTP 200 Response Code):*   
 ````json
