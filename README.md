@@ -42,7 +42,7 @@ _**Path:** myquery/interval_
 
 **Response JSON Format**    
 *On Success (HTTP 200 Response Code):*   
-````json
+````
 {   
     "datatype":"<EPICS datatype>",     
     "datasize":"<data vector size; 1 for scalar>",    
