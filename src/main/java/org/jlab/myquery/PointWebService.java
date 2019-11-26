@@ -5,10 +5,10 @@ import java.time.Instant;
 import java.util.List;
 
 import org.jlab.mya.*;
+import org.jlab.mya.event.Event;
 import org.jlab.mya.event.IntEvent;
 import org.jlab.mya.event.LabeledEnumEvent;
-import org.jlab.mya.params.PointQueryParams;
-import org.jlab.mya.service.PointService;
+import org.jlab.mya.nexus.DataNexus;
 
 /**
  *
@@ -16,24 +16,22 @@ import org.jlab.mya.service.PointService;
  */
 public class PointWebService extends QueryWebService {
 
-    private final PointService service;
-    
+    private DataNexus nexus;
+
     public PointWebService(String deployment) {
         DataNexus nexus = getNexus(deployment);
-        service = new PointService(nexus);
     }
     
     public Metadata findMetadata(String c) throws SQLException {
-        return service.findMetadata(c);
+        return nexus.findMetadata(c);
     }    
-    
+
+    @SuppressWarnings("unchecked")
     public Event findEvent(Metadata metadata, boolean updatesOnly, Instant t, boolean lessThan, boolean orEqual, boolean enumsAsStrings) throws SQLException {
-        PointQueryParams params = new PointQueryParams(metadata, updatesOnly, t, lessThan, orEqual);
+        Event event = nexus.findEvent(metadata, t, lessThan, orEqual, updatesOnly);
         
-        Event event = service.findEvent(params);
-        
-        if(enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
-            List<ExtraInfo> extraInfoList = service.findExtraInfo(metadata, "enum_strings");
+        if(enumsAsStrings && metadata.getMyaType() == MyaDataType.DBR_ENUM) {
+            List<ExtraInfo> extraInfoList = nexus.findExtraInfo(metadata, "enum_strings");
             event = LabeledEnumEvent.findLabelFromHistory((IntEvent)event, extraInfoList);
         }    
         

@@ -15,12 +15,8 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.jlab.mya.Event;
 import org.jlab.mya.Metadata;
-import org.jlab.mya.event.FloatEvent;
-import org.jlab.mya.event.IntEvent;
-import org.jlab.mya.event.LabeledEnumEvent;
-import org.jlab.mya.event.MultiStringEvent;
+import org.jlab.mya.event.*;
 
 /**
  *
@@ -128,7 +124,7 @@ public class PointController extends QueryController {
                 gen.write("error", errorReason);
             } else {
                 if (metadata != null) {
-                    gen.write("datatype", metadata.getType().name());
+                    gen.write("datatype", metadata.getMyaType().name());
                     gen.write("datasize", metadata.getSize());
                     gen.write("datahost", metadata.getHost());
                 }

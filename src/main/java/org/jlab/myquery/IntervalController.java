@@ -18,15 +18,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jlab.mya.*;
-import org.jlab.mya.analysis.RunningStatistics;
 import org.jlab.mya.event.*;
-import org.jlab.mya.stream.FloatEventStream;
-import org.jlab.mya.stream.IntEventStream;
-import org.jlab.mya.stream.MultiStringEventStream;
-import org.jlab.mya.stream.wrapped.FloatGraphicalEventBinSampleStream;
-import org.jlab.mya.stream.wrapped.FloatAnalysisStream;
-import org.jlab.mya.stream.wrapped.FloatSimpleEventBinSampleStream;
-import org.jlab.mya.stream.wrapped.LabeledEnumStream;
+import org.jlab.mya.stream.EventStream;
+import org.jlab.mya.stream.FloatAnalysisStream;
+import org.jlab.mya.stream.LabeledEnumStream;
 
 /**
  * @author ryans
@@ -151,23 +146,7 @@ public class IntervalController extends QueryController {
                 integrate = true;
             }
 
-            Class type;
-
-            switch(metadata.getType()) {
-                case DBR_FLOAT:
-                case DBR_DOUBLE:
-                    type = FloatEvent.class;
-                    break;
-                case DBR_ENUM:
-                case DBR_SHORT:
-                case DBR_LONG:
-                    type = IntEvent.class;
-                    break;
-                case DBR_STRING:
-                case DBR_CHAR:
-                default:
-                    type = MultiStringEvent.class;
-            }
+            Class type = metadata.getType();
 
             if (sample) {
                 if(type != FloatEvent.class) {
@@ -183,9 +162,9 @@ public class IntervalController extends QueryController {
                 }
             }
 
-            if (enumsAsStrings && metadata.getType() == DataType.DBR_ENUM) {
+            if (enumsAsStrings && metadata.getMyaType() == MyaDataType.DBR_ENUM) {
                 List<ExtraInfo> extraInfoList = service.findExtraInfo(metadata, "enum_strings");
-                stream = new LabeledEnumStream((IntEventStream) stream, extraInfoList);
+                stream = new LabeledEnumStream((EventStream<IntEvent>) stream, extraInfoList);
             }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
@@ -221,7 +200,7 @@ public class IntervalController extends QueryController {
                     gen.write("error", errorReason);
                 } else {
                     if (metadata != null) {
-                        gen.write("datatype", metadata.getType().name());
+                        gen.write("datatype", metadata.getMyaType().name());
                         gen.write("datasize", metadata.getSize());
                         gen.write("datahost", metadata.getHost());
                     }

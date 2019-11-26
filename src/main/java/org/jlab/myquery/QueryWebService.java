@@ -2,7 +2,7 @@ package org.jlab.myquery;
 
 import javax.naming.NamingException;
 
-import org.jlab.mya.DataNexus;
+import org.jlab.mya.nexus.DataNexus;
 import org.jlab.mya.nexus.PooledNexus;
 
 import java.util.concurrent.ConcurrentHashMap;

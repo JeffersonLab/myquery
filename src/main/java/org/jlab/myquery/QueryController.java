@@ -6,14 +6,8 @@ import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServlet;
-import org.jlab.mya.Event;
-import org.jlab.mya.EventCode;
-import org.jlab.mya.EventStream;
 import org.jlab.mya.event.*;
-import org.jlab.mya.stream.FloatEventStream;
-import org.jlab.mya.stream.IntEventStream;
-import org.jlab.mya.stream.MultiStringEventStream;
-import org.jlab.mya.stream.wrapped.LabeledEnumStream;
+import org.jlab.mya.stream.EventStream;
 
 /**
  *
