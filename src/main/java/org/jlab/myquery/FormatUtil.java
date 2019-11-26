@@ -17,7 +17,7 @@ import org.jlab.mya.TimeUtil;
 public class FormatUtil {
 
     public final static DateTimeFormatter DATE_TIME_NO_FRACTIONAL = DateTimeFormatter.ofPattern(
-            "yyyy-MM-dd'T'hh:mm:ss");
+            "yyyy-MM-dd'T'HH:mm:ss");
 
     public final static ZoneId DEFAULT_ZONE = ZoneId.systemDefault();
 
