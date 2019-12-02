@@ -101,6 +101,14 @@ public class PointController extends QueryController {
             boolean enumsAsStrings = (s != null);
 
             event = service.findEvent(metadata, updatesOnly, time, lessThan, orEqual, enumsAsStrings);
+
+            // Disable caching of response if:
+            // (1) no forward event found (yet) - check again later
+            // (2) requested future time - prior point might change
+            if((!lessThan && event == null) || time.isAfter(Instant.now())) {
+                CacheAndEncodingFilter.disableCaching(response);
+            }
+
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();

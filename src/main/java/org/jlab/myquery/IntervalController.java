@@ -100,6 +100,10 @@ public class IntervalController extends QueryController {
             Instant end = LocalDateTime.parse(e).atZone(
                     ZoneId.systemDefault()).toInstant();
 
+            if(end.isAfter(Instant.now())) { // Don't tell client to cache response if contains future bounds!
+                CacheAndEncodingFilter.disableCaching(response);
+            }
+
             String deployment = "ops";
 
             if (m != null && !m.trim().isEmpty()) {

@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
@@ -61,6 +62,8 @@ public class CacheAndEncodingFilter implements Filter {
         response.setCharacterEncoding("UTF-8");
 
         chain.doFilter(request, new CacheControlResponse(httpResponse));
+
+        // At this point the doGet() has already run and it is too late to set headers!
     }
 
     @Override
@@ -82,19 +85,27 @@ public class CacheAndEncodingFilter implements Filter {
             super.setContentType(type);
 
             if (type != null && Arrays.binarySearch(CACHEABLE_CONTENT_TYPES, type) > -1) {
-
                 //System.out.println("cacheable: " + type);
-                // We don't use Cache-Control max-age as it is just HTTP/1.1 replacement of HTTP/1.0 Expires, but Expires still works fine.
-                super.setHeader("Cache-Control", null); // Remove header sometimes automatically added by SSL/TLS container module
-                super.setHeader("Pragma", null); // Remove header sometimes automatically added by SSL/TLS container module              
-                super.setDateHeader("Expires", System.currentTimeMillis() + EXPIRE_MILLIS);
+                enableCaching(this);
             } else {
-
                 //System.out.println("not cacheable: " + type);
-                super.setHeader("Cache-Control", "no-store, no-cache, must-revalidate"); // HTTP 1.1
-                super.setHeader("Pragma", "no-cache"); // HTTP 1.0
-                super.setDateHeader("Expires", 0); // Proxies
+                disableCaching(this);
             }
         }
+    }
+
+    public static void enableCaching(HttpServletResponse response) {
+        //System.err.println("enableCaching");
+        // We don't use Cache-Control max-age as it is just HTTP/1.1 replacement of HTTP/1.0 Expires, but Expires still works fine.
+        response.setHeader("Cache-Control", null); // Remove header sometimes automatically added by SSL/TLS container module
+        response.setHeader("Pragma", null); // Remove header sometimes automatically added by SSL/TLS container module
+        response.setDateHeader("Expires", System.currentTimeMillis() + EXPIRE_MILLIS);
+    }
+
+    public static void disableCaching(HttpServletResponse response) {
+        //System.err.println("disableCaching");
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate"); // HTTP 1.1
+        response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+        response.setDateHeader("Expires", 0); // Proxies
     }
 }
