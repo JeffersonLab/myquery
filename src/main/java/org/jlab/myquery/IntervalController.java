@@ -100,10 +100,6 @@ public class IntervalController extends QueryController {
             Instant end = LocalDateTime.parse(e).atZone(
                     ZoneId.systemDefault()).toInstant();
 
-            if(end.isAfter(Instant.now())) { // Don't tell client to cache response if contains future bounds!
-                CacheAndEncodingFilter.disableCaching(response);
-            }
-
             String deployment = "ops";
 
             if (m != null && !m.trim().isEmpty()) {
@@ -141,6 +137,14 @@ public class IntervalController extends QueryController {
                     if (t == null || t.isEmpty()) {
                         t = "graphical";
                     }
+                }
+            }
+
+            if(end.isAfter(Instant.now())) { // Don't tell client to cache response if contains future bounds!
+                CacheAndEncodingFilter.disableCaching(response);
+            } else { // Let's cache, but only share value (proxy servers) if sampled
+                if(!sample) {
+                    response.setHeader("Cache-Control", "private");
                 }
             }
 

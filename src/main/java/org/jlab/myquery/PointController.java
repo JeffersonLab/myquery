@@ -107,6 +107,8 @@ public class PointController extends QueryController {
             // (2) requested future time - prior point might change
             if((!lessThan && event == null) || time.isAfter(Instant.now())) {
                 CacheAndEncodingFilter.disableCaching(response);
+            } else { // Let's cache, but only privately (shared cache in proxy servers should ignore)
+                response.setHeader("Cache-Control", "private");
             }
 
         } catch (Exception ex) {
