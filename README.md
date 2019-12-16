@@ -12,6 +12,10 @@ Access via Intranet: [Internal MYA Web Service](https://myaweb.acc.jlab.org/myqu
 
 ## API    
 
+[Interval](#multiple-event-query-interval)  
+[Point](#single-event-query-point)  
+[Channel](#wildcard-pv-lookup-query-channel)
+
 ### Multiple Event Query (Interval)   
 Query for all events on the timeline between the begin (inclusive) and end (exclusive) dates.
 
@@ -130,7 +134,7 @@ _**Path:** myquery/channel_
 
 | Name  | Description                                                  | Value Format                                        | Required | Default                                        |   
 |-------|--------------------------------------------------------------|-----------------------------------------------------|----------|------------------------------------------------|   
-| q     | EPICS Channel name                                           | String                                              | YES      |                                                |
+| q     | EPICS Channel name wildcard query                            | String                                              | YES      |                                                |
 | l     | Limit results                                                | Number                                              | NO       | 10                                             |
 | o     | Offset (pagination)                                          | Number                                              | NO       | 0                                              |
 | m     | MYA deployment                                               | String                                              | NO       | 'ops'                                          |      
