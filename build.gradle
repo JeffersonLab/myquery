@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.jlab', name: 'jmyapi', version: '5.1.0'
+    compile group: 'org.jlab', name: 'jmyapi', version: '5.1.1'
     compile 'org.glassfish:javax.json:1.0.4'
     providedCompile 'javax.json:javax.json-api:1.1.4'
 	providedCompile 'javax.servlet:javax.servlet-api:3.1.0'

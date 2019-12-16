@@ -118,8 +118,12 @@ public class ChannelController extends QueryController {
                         gen.write("datatype", metadata.getMyaType().name());
                         gen.write("datasize", metadata.getSize());
                         gen.write("datahost", metadata.getHost());
-                        //gen.write("ioc", metadata.getIoc());
-                        //gen.write("active", metadata.isActive());
+                        if(metadata.getIoc() == null) {
+                            gen.writeNull("ioc");
+                        } else {
+                            gen.write("ioc", metadata.getIoc());
+                        }
+                        gen.write("active", metadata.isActive());
                         gen.writeEnd();
                     }
                 }

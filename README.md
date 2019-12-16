@@ -121,6 +121,43 @@ _**Path:** myquery/point_
 }       
 ````
 
+### Wildcard PV lookup Query (Channel)
+Query for all PVs with name like the provided wildcard query string.  Wildcard characters include % (any) and _ (one).  The results are sorted in ascending order by name.
+
+_**Path:** myquery/channel_    
+
+**Request Parameters**     
+
+| Name  | Description                                                  | Value Format                                        | Required | Default                                        |   
+|-------|--------------------------------------------------------------|-----------------------------------------------------|----------|------------------------------------------------|   
+| q     | EPICS Channel name                                           | String                                              | YES      |                                                |
+| l     | Limit results                                                | Number                                              | NO       | 10                                             |
+| o     | Offset (pagination)                                          | Number                                              | NO       | 0                                              |
+| m     | MYA deployment                                               | String                                              | NO       | 'ops'                                          |      
+
+**Response JSON Format**   
+*On Success (HTTP 200 Response Code):*   
+````
+[   
+    {
+    "name":"<PV name>",
+    "datatype":"<EPICS datatype>",     
+    "datasize":"<data vector size; 1 for scalar>",    
+    "datahost":"<MYA hostname of data home>",  
+    "ioc":"<name of IOC generating updates or null if unavailable>",
+    "active":"<true if active, false otherwise>"
+    },
+    ...
+]    
+````
+
+*On Error (HTTP 400 Repsonse Code):*    
+````json
+{   
+    "error":"<error reason>"   
+}       
+````
+
 ### Event Types
 Use the 'd' parameter to limit events to updates only.  The primary event type is an 'update', which is a normal data value.  Other event types are informational and set the 't' field with one of the following strings:
 
