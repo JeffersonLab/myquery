@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="resources/css/myquery.css" />
+        <title>myquery channel</title>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <h1>myquery channel</h1>
+        <p>All options but query are optional.</p>
+        <form action="channel" method="get">
+            <div id ="input-panel">
+                <div id="text-panel">
+                    <ul>
+                        <li>
+                            <label for="q">Query (q): </label>
+                            <input id="q" name="q" type="text" placeholder="Wildcards: % (any) and _ (one)"/>
+                        </li>
+                        <li>
+                            <label for="l">Limit (l): </label>
+                            <input id="l" name="l" type="number" placeholder="default = 10"/>
+                        </li>
+                        <li>
+                            <label for="o">Offset (o): </label>
+                            <input id="o" name="o" type="number" placeholder="default = 0"/>
+                        </li>
+                        <li>
+                            <label for="m">Mya Deployment (m): </label>
+                            <input id="m" name="m" type="text" placeholder="default = ops"/>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <input type="submit"/>
+        </form>
+    </body>
+</html>

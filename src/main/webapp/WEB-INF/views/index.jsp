@@ -10,6 +10,9 @@
         <h1>myquery functions</h1>
         <ul>
             <li>
+                <h2><a href="/myquery/channel-form.html">channel</a></h2>
+            </li>
+            <li>
                 <h2><a href="/myquery/interval-form.html">interval</a></h2>
             </li>            
             <li>

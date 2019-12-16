@@ -38,4 +38,8 @@ public class PointWebService extends QueryWebService {
         
         return event;
     }
+
+    public List<Metadata> findChannel(String q, long limit, long offset) throws SQLException {
+        return nexus.findChannel(q, limit, offset);
+    }
 }
