@@ -54,6 +54,7 @@ _**Path:** myquery/interval_
     "sampled":"<true if sampled, false otherwise>", 
     "sampleType":"<graphical, simpleevent, myget, mysampler; only present if sampled = true>",
     "count":"<original count of events; only present if sampled = true>",
+    "labels":"<only present for enum typed PVs, an array of historic labels (each entry contains date plus an array of labels)>",
     "data":[   
         {   
             "d":"<DATE-TIME>",   
