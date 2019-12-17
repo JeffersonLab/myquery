@@ -27,8 +27,8 @@ public class IntervalWebService extends QueryWebService {
         return nexus.findMetadata(c);
     }
 
-    public List<ExtraInfo> findExtraInfo(Metadata metadata, String type) throws SQLException {
-        return nexus.findExtraInfo(metadata, type);
+    public List<ExtraInfo> findExtraInfo(Metadata metadata, String type, Instant begin, Instant end) throws SQLException {
+        return nexus.findExtraInfo(metadata, type, begin, end);
     }
 
     @SuppressWarnings("unchecked")

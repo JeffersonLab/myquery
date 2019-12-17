@@ -32,7 +32,7 @@ public class PointWebService extends QueryWebService {
         Event event = nexus.findEvent(metadata, t, lessThan, orEqual, updatesOnly);
         
         if(enumsAsStrings && metadata.getMyaType() == MyaDataType.DBR_ENUM) {
-            List<ExtraInfo> extraInfoList = nexus.findExtraInfo(metadata, "enum_strings");
+            List<ExtraInfo> extraInfoList = nexus.findExtraInfo(metadata, "enum_strings", null, null);
             event = LabeledEnumEvent.findLabelFromHistory((IntEvent)event, extraInfoList);
         }    
         

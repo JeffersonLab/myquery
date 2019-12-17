@@ -56,6 +56,7 @@ public class IntervalController extends QueryController {
         Event priorEvent = null;
         Long count = null;
         Metadata metadata = null;
+        List<ExtraInfo> enumLabels = null;
         boolean sample = false;
 
         String c = request.getParameter("c");
@@ -170,9 +171,12 @@ public class IntervalController extends QueryController {
                 }
             }
 
-            if (enumsAsStrings && metadata.getMyaType() == MyaDataType.DBR_ENUM) {
-                List<ExtraInfo> extraInfoList = service.findExtraInfo(metadata, "enum_strings");
-                stream = new LabeledEnumStream((EventStream<IntEvent>) stream, extraInfoList);
+            if(metadata.getMyaType() == MyaDataType.DBR_ENUM) {
+                enumLabels = service.findExtraInfo(metadata, "enum_strings", begin, end);
+
+                if (enumsAsStrings) {
+                    stream = new LabeledEnumStream((EventStream<IntEvent>) stream, enumLabels);
+                }
             }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
@@ -211,6 +215,29 @@ public class IntervalController extends QueryController {
                         gen.write("datatype", metadata.getMyaType().name());
                         gen.write("datasize", metadata.getSize());
                         gen.write("datahost", metadata.getHost());
+                        if(metadata.getIoc() == null) {
+                            gen.writeNull("ioc");
+                        } else {
+                            gen.write("ioc", metadata.getIoc());
+                        }
+                        gen.write("active", metadata.isActive());
+                    }
+
+                    if(enumLabels != null && enumLabels.size() > 0) {
+                        gen.writeStartArray("labels");
+                        for(ExtraInfo info: enumLabels) {
+                            gen.writeStartObject();
+                            FormatUtil.writeTimestampJSON(gen, "d", info.getTimestamp(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
+                            gen.writeStartArray("value");
+                            for(String token: info.getValueAsArray()) {
+                                if(token != null && !token.isEmpty()) {
+                                    gen.write(token);
+                                }
+                            }
+                            gen.writeEnd();
+                            gen.writeEnd();
+                        }
+                        gen.writeEnd();
                     }
 
                     gen.write("sampled", sample);

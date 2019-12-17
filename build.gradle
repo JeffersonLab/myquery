@@ -14,7 +14,7 @@ plugins {
 }
 
 description = "MYA web-based query tool"
-version = '2.2.2'
+version = '2.3.0'
 
 ext {
     releaseDate = 'Dec 17 2019'
@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.jlab', name: 'jmyapi', version: '5.1.2'
+    compile group: 'org.jlab', name: 'jmyapi', version: '6.0.0'
     compile 'org.glassfish:javax.json:1.0.4'
     providedCompile 'javax.json:javax.json-api:1.1.4'
 	providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
