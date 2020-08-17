@@ -1,9 +1,7 @@
 # myquery
-The myquery web service provides a simple query interface to the Jefferson Lab MYA archiver.  It's primary goal is to allow users simple, programmatic access to MYA data without any dependencies on a specific language or requiring wrapping a command line tool.
+The myquery web service provides a simple query interface to the Jefferson Lab MYA archiver, using [jmyapi](https://github.com/JeffersonLab/jmyapi).  It's primary goal is to allow users simple, programmatic access to MYA data without any dependencies on a specific language or requiring wrapping a command line tool.
 
 Currently, myquery supports querying channel history over a time interval and at a specific point in time, and includes simple forms that allow users to easily generate a valid query string for each type of supported query.
-
-Uses [jmyapi](https://github.com/JeffersonLab/jmyapi) to provide a web service for fetching data from the JLab Archiver 'MYA'.
 
 Access via Internet (Authentication Required): [Public MYA Web Service](https://epicsweb.jlab.org/myquery/)   
 Access via Intranet: [Internal MYA Web Service](https://myaweb.acc.jlab.org/myquery/)
