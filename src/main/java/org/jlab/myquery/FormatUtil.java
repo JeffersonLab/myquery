@@ -27,8 +27,8 @@ public class FormatUtil {
         if (v != null && !v.trim().isEmpty()) {
             vInt = Integer.parseInt(v);
 
-            if (vInt > 9) {
-                vInt = 9;
+            if (vInt > 38) {
+                vInt = 38;
             }
         }
 
