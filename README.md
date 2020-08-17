@@ -1,7 +1,7 @@
 # myquery
 MYA Query Web Service
 
-The myquery web service provides a simple MYA query interface.  It's primary goal is to allow users simple, programatic access to MYA data without the dependency on a specific language or wrapping a command line tool.
+The myquery web service provides a simple MYA query interface.  It's primary goal is to allow users simple, programmatic access to MYA data without the dependency on a specific language or wrapping a command line tool.
 
 Currently, myquery supports querying channel history over a time interval and channel history at a specific point in time.  myquery includes simple forms that allow users to easily generate a valid query string for each type of supported query.
 
