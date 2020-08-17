@@ -14,10 +14,10 @@ plugins {
 }
 
 description = "MYA web-based query tool"
-version = '2.3.0'
+version = '2.3.1'
 
 ext {
-    releaseDate = 'Dec 17 2019'
+    releaseDate = 'Aug 17 2020'
 }
 
 compileJava   {
