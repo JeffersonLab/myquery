@@ -91,7 +91,7 @@ _**Path:** myquery/point_
 | t     | Time of interest date with optional time                     | String in ISO 8601 format (YYYY-MM-DD[Thh:mm:[ss]]) | YES      |                                                |
 | m     | MYA deployment                                               | String                                              | NO       | 'ops'                                          |      
 | f     | Fractional seconds time digits                               | Integer (0-6)                                       | NO       | 0 (ISO 8601 only)                              |
-| v     | Fractional floating value digits                             | Integer (0-9)                                       | NO       | 6 (floats only)                                |  
+| v     | Fractional floating value digits                             | Integer (0-38)                                      | NO       | 6 (floats only)                                |  
 | d     | Data update events only (ignore info events)                 | Boolean, true if parameter exits                    | NO       | All events returned (update and info)          |
 | w     | Get closest event greater than time of interest              | Boolean, true if parameter exists                   | NO       | Get closest event less than time of interest   |
 | x     | Closest event is exclusive of time of interest               | Boolean, true if parameter exists                   | NO       | Closest event is inclusive of time of interest |
