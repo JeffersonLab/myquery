@@ -1,8 +1,8 @@
 services:
-  mysql:
+  mya:
     extends:
       file: deps.yml
-      service: mysql
+      service: mya
 
   myquery:
     hostname: myquery

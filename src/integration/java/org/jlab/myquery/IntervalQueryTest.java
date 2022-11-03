@@ -18,7 +18,7 @@ public class IntervalQueryTest {
     @Test
     public void doBasicTest() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8888/myquery/interval?c=R123GSET&b=2019-08-01&e=2019-08-11")).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/interval?m=docker&c=channel1&b=2019-08-12&e=2019-08-13")).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         //System.out.println(response.body());
@@ -37,7 +37,7 @@ public class IntervalQueryTest {
     @Test
     public void doIntegratedAndSampledTest() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8888/myquery/interval?c=R123GSET&b=2019-08-01&e=2019-08-11&l=10&t=graphical&p=on&i=on")).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/interval?m=docker&c=channel1&b=2019-08-12&e=2019-08-13&l=10&t=graphical&p=on&i=on")).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         //System.out.println(response.body());

@@ -2,7 +2,7 @@
 
 -- hstmya00: select * from channels where name = 'HLA:bta_uxtime_h';
 -- name and host modified
-INSERT INTO `channels` VALUES (3,'channel3',6,NULL,168,NULL,1,1,0,'localhost',6197335468200165376,NULL);
+INSERT INTO `channels` VALUES (3,'channel3',6,NULL,168,NULL,1,1,0,'mya',6197335468200165376,NULL);
 
 -- hstmya02: mysqldump -t -u myapi -p archive table_3794 --single-transaction --compact --where="time between 420257825449574400 and 420281018272972800" > /tmp/dump.sql
 -- Range maps to Aug 12 2019 midnight -> 24 hours

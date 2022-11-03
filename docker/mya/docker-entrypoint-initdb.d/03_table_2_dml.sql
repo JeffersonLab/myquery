@@ -2,7 +2,7 @@
 
 -- hstmya00: select * from channels where name = 'IGL1I00BEAMODE';
 -- name and host modified
-INSERT INTO `channels` VALUES (2,'channel2',3,NULL,1,NULL,1,1,0,'localhost',6199944484738826240,NULL);
+INSERT INTO `channels` VALUES (2,'channel2',3,NULL,1,NULL,1,1,0,'mya',6199944484738826240,NULL);
 
 -- hstmya00: chan_id = 15170
 INSERT INTO `metadata` VALUES (2,'enum_strings','2007-02-05 17:47:39','BEAM SYNC ONLY\0PULSE MODE VL\0TUNE MODE\0CW MODE (DC)\0EXPERT MODE\0\0'),(2,'enum_strings','2016-08-12 13:00:49','BEAM SYNC ONLY\0PULSE MODE VL\0TUNE MODE\0CW MODE (DC)\0USER MODE\0\0');

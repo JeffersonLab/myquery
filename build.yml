@@ -1,8 +1,8 @@
 services:
-  mysql:
+  mya:
     extends:
       file: docker-compose.yml
-      service: mysql
+      service: mya
 
   myquery:
     extends:
