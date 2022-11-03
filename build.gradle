@@ -1,72 +1,60 @@
-buildscript {
-  repositories {
-    jcenter()
-  }
-  dependencies {
-    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
-  }
-}
-
-
 plugins {
     id 'java'
 	id 'war'
 }
 
 description = "MYA web-based query tool"
-version = '2.3.1'
+version = '2.4.0'
 
 ext {
-    releaseDate = 'Aug 17 2020'
+    releaseDate = 'Nov 3 2022'
 }
 
-compileJava   {
-    options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked"]
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+tasks.withType(JavaCompile) {
+    options.release = 11
+    options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
-
-compileTestJava {
-    options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked"]
-}
-
-apply plugin: "com.jfrog.artifactory"
 
 repositories {
-    jcenter()
-    maven {
-        url "http://build.acc.jlab.org/artifactory/gradle-release-local"
+    mavenCentral()
+}
+
+sourceSets {
+    integration {
+        java.srcDir "${projectDir}/src/integration/java"
+        resources.srcDir "${projectDir}/src/integration/resources"
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
     }
+}
+
+configurations {
+    integrationImplementation.extendsFrom testImplementation
+    integrationRuntimeOnly.extendsFrom runtimeOnly
 }
 
 dependencies {
-    compile group: 'org.jlab', name: 'jmyapi', version: '6.0.0'
-    compile 'org.glassfish:javax.json:1.0.4'
-    providedCompile 'javax.json:javax.json-api:1.1.4'
-	providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation 'org.jlab:jmyapi:6.2.0',
+                   'org.glassfish:javax.json:1.1.4'
+	providedCompile 'javax.servlet:javax.servlet-api:4.0.1'
+    testImplementation 'junit:junit:4.13.2'
 }
 
-artifactory {
-    contextUrl = "http://build.acc.jlab.org/artifactory"
-    publish {
-        repository {
-            repoKey = 'gradle-release-local'
-            maven = true
-            
-        }
-    }
-    resolve {
-        repository {
-            repoKey = 'gradle-dev'
-            maven = true
-            
-        }
+task integrationTest(type: Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.integration.output.classesDirs
+    classpath = sourceSets.integration.runtimeClasspath
+
+    testLogging {
+        showStandardStreams = true
     }
 }
 
 war {
-    archiveName 'myquery.war' // Otherwise defaults to having version attached which is pain to re-deploy on version upgrade
+    archiveFileName = 'myquery.war'
     filesMatching('WEB-INF/web.xml') {
         filter {
             String line -> line.replaceAll("@VERSION@", version)
