@@ -18,7 +18,7 @@ public class PointQueryTest {
     @Test
     public void doTest() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8888/myquery/point?c=IBCAD00CRCUR6&t=2019-06-06")).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/point?m=docker&c=channel1&t=2019-08-13")).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         //System.out.println(response.body());
@@ -33,7 +33,7 @@ public class PointQueryTest {
             String d = data.getString("d");
 
             // myget -c IBCAD00CRCUR6 -t "2019-06-06" returns 47 seconds, not 46 seconds... probably because java.time formatting doesn't round
-            assertEquals("2019-06-05T23:59:46", d);
+            assertEquals("2019-08-12T23:59:57", d);
         }
     }
 }
