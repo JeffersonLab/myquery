@@ -20,8 +20,8 @@ Access via Internet (Authentication Required): [Public MYA Web Service](https://
 Access via Intranet: [Internal MYA Web Service](https://myaweb.acc.jlab.org/myquery/)
 
 ## Install
- 1. Download Apache Tomcat
- 2. Download myquery.war and drop it into the Tomcat webapps directory
+ 1. Download [Apache Tomcat](http://tomcat.apache.org/)
+ 2. Download [myquery.war](https://github.com/JeffersonLab/myquery/releases) and drop it into the Tomcat webapps directory
  3. Configure Tomcat
  4. Start Tomcat and navigate your web browser to localhost:8080/myquery
 
@@ -194,6 +194,9 @@ Miscellaneous Events
 
 Disconnection events are also flagged with the presence of the attribute 'x' for convenience. 
 
+## Configure
+A [deployments.properites](https://github.com/JeffersonLab/jmyapi#deployments) file must be placed in the lib directory of Tomcat.  Download the mariadb database driver and place it in the lib directory of Tomcat.  A new context.xml file is needed in the Tomcat conf directory that includes a DataSource for each host in the deployments.properties. 
+
 ## Build
 This project is built with [Java 17](https://adoptium.net/) (compiled to Java 11 bytecode), and uses the [Gradle 7](https://gradle.org/) build tool to automatically download dependencies and build the project from source:
 
@@ -219,7 +222,7 @@ gradlew integrationTest
 
 ## Release
 1. Bump the version number and release date in build.gradle and commit and push to GitHub (using [Semantic Versioning](https://semver.org/)).   
-2. Create a new release on the GitHub [Releases](https://github.com/JeffersonLab/jaws-libj/releases) page corresponding to same version in build.gradle (Enumerate changes and link issues)
+2. Create a new release on the GitHub [Releases](https://github.com/JeffersonLab/jaws-libj/releases) page corresponding to same version in build.gradle (Enumerate changes and link issues).  Attach war file for users to download.
 
 ## See Also
    - [Web Archive Viewer and Expositor (WAVE)](https://github.com/JeffersonLab/wave)
