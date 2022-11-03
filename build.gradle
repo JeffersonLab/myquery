@@ -57,7 +57,7 @@ war {
     archiveFileName = 'myquery.war'
     filesMatching('WEB-INF/web.xml') {
         filter {
-            String line -> line.replaceAll("@VERSION@", version)
+            String line -> line.replaceAll("@VERSION@", project.version)
         }
         filter {
             String line -> line.replaceAll("@RELEASE_DATE@", releaseDate)
