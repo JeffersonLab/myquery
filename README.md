@@ -14,7 +14,7 @@ The myquery web service provides a simple query interface to the Jefferson Lab M
 ---
 
 ## Overview
-The primary goal of myquery is to allow users simple, programmatic access to MYA data without any dependencies on a specific language or requiring wrapping a command line tool.
+The primary goal of myquery is to allow users simple, programmatic access to MYA data without any dependencies on a specific language or requiring wrapping a command line tool.  The myquery server supports HTTP requests and returns JSON responses.
 
 Supports querying channel history over a time interval and at a specific point in time, and includes simple forms that allow users to easily generate a valid query string for each type of supported query.
 
