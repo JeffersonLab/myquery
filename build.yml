@@ -1,0 +1,15 @@
+services:
+  mysql:
+    extends:
+      file: docker-compose.yml
+      service: mysql
+
+  myquery:
+    extends:
+      file: docker-compose.yml
+      service: myquery
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - CUSTOM_CRT_URL=http://pki.jlab.org/JLabCA.crt

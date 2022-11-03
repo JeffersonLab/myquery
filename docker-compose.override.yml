@@ -1,0 +1,3 @@
+services:
+  myquery:
+    image: jeffersonlab/myquery:2.4.0

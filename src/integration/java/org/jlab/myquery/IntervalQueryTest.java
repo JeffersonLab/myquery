@@ -14,14 +14,6 @@ import java.net.http.HttpResponse;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Note: We try to force Java 8 compatibility for the web service itself, but these test require Java 11 in order to
- * take advantage of HttpClient class.  We could use Apache HttpClient dependency instead...
- *
- * Note: We were too lazy to figure out how to spin up a server on the fly so these test require YOU to ensure the
- * web service is running on localhost before running the tests!
- *
- */
 public class IntervalQueryTest {
     @Test
     public void doBasicTest() throws IOException, InterruptedException {

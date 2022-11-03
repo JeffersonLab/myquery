@@ -1,7 +1,6 @@
 package org.jlab.myquery;
 
 import org.jlab.mya.Metadata;
-import org.jlab.mya.event.*;
 
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -11,11 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DecimalFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;

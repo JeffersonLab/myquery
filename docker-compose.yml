@@ -1,0 +1,11 @@
+services:
+  mysql:
+    extends:
+      file: deps.yml
+      service: mysql
+
+  myquery:
+    hostname: myquery
+    container_name: myquery
+    ports:
+      - 8080:8080
