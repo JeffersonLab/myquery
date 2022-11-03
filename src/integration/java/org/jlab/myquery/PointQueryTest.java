@@ -32,7 +32,6 @@ public class PointQueryTest {
 
             String d = data.getString("d");
 
-            // myget -c IBCAD00CRCUR6 -t "2019-06-06" returns 47 seconds, not 46 seconds... probably because java.time formatting doesn't round
             assertEquals("2019-08-12T23:59:57", d);
         }
     }
