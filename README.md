@@ -1,10 +1,29 @@
-# myquery
-The myquery web service provides a simple query interface to the Jefferson Lab MYA archiver via [jmyapi](https://github.com/JeffersonLab/jmyapi).  It's primary goal is to allow users simple, programmatic access to MYA data without any dependencies on a specific language or requiring wrapping a command line tool.
+# myquery [![CI](https://github.com/JeffersonLab/myquery/actions/workflows/ci.yml/badge.svg)](https://github.com/JeffersonLab/myquery/actions/workflows/ci.yml)
+The myquery web service provides a simple query interface to the Jefferson Lab MYA archiver via [jmyapi](https://github.com/JeffersonLab/jmyapi). 
+
+---
+ - [Overview](https://github.com/JeffersonLab/myquery#overview)   
+ - [Install](https://github.com/JeffersonLab/myquery#install)   
+ - [API](https://github.com/JeffersonLab/myquery#api)    
+ - [Build](https://github.com/JeffersonLab/myquery#build)
+ - [Test](https://github.com/JeffersonLab/myquery#test)
+ - [Release](https://github.com/JeffersonLab/myquery#release)
+ - [See Also](https://github.com/JeffersonLab/myquery#see-also)
+---
+
+## Overview
+The primary goal of myquery is to allow users simple, programmatic access to MYA data without any dependencies on a specific language or requiring wrapping a command line tool.
 
 Supports querying channel history over a time interval and at a specific point in time, and includes simple forms that allow users to easily generate a valid query string for each type of supported query.
 
 Access via Internet (Authentication Required): [Public MYA Web Service](https://epicsweb.jlab.org/myquery/)   
 Access via Intranet: [Internal MYA Web Service](https://myaweb.acc.jlab.org/myquery/)
+
+## Install
+ 1. Download Apache Tomcat
+ 2. Download myquery.war and drop it into the Tomcat webapps directory
+ 3. Configure Tomcat
+ 4. Start Tomcat and navigate your web browser to localhost:8080/myquery
 
 ## API    
 
@@ -175,6 +194,32 @@ Miscellaneous Events
 
 Disconnection events are also flagged with the presence of the attribute 'x' for convenience. 
 
+## Build
+This project is built with [Java 17](https://adoptium.net/) (compiled to Java 11 bytecode), and uses the [Gradle 7](https://gradle.org/) build tool to automatically download dependencies and build the project from source:
+
+```
+git clone https://github.com/JeffersonLab/myquery
+cd myquery
+gradlew build
+```
+**Note**: If you do not already have Gradle installed, it will be installed automatically by the wrapper script included in the source
+
+**Note for JLab On-Site Users**: Jefferson Lab has an intercepting [proxy](https://gist.github.com/slominskir/92c25a033db93a90184a5994e71d0b78)
+
+
+## Test
+Continuous Integration (CI) is setup using GitHub Actions, so on push tests are automatically run unless `[no ci]` is included in the commit message.   Tests can be manually run on a local workstation using:
+```
+docker compose -f build.yml up
+```
+Wait for containers to start then:
+```
+gradlew integrationTest
+```
+
+## Release
+1. Bump the version number and release date in build.gradle and commit and push to GitHub (using [Semantic Versioning](https://semver.org/)).   
+2. Create a new release on the GitHub [Releases](https://github.com/JeffersonLab/jaws-libj/releases) page corresponding to same version in build.gradle (Enumerate changes and link issues)
 
 ## See Also
    - [Web Archive Viewer and Expositor (WAVE)](https://github.com/JeffersonLab/wave)
