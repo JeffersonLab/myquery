@@ -3,6 +3,7 @@ The myquery web service provides a simple query interface to the Jefferson Lab M
 
 ---
  - [Overview](https://github.com/JeffersonLab/myquery#overview)   
+ - [Quick Start with Compose](https://github.com/JeffersonLab/myquery#quick-start-with-compose)    
  - [Install](https://github.com/JeffersonLab/myquery#install)   
  - [API](https://github.com/JeffersonLab/myquery#api)    
  - [Configure](https://github.com/JeffersonLab/myquery#configure)    
@@ -20,10 +21,24 @@ Supports querying channel history over a time interval and at a specific point i
 Access via Internet (Authentication Required): [Public MYA Web Service](https://epicsweb.jlab.org/myquery/)   
 Access via Intranet: [Internal MYA Web Service](https://myaweb.acc.jlab.org/myquery/)
 
+## Quick Start with Compose 
+1. Grab project
+```
+git clone https://github.com/JeffersonLab/myquery
+cd myquery
+```
+2. Launch Docker
+```
+docker compose up
+```
+3. Use web browser to request channel list
+
+http://localhost:8080/myquery/channel?q=channel%25&m=docker
+
 ## Install
  1. Download [Apache Tomcat](http://tomcat.apache.org/)
  2. Download [myquery.war](https://github.com/JeffersonLab/myquery/releases) and drop it into the Tomcat webapps directory
- 3. Configure Tomcat
+ 3. [Configure](https://github.com/JeffersonLab/myquery#configure) Tomcat
  4. Start Tomcat and navigate your web browser to localhost:8080/myquery
 
 ## API    
