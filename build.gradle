@@ -49,6 +49,8 @@ task integrationTest(type: Test) {
     classpath = sourceSets.integration.runtimeClasspath
 
     testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
         showStandardStreams = true
     }
 }
