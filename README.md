@@ -5,6 +5,7 @@ The myquery web service provides a simple query interface to the Jefferson Lab M
  - [Overview](https://github.com/JeffersonLab/myquery#overview)   
  - [Install](https://github.com/JeffersonLab/myquery#install)   
  - [API](https://github.com/JeffersonLab/myquery#api)    
+ - [Configure](https://github.com/JeffersonLab/myquery#configure)    
  - [Build](https://github.com/JeffersonLab/myquery#build)
  - [Test](https://github.com/JeffersonLab/myquery#test)
  - [Release](https://github.com/JeffersonLab/myquery#release)
@@ -195,7 +196,7 @@ Miscellaneous Events
 Disconnection events are also flagged with the presence of the attribute 'x' for convenience. 
 
 ## Configure
-A [deployments.properites](https://github.com/JeffersonLab/jmyapi#deployments) file must be placed in the lib directory of Tomcat.  Download the mariadb database driver and place it in the lib directory of Tomcat.  A new context.xml file is needed in the Tomcat conf directory that includes a DataSource for each host in the deployments.properties. 
+A [deployments.properites](https://github.com/JeffersonLab/jmyapi#deployments) file must be placed in the lib directory of Tomcat.  Download the mariadb [database driver](https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.0.8/mariadb-java-client-3.0.8.jar) and place it in the lib directory of Tomcat.  A new context.xml file is needed in the Tomcat conf directory that includes a DataSource for each host in the deployments.properties. 
 
 ## Build
 This project is built with [Java 17](https://adoptium.net/) (compiled to Java 11 bytecode), and uses the [Gradle 7](https://gradle.org/) build tool to automatically download dependencies and build the project from source:
