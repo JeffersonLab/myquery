@@ -4,7 +4,6 @@ FUNCTIONS=(create_user_and_group
            download
            unzip_and_chmod
            create_symbolic_links
-           adjust_jvm_options
            create_systemd_service
            create_log_file_cleanup_cron)
 
@@ -14,10 +13,7 @@ VARIABLES=(APP_GROUP
            APP_USER_HOME
            APP_USER_ID
            APP_VERSION
-           APP_URL
-           JDK_HOME
-           JDK_MAX_HEAP
-           JDK_MAX_META)
+           APP_URL)
 
 if [[ $# -eq 0 ]] ; then
     echo "Usage: $0 [var file] <optional function>"
@@ -60,6 +56,7 @@ unzip_and_chmod() {
 unzip /tmp/apache-tomcat-${APP_VERSION}.zip -d ${APP_USER_HOME}
 mv ${APP_USER_HOME}/apache-tomcat-${APP_VERSION} ${APP_HOME}
 chown -R ${APP_USER}:${APP_GROUP} ${APP_USER_HOME}
+chmod +x ${APP_HOME}/bin/*.sh
 }
 
 create_symbolic_links() {
@@ -67,12 +64,7 @@ cd ${APP_USER_HOME}
 ln -s ${APP_VERSION} current
 ln -s current/conf conf
 ln -s current/logs logs
-}
-
-adjust_jvm_options() {
-sed -i "s|#JAVA_HOME=\"/opt/java/jdk\"|JAVA_HOME=\"${JDK_HOME}\"|g" ${WILDFLY_APP_HOME}/bin/standalone.conf
-sed -i "s/MaxMetaspaceSize=256m/MaxMetaspaceSize=${JDK_MAX_META}/g" ${WILDFLY_APP_HOME}/bin/standalone.conf
-sed -i "s/Xmx512m/Xmx${JDK_MAX_HEAP}/g" ${WILDFLY_APP_HOME}/bin/standalone.conf
+ln -s current/bin bin
 }
 
 create_systemd_service() {
@@ -81,18 +73,20 @@ then
   sysctl -w net.ipv4.ip_unprivileged_port_start=${WILDFLY_HTTPS_PORT} >> /etc/sysctl.conf
 fi
 
+mv /opt/tomcat/run.env ${APP_HOME}/conf/run.env
+
 cat > /etc/systemd/system/app.service << EOF
 [Unit]
 Description=Application Server
 After=syslog.target network.target
 [Service]
 Type=forking
-EnvironmentFile=${APP_HOME}/run.env
+EnvironmentFile=${APP_HOME}/conf/run.env
 User=${APP_USER}
 Group=${APP_GROUP}
-PIDFile=/run/app.pid
-ExecStart=/opt/tomcat/bin/startup.sh
-ExecStop=/opt/tomcat/bin/shutdown.sh
+PIDFile=/run/tomcat.pid
+ExecStart=/${APP_HOME}/bin/startup.sh
+ExecStop=/${APP_HOME}/bin/shutdown.sh
 [Install]
 WantedBy=multi-user.target
 EOF
