@@ -36,10 +36,11 @@ docker compose up
 http://localhost:8080/myquery/channel?q=channel%25&m=docker
 
 ## Install
- 1. Download [Apache Tomcat 10+](http://tomcat.apache.org/) (Compiled against Jakarta EE)
- 2. Download [myquery.war](https://github.com/JeffersonLab/myquery/releases) and drop it into the Tomcat webapps directory
- 3. [Configure](https://github.com/JeffersonLab/myquery#configure) Tomcat
- 4. Start Tomcat and navigate your web browser to localhost:8080/myquery
+ 1. Download [Java JDK 17+](https://adoptium.net/)
+ 2. Download [Apache Tomcat 10+](http://tomcat.apache.org/) (Compiled against Jakarta EE)
+ 3. Download [myquery.war](https://github.com/JeffersonLab/myquery/releases) and drop it into the Tomcat webapps directory
+ 4. [Configure](https://github.com/JeffersonLab/myquery#configure) Tomcat
+ 5. Start Tomcat and navigate your web browser to localhost:8080/myquery
 
 ## API    
 
