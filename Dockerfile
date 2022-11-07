@@ -1,5 +1,5 @@
 ARG BUILD_IMAGE=gradle:7.4-jdk17-alpine
-ARG RUN_IMAGE=tomcat:9.0.68-jre11
+ARG RUN_IMAGE=tomcat:10.1.1-jre17
 
 ################## Stage 0
 FROM ${BUILD_IMAGE} as builder
@@ -20,7 +20,7 @@ RUN cd /app && wget https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java
 FROM ${RUN_IMAGE} as runner
 ARG CUSTOM_CRT_URL
 ARG RUN_USER=tomcat
-ARG APP_HOME=/usr/local/tomcat/webapps
+ARG DEPLOYMENTS=/usr/local/tomcat/webapps
 USER root
 COPY --from=builder /app/build/libs /usr/local/tomcat/webapps
 COPY --from=builder /app/docker/myquery/lib /usr/local/tomcat/lib
@@ -32,6 +32,8 @@ RUN useradd -m tomcat \
        && curl -o /usr/local/share/ca-certificates/customcert.crt $CUSTOM_CRT_URL \
        && update-ca-certificates \
     ; fi \
-    && chown -R ${RUN_USER}:0 ${APP_HOME} \
-    && chmod -R g+rw ${APP_HOME}
+    && mkdir /usr/local/tomcat/conf/Catalina \
+    && chown -R ${RUN_USER}:tomcat /usr/local/tomcat/conf/Catalina \
+    && chown -R ${RUN_USER}:tomcat ${DEPLOYMENTS} \
+    && chmod -R g+rw ${DEPLOYMENTS}
 USER ${RUN_USER}

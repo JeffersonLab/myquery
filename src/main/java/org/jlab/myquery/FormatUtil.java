@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.Calendar;
 import java.util.Date;
-import javax.json.stream.JsonGenerator;
+import jakarta.json.stream.JsonGenerator;
 import org.jlab.mya.TimeUtil;
 
 /**

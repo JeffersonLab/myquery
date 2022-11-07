@@ -36,7 +36,7 @@ docker compose up
 http://localhost:8080/myquery/channel?q=channel%25&m=docker
 
 ## Install
- 1. Download [Apache Tomcat](http://tomcat.apache.org/)
+ 1. Download [Apache Tomcat 10+](http://tomcat.apache.org/) (Compiled against Jakarta EE)
  2. Download [myquery.war](https://github.com/JeffersonLab/myquery/releases) and drop it into the Tomcat webapps directory
  3. [Configure](https://github.com/JeffersonLab/myquery#configure) Tomcat
  4. Start Tomcat and navigate your web browser to localhost:8080/myquery
@@ -49,7 +49,7 @@ http://localhost:8080/myquery/channel?q=channel%25&m=docker
 A [deployments.properites](https://github.com/JeffersonLab/jmyapi#deployments) file must be placed in the lib directory of Tomcat.  Download the mariadb [database driver](https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.0.8/mariadb-java-client-3.0.8.jar) and place it in the lib directory of Tomcat.  A new context.xml file is needed in the Tomcat conf directory that includes a DataSource for each host in the deployments.properties. 
 
 ## Build
-This project is built with [Java 17](https://adoptium.net/) (compiled to Java 11 bytecode), and uses the [Gradle 7](https://gradle.org/) build tool to automatically download dependencies and build the project from source:
+This project is built with [Java 17](https://adoptium.net/) (compiled to Java 17 bytecode), and uses the [Gradle 7](https://gradle.org/) build tool to automatically download dependencies and build the project from source:
 
 ```
 git clone https://github.com/JeffersonLab/myquery

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
-import javax.json.stream.JsonGenerator;
-import javax.servlet.http.HttpServlet;
+import jakarta.json.stream.JsonGenerator;
+import jakarta.servlet.http.HttpServlet;
 import org.jlab.mya.event.*;
 import org.jlab.mya.stream.EventStream;
 

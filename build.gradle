@@ -4,14 +4,14 @@ plugins {
 }
 
 description = "MYA web-based query tool"
-version = '2.4.0'
+version = '2.5.0'
 
 ext {
-    releaseDate = 'Nov 3 2022'
+    releaseDate = 'Nov 7 2022'
 }
 
 tasks.withType(JavaCompile) {
-    options.release = 11
+    options.release = 17
     options.encoding = 'UTF-8'
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
@@ -36,8 +36,8 @@ configurations {
 
 dependencies {
     implementation 'org.jlab:jmyapi:6.2.0',
-                   'org.glassfish:javax.json:1.1.4'
-	providedCompile 'javax.servlet:javax.servlet-api:4.0.1'
+                   'org.eclipse.parsson:parsson:1.1.1'
+	providedCompile 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     testImplementation 'junit:junit:4.13.2'
 }
 
