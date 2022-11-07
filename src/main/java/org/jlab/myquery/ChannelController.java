@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -94,7 +95,7 @@ public class ChannelController extends QueryController {
         OutputStream out = response.getOutputStream();
 
         if (jsonp != null) {
-            out.write((jsonp + "(").getBytes("UTF-8"));
+            out.write((jsonp + "(").getBytes(StandardCharsets.UTF_8));
         }
 
         try (JsonGenerator gen = Json.createGenerator(out)) {
@@ -126,7 +127,7 @@ public class ChannelController extends QueryController {
 
             gen.flush();
             if (jsonp != null) {
-                out.write((");").getBytes("UTF-8"));
+                out.write((");").getBytes(StandardCharsets.UTF_8));
             }
         }
     }

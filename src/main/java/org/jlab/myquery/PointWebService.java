@@ -16,7 +16,7 @@ import org.jlab.mya.nexus.DataNexus;
  */
 public class PointWebService extends QueryWebService {
 
-    private DataNexus nexus;
+    private final DataNexus nexus;
 
     public PointWebService(String deployment) {
         nexus = getNexus(deployment);

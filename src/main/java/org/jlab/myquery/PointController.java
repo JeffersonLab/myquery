@@ -2,6 +2,7 @@ package org.jlab.myquery;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -124,7 +125,7 @@ public class PointController extends QueryController {
         OutputStream out = response.getOutputStream();
 
         if (jsonp != null) {
-            out.write((jsonp + "(").getBytes("UTF-8"));
+            out.write((jsonp + "(").getBytes(StandardCharsets.UTF_8));
         }
 
         try (JsonGenerator gen = Json.createGenerator(out)) {
@@ -160,7 +161,7 @@ public class PointController extends QueryController {
 
             gen.flush();
             if (jsonp != null) {
-                out.write((");").getBytes("UTF-8"));
+                out.write((");").getBytes(StandardCharsets.UTF_8));
             }
         }
     }
