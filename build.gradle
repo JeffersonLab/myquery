@@ -7,7 +7,7 @@ description = "MYA web-based query tool"
 version = '2.5.0'
 
 ext {
-    releaseDate = 'Nov 7 2022'
+    releaseDate = 'Nov 8 2022'
 }
 
 tasks.withType(JavaCompile) {
