@@ -1,6 +1,8 @@
 # myquery [![CI](https://github.com/JeffersonLab/myquery/actions/workflows/ci.yml/badge.svg)](https://github.com/JeffersonLab/myquery/actions/workflows/ci.yml) [![Docker](https://img.shields.io/docker/v/jeffersonlab/myquery?sort=semver&label=DockerHub)](https://hub.docker.com/r/jeffersonlab/myquery)
 The myquery web service provides a simple query interface to the Jefferson Lab MYA archiver via [jmyapi](https://github.com/JeffersonLab/jmyapi). 
 
+![Screenshot](https://github.com/JeffersonLab/myquery/raw/main/Screenshot.png?raw=true "Screenshot")
+
 ---
  - [Overview](https://github.com/JeffersonLab/myquery#overview)   
  - [Quick Start with Compose](https://github.com/JeffersonLab/myquery#quick-start-with-compose)    
