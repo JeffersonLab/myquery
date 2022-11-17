@@ -29,7 +29,7 @@ Access via Intranet: [Internal MYA Web Service](https://myaweb.acc.jlab.org/myqu
 git clone https://github.com/JeffersonLab/myquery
 cd myquery
 ```
-2. Launch Docker
+2. Launch [Compose](https://github.com/docker/compose)
 ```
 docker compose up
 ```
