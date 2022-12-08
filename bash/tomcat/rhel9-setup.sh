@@ -70,23 +70,41 @@ ln -s current/bin bin
 create_systemd_service() {
 if (( ${APP_HTTPS_PORT} < 1024 ))
 then
-  sysctl -w net.ipv4.ip_unprivileged_port_start=${WILDFLY_HTTPS_PORT} >> /etc/sysctl.conf
+  sysctl -w net.ipv4.ip_unprivileged_port_start=${APP_HTTPS_PORT} >> /etc/sysctl.conf
 fi
 
 mv /opt/tomcat/run.env ${APP_HOME}/conf/run.env
 
 cat > /etc/systemd/system/app.service << EOF
 [Unit]
-Description=Application Server
+Description=Tomcat Application Server
 After=syslog.target network.target
 [Service]
-Type=forking
+Type=simple
 EnvironmentFile=${APP_HOME}/conf/run.env
 User=${APP_USER}
 Group=${APP_GROUP}
-PIDFile=/run/tomcat.pid
-ExecStart=/${APP_HOME}/bin/startup.sh
-ExecStop=/${APP_HOME}/bin/shutdown.sh
+ExecStart=${JAVA_HOME}/bin/java \
+$JAVA_OPTS $CATALINA_OPTS \
+-classpath ${CLASSPATH} \
+-Dcatalina.base=${CATALINA_BASE} \
+-Dcatalina.home=${CATALINA_HOME} \
+-Djava.io.tmpdir=${CATALINA_TMPDIR} \
+-Djava.util.logging.config.file=${CATALINA_BASE}/conf/logging.properties \
+-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
+org.apache.catalina.startup.Bootstrap \
+start
+ExecStop=${JAVA_HOME}/bin/java \
+$JAVA_OPTS \
+-classpath ${CLASSPATH} \
+-Dcatalina.base=${CATALINA_BASE} \
+-Dcatalina.home=${CATALINA_HOME} \
+-Djava.io.tmpdir=${CATALINA_TMPDIR} \
+-Djava.util.logging.config.file=${CATALINA_BASE}/conf/logging.properties \
+-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
+org.apache.catalina.startup.Bootstrap \
+stop
+SuccessExitStatus=143
 [Install]
 WantedBy=multi-user.target
 EOF
