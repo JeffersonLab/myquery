@@ -108,8 +108,8 @@ SuccessExitStatus=143
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl enable app
-systemctl start app
+systemctl enable tomcat
+systemctl start tomcat
 }
 
 create_log_file_cleanup_cron() {
