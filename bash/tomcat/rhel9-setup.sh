@@ -75,30 +75,31 @@ fi
 
 mv /opt/tomcat/run.env ${APP_HOME}/conf/run.env
 
+CLASSPATH=${APP_USER_HOME}/lib/*:${APP_USER_HOME}/bin/*
+CATALINA_HOME=${APP_HOME}
+
 cat > /etc/systemd/system/tomcat.service << EOF
 [Unit]
 Description=Tomcat Application Server
 After=syslog.target network.target
 [Service]
 Type=simple
-EnvironmentFile=${APP_HOME}/conf/run.env
+EnvironmentFile=${APP_USER_HOME}/conf/run.env
 User=${APP_USER}
 Group=${APP_GROUP}
 ExecStart=${JAVA_HOME}/bin/java \
-$JAVA_OPTS $CATALINA_OPTS \
+\$JAVA_OPTS \
 -classpath ${CLASSPATH} \
 -Dcatalina.home=${CATALINA_HOME} \
--Djava.io.tmpdir=${CATALINA_TMPDIR} \
--Djava.util.logging.config.file=${CATALINA_BASE}/conf/logging.properties \
+-Djava.util.logging.config.file=${CATALINA_HOME}/conf/logging.properties \
 -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
 org.apache.catalina.startup.Bootstrap \
 start
 ExecStop=${JAVA_HOME}/bin/java \
-$JAVA_OPTS \
+\$JAVA_OPTS \
 -classpath ${CLASSPATH} \
 -Dcatalina.home=${CATALINA_HOME} \
--Djava.io.tmpdir=${CATALINA_TMPDIR} \
--Djava.util.logging.config.file=${CATALINA_BASE}/conf/logging.properties \
+-Djava.util.logging.config.file=${CATALINA_HOME}/conf/logging.properties \
 -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
 org.apache.catalina.startup.Bootstrap \
 stop
