@@ -87,7 +87,6 @@ Group=${APP_GROUP}
 ExecStart=${JAVA_HOME}/bin/java \
 $JAVA_OPTS $CATALINA_OPTS \
 -classpath ${CLASSPATH} \
--Dcatalina.base=${CATALINA_BASE} \
 -Dcatalina.home=${CATALINA_HOME} \
 -Djava.io.tmpdir=${CATALINA_TMPDIR} \
 -Djava.util.logging.config.file=${CATALINA_BASE}/conf/logging.properties \
@@ -97,7 +96,6 @@ start
 ExecStop=${JAVA_HOME}/bin/java \
 $JAVA_OPTS \
 -classpath ${CLASSPATH} \
--Dcatalina.base=${CATALINA_BASE} \
 -Dcatalina.home=${CATALINA_HOME} \
 -Djava.io.tmpdir=${CATALINA_TMPDIR} \
 -Djava.util.logging.config.file=${CATALINA_BASE}/conf/logging.properties \
