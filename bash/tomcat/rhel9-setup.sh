@@ -75,7 +75,7 @@ fi
 
 mv /opt/tomcat/run.env ${APP_HOME}/conf/run.env
 
-cat > /etc/systemd/system/app.service << EOF
+cat > /etc/systemd/system/tomcat.service << EOF
 [Unit]
 Description=Tomcat Application Server
 After=syslog.target network.target
