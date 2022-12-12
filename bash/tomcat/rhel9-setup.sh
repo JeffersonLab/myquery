@@ -2,18 +2,19 @@
 
 FUNCTIONS=(create_user_and_group
            download
-           unzip_and_chmod
-           create_symbolic_links
+           install
            create_systemd_service
            create_log_file_cleanup_cron)
 
 VARIABLES=(APP_GROUP
            APP_GROUP_ID
            APP_USER
-           APP_USER_HOME
+           APP_NAME
            APP_USER_ID
            APP_VERSION
-           APP_URL)
+           APP_URL
+           INSTALL_DIR
+           STAGING_DIR)
 
 if [[ $# -eq 0 ]] ; then
     echo "Usage: $0 [var file] <optional function>"
@@ -40,7 +41,8 @@ for i in "${!VARIABLES[@]}"; do
   [ -z "${!var}" ] && { echo "$var is not set. Exiting."; exit 1; }
 done
 
-APP_HOME=${APP_USER_HOME}/${APP_VERSION}
+APP_HOME=${INSTALL_DIR}/${APP_NAME}
+APP_VERSIONED_HOME=${INSTALL_DIR}/apache-tomcat-${APP_VERSION}
 
 create_user_and_group() {
 groupadd -r -g ${APP_GROUP_ID} ${APP_GROUP}
@@ -52,19 +54,11 @@ cd /tmp
 wget ${APP_URL}
 }
 
-unzip_and_chmod() {
-unzip /tmp/apache-tomcat-${APP_VERSION}.zip -d ${APP_USER_HOME}
-mv ${APP_USER_HOME}/apache-tomcat-${APP_VERSION} ${APP_HOME}
-chown -R ${APP_USER}:${APP_GROUP} ${APP_USER_HOME}
-chmod +x ${APP_HOME}/bin/*.sh
-}
-
-create_symbolic_links() {
-cd ${APP_USER_HOME}
-ln -s ${APP_VERSION} current
-ln -s current/conf conf
-ln -s current/logs logs
-ln -s current/bin bin
+install() {
+unzip /tmp/apache-tomcat-${APP_VERSION}.zip -d ${INSTALL_DIR}
+ln -snf ${INSTALL_DIR}/apache-tomcat-${APP_VERSION} ${INSTALL_DIR}/tomcat
+chown -R ${APP_USER}:${APP_GROUP} ${INSTALL_DIR}/apache-tomcat-${APP_VERSION}
+chmod +x ${INSTALL_DIR}/tomcat/bin/*.sh
 }
 
 create_systemd_service() {
@@ -73,10 +67,7 @@ then
   sysctl -w net.ipv4.ip_unprivileged_port_start=${APP_HTTPS_PORT} >> /etc/sysctl.conf
 fi
 
-mv /opt/tomcat/run.env ${APP_HOME}/conf/run.env
-
-CLASSPATH=${APP_USER_HOME}/lib/*:${APP_USER_HOME}/bin/*
-CATALINA_HOME=${APP_HOME}
+CLASSPATH=${APP_USER_HOME}/bin/bootstrap.jar:${APP_USER_HOME}/bin/tomcat-juli.jar
 
 cat > /etc/systemd/system/tomcat.service << EOF
 [Unit]
@@ -84,25 +75,37 @@ Description=Tomcat Application Server
 After=syslog.target network.target
 [Service]
 Type=simple
-EnvironmentFile=${APP_USER_HOME}/conf/run.env
 User=${APP_USER}
 Group=${APP_GROUP}
 ExecStart=${JAVA_HOME}/bin/java \
-\$JAVA_OPTS \
--classpath ${CLASSPATH} \
--Dcatalina.home=${CATALINA_HOME} \
--Djava.util.logging.config.file=${CATALINA_HOME}/conf/logging.properties \
--Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
-org.apache.catalina.startup.Bootstrap \
-start
+ -classpath ${CLASSPATH} \
+ -Xms64m \
+ -Xmx1024m \
+ -XX:MetaspaceSize=96M \
+ -XX:MaxMetaspaceSize=512m \
+ -Djava.net.preferIPv4Stack=true \
+ -Dfile.encoding=UTF-8 \
+ -Dcatalina.home=${APP_HOME} \
+ -Dcatalina.base=${APP_HOME} \
+ -Djava.io.tmpdir=${APP_HOME}/temp \
+ -Djava.util.logging.config.file=${APP_HOME}/conf/logging.properties \
+ -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
+ -Djdk.tls.ephemeralDHKeySize=2048 \
+ -Djava.protocol.handler.pkgs=org.apache.catalina.webresources \
+ -Dorg.apache.catalina.security.SecurityListener.UMASK=0027 \
+ --add-opens=java.base/java.lang=ALL-UNNAMED \
+ --add-opens=java.base/java.io=ALL-UNNAMED \
+ --add-opens=java.base/java.util=ALL-UNNAMED \
+ --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED \
+ org.apache.catalina.startup.Bootstrap \
+ start
 ExecStop=${JAVA_HOME}/bin/java \
-\$JAVA_OPTS \
--classpath ${CLASSPATH} \
--Dcatalina.home=${CATALINA_HOME} \
--Djava.util.logging.config.file=${CATALINA_HOME}/conf/logging.properties \
--Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
-org.apache.catalina.startup.Bootstrap \
-stop
+ -classpath ${CLASSPATH} \
+ -Dcatalina.home=${APP_HOME} \
+ -Djava.util.logging.config.file=${APP_HOME}/conf/logging.properties \
+ -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
+ org.apache.catalina.startup.Bootstrap \
+ stop
 SuccessExitStatus=143
 [Install]
 WantedBy=multi-user.target
