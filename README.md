@@ -20,8 +20,7 @@ The primary goal of myquery is to allow users simple, programmatic access to MYA
 
 Supports querying channel history over a time interval and at a specific point in time, and includes simple forms that allow users to easily generate a valid query string for each type of supported query.
 
-Access via Internet (Authentication Required): [Public MYA Web Service](https://epicsweb.jlab.org/myquery/)   
-Access via Intranet: [Internal MYA Web Service](https://myaweb.acc.jlab.org/myquery/)
+See: [Public MYA Web Service](https://epicsweb.jlab.org/myquery/) (auth required from offsite).   
 
 ## Quick Start with Compose 
 1. Grab project
