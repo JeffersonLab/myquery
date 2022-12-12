@@ -13,8 +13,7 @@ VARIABLES=(APP_GROUP
            APP_USER_ID
            APP_VERSION
            APP_URL
-           INSTALL_DIR
-           STAGING_DIR)
+           INSTALL_DIR)
 
 if [[ $# -eq 0 ]] ; then
     echo "Usage: $0 [var file] <optional function>"
@@ -46,7 +45,7 @@ APP_VERSIONED_HOME=${INSTALL_DIR}/apache-tomcat-${APP_VERSION}
 
 create_user_and_group() {
 groupadd -r -g ${APP_GROUP_ID} ${APP_GROUP}
-useradd -r -m -u ${APP_USER_ID} -g ${APP_GROUP_ID} -d ${APP_USER_HOME} -s /bin/bash ${APP_USER}
+useradd -r -m -u ${APP_USER_ID} -g ${APP_GROUP_ID} -d ${APP_HOME} -s /bin/bash ${APP_USER}
 }
 
 download() {
@@ -67,7 +66,7 @@ then
   sysctl -w net.ipv4.ip_unprivileged_port_start=${APP_HTTPS_PORT} >> /etc/sysctl.conf
 fi
 
-CLASSPATH=${APP_USER_HOME}/bin/bootstrap.jar:${APP_USER_HOME}/bin/tomcat-juli.jar
+CLASSPATH=${APP_HOME}/bin/bootstrap.jar:${APP_HOME}/bin/tomcat-juli.jar
 
 cat > /etc/systemd/system/tomcat.service << EOF
 [Unit]
@@ -117,8 +116,8 @@ systemctl start tomcat
 create_log_file_cleanup_cron() {
 cat > /root/delete-old-app-logs.sh << EOF
 #!/bin/sh
-if [ -d ${APP_USER_HOME}/log ] ; then
- /usr/bin/find ${APP_USER_HOME}/log/ -mtime +30 -exec /usr/bin/rm {} \;
+if [ -d ${APP_HOME}/log ] ; then
+ /usr/bin/find ${APP_HOME}/log/ -mtime +30 -exec /usr/bin/rm {} \;
 fi
 EOF
 chmod +x /root/delete-old-app-logs.sh
