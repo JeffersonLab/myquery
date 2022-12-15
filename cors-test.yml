@@ -1,0 +1,21 @@
+services:
+  mya:
+    extends:
+      file: build.yml
+      service: mya
+
+  myquery:
+    extends:
+      file: build.yml
+      service: myquery
+    environment:
+      CORS_ALLOWED_ORIGINS: "*"
+
+  client:
+    image: tomcat:10.1.1-jre17
+    hostname: client
+    container_name: client
+    ports:
+      - 8081:8080
+    volumes:
+      - ./docker/client/ROOT:/usr/local/tomcat/webapps/ROOT
