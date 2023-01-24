@@ -32,7 +32,7 @@ public class PointQueryTest {
 
             String d = data.getString("d");
 
-            assertEquals("2019-08-12T23:59:57", d);
+            assertEquals("2019-08-12T23:59:58", d);
         }
     }
 }

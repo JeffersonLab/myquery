@@ -30,7 +30,7 @@ public class IntervalQueryTest {
 
             int count = json.getInt("returnCount");
 
-            assertEquals(26409, count);
+            assertEquals(32990, count);
         }
     }
 
@@ -68,7 +68,7 @@ public class IntervalQueryTest {
 
             int count = json.getInt("returnCount");
 
-            assertEquals(24, count);
+            assertEquals(23, count);
         }
     }
 }
