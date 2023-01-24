@@ -10,6 +10,7 @@ The myquery web service provides a simple query interface to the Jefferson Lab M
  - [API](https://github.com/JeffersonLab/myquery#api)    
  - [Configure](https://github.com/JeffersonLab/myquery#configure)    
  - [Build](https://github.com/JeffersonLab/myquery#build)
+ - [Develop](https://github.com/JeffersonLab/myquery#develop)
  - [Test](https://github.com/JeffersonLab/myquery#test)
  - [Release](https://github.com/JeffersonLab/myquery#release)
  - [See Also](https://github.com/JeffersonLab/myquery#see-also)
