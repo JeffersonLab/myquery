@@ -4,7 +4,6 @@
     <WatchedResource>WEB-INF/tomcat-web.xml</WatchedResource>
     <WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
     <Resource name="jdbc/mya"
-              global="jdbc/mya"
               type="javax.sql.DataSource"
               username="myapi"
               password="password"
