@@ -72,7 +72,7 @@ In order to iterate rapidly when making changes it's often useful to run the app
 ```
 docker compose -f deps.yml up
 ```
-**Note**: The local install of Tomcat should be [configured](https://github.com/JeffersonLab/myquery/edit/main/README.md#configure) to proxy connections to mya via localhost and therefore `deployments.properties` should contain:
+**Note**: The local install of Tomcat should be [configured](https://github.com/JeffersonLab/myquery#configure) to proxy connections to mya via localhost and therefore `deployments.properties` should contain:
 ```
 port=3306
 docker.master.host=mya
