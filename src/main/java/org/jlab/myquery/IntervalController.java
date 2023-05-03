@@ -119,7 +119,7 @@ public class IntervalController extends QueryController {
             boolean updatesOnly = (d != null);
             boolean enumsAsStrings = (s != null);
 
-            if (p != null) { // Include prior point
+            if (p != null || (t != null && t.equals("mysampler"))) { // Include prior point
                 PointWebService pointService = new PointWebService(deployment);
                 priorEvent = pointService.findEvent(metadata, updatesOnly, begin, true, false, enumsAsStrings);
             }
@@ -150,7 +150,7 @@ public class IntervalController extends QueryController {
                 }
             }
 
-            boolean integrate = i != null && !t.trim().isEmpty();
+            boolean integrate = i != null && (t != null && !t.trim().isEmpty());
 
             Class type = metadata.getType();
 
