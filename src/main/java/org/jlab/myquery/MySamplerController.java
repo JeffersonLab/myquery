@@ -113,7 +113,7 @@ public class MySamplerController extends QueryController {
             try {
                 sampleCount = Long.parseLong(n);
             } catch (NumberFormatException ex) {
-                throw new Exception("Error parsing number of samples (n): '" + s + "'");
+                throw new Exception("Error parsing number of samples (n): '" + n + "'");
             }
 
             boolean updatesOnly = (d != null);
