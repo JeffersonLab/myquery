@@ -60,7 +60,7 @@ public class MySamplerController extends QueryController {
         String n = request.getParameter("n"); // sampleCount
         String s = request.getParameter("s"); // intervalMillis
         String m = request.getParameter("m"); // deployment
-        String f = request.getParameter("f"); // timestampFormater (timestamp precision)
+        String f = request.getParameter("f"); // timestampFormatter (timestamp precision)
         String d = request.getParameter("d"); // updatesOnly
         String e = request.getParameter("e"); // enumsAsStrings
         String u = request.getParameter("u"); // formatAsMillisSinceEpoch
