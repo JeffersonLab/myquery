@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="">
+    <head>
+        <link rel="stylesheet" type="text/css" href="resources/css/myquery.css" />
+        <title>myquery mystats</title>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <h1>mystats query</h1>
+        <p>This query mimics the major functionality of myStats with the added benefit of allowing for statistics to
+        be easily computed in bins of time during a larger interval.</p>
+        <p>All options but channel, begin, and end are optional.</p>
+        <p>Note:  This only works with FloatEvents (e.g. DBR_DOUBLE)</p>
+        <form action="mystats" method="get">
+            <div id ="input-panel">
+                <div id="text-panel">
+                    <ul>
+                        <li>
+                            <label for="c">Channel (c): </label>
+                            <input id="c" name="c" type="text"/> 
+                        </li>
+                        <li>
+                            <label for="b">Begin date (b): </label>
+                            <input id="b" name="b" type="text" placeholder="YYYY-MM-DD[ hh:mm:[ss]]"/>
+                        </li>
+                        <li>
+                            <label for="e">End date (e): </label>
+                            <input id="e" name="e" type="text" placeholder="YYYY-MM-DD[ hh:mm:[ss]]"/>
+                        </li>
+                        <li>
+                            <label for="n">Number of bins (n): </label>
+                            <input id="n" name="n" type="number" placeholder="1"/>
+
+                        </li>
+                        <li>
+                            <label for="m">Mya deployment (m): </label>
+                            <input id="m" name="m" type="text" placeholder="default = ops"/> 
+                        </li>
+                        <li>
+                            <label for="f">Fractional time digits (f): </label>
+                            <input id="f" name="f" type="text" placeholder="default = 0"/>
+                        </li>
+                        <li>
+                            <label for="v">Fractional value digits (v): </label>
+                            <input id="v" name="v" type="text" placeholder="default = 6"/> 
+                        </li>
+                    </ul>
+                </div>
+                <div id="checkbox-panel">
+                    <ul>
+                        <li>
+                            <label for="d">Data update events only (d): </label>
+                            <input id="d" name="d" type="checkbox"/> 
+                        </li>
+                        <li>
+                            <label for="u">Timestamps as milliseconds from UNIX Epoch (u): </label>
+                            <input id="u" name="u" type="checkbox"/> 
+                        </li>
+                        <li>
+                            <label for="a">Adjust millis to server timezone offset (a): </label>
+                            <input id="a" name="a" type="checkbox"/>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <input type="submit"/>
+        </form>
+    </body>
+</html>
