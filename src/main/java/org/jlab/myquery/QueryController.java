@@ -151,7 +151,7 @@ public class QueryController extends HttpServlet {
     }
 
     /**
-     * This methods write a stream of RunningStatistics associated with a given start time to a JSON generator.
+     * This method write a stream of RunningStatistics associated with a given start time to a JSON generator.
      * @param gen The JSON generator to write them to
      * @param stats The Map of timestamps to RunningStatistics that will be written to the JSON generator
      * @param timestampFormatter How to format timestamps
