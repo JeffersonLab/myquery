@@ -2,13 +2,11 @@ package org.jlab.myquery;
 
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
-import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.RunningStatistics;
 import org.jlab.mya.event.*;
-import org.jlab.mya.stream.EventStream;
 import org.jlab.mya.stream.FloatAnalysisStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,13 +29,12 @@ public class MyStatsController extends QueryController {
      *
      * @param request  servlet request
      * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
      * @throws IOException      if an I/O error occurs
      */
     @SuppressWarnings({"unchecked"})
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
         String jsonp = request.getParameter("jsonp");
 
         if (jsonp != null) {
@@ -47,7 +44,6 @@ public class MyStatsController extends QueryController {
         }
 
         String errorReason = null;
-        EventStream stream = null;
         Metadata metadata = null;
         Map<Instant, RunningStatistics> stats = new TreeMap<>();  // TreeMap results in bin sorted JSON response.
 
@@ -155,15 +151,6 @@ public class MyStatsController extends QueryController {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
-
-            try {
-                if (stream != null) {
-                    stream.close();
-                    stream = null;
-                }
-            } catch (Exception closeIssue) {
-                System.err.println("Unable to close stream");
-            }
         }
 
         DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
