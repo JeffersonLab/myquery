@@ -2,17 +2,16 @@ package org.jlab.myquery;
 
 import org.jlab.mya.ExtraInfo;
 import org.jlab.mya.Metadata;
-import org.jlab.mya.RunningStatistics;
-import org.jlab.mya.event.AnalyzedFloatEvent;
 import org.jlab.mya.event.Event;
-import org.jlab.mya.event.FloatEvent;
 import org.jlab.mya.nexus.DataNexus;
 import org.jlab.mya.stream.*;
-
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * This class provides features similar to the mySampler command line utility.
+ */
 public class MySamplerWebService extends QueryWebService {
 
     private final DataNexus nexus;
