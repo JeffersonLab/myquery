@@ -24,6 +24,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * This method provides an end point for functionality similar to the mySampler command line application.
+ * @author adamc
+ */
 @WebServlet(name = "MySamplerController", value = "/mysampler")
 public class MySamplerController extends QueryController {
 

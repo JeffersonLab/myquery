@@ -20,6 +20,10 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * This class provides functionality similar to the command line application myStats.
+ * @author adamc
+ */
 @WebServlet(name = "MyStatsController", value = "/mystats")
 public class MyStatsController extends QueryController {
     private static final Logger LOGGER = Logger.getLogger(MyStatsController.class.getName());

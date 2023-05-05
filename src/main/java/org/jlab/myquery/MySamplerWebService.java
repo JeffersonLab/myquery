@@ -11,6 +11,7 @@ import java.util.List;
 
 /**
  * This class provides features similar to the mySampler command line utility.
+ * @author adamc
  */
 public class MySamplerWebService extends QueryWebService {
 
