@@ -168,7 +168,6 @@ public class QueryController extends HttpServlet {
             RunningStatistics stat = stats.get(begin);
             gen.writeStartObject();
             FormatUtil.writeTimestampJSON(gen, "begin", begin, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
-            gen.write("begin", begin.toString());
             gen.write("eventCount", stat.getEventCount());
             gen.write("updateCount", stat.getUpdateCount());
 
