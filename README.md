@@ -13,6 +13,7 @@ The myquery web service provides a simple query interface to the Jefferson Lab M
  - [Develop](https://github.com/JeffersonLab/myquery#develop)
  - [Test](https://github.com/JeffersonLab/myquery#test)
  - [Release](https://github.com/JeffersonLab/myquery#release)
+ - [Deploy](https://github.com/JeffersonLab/myquery#deploy)
  - [See Also](https://github.com/JeffersonLab/myquery#see-also)
 ---
 
@@ -96,6 +97,9 @@ gradlew integrationTest
 2. Create a new release on the GitHub [Releases](https://github.com/JeffersonLab/myquery/releases) page corresponding to same version in build.gradle (Enumerate changes and link issues).  Attach war file for users to download.
 3. Build and publish a new Docker image [from the GitHub tag](https://gist.github.com/slominskir/a7da801e8259f5974c978f9c3091d52c#8-build-an-image-based-of-github-tag).  GitHub is configured to do this automatically on git push of semver tag (typically part of GitHub release) or the [Publish to DockerHub](https://github.com/JeffersonLab/myquery/actions/workflows/docker-publish.yml) action can be manually triggered after selecting a tag.
 4. Bump and commit quick start [image version](https://github.com/JeffersonLab/myquery/blob/main/docker-compose.override.yml)
+
+## Deploy
+At JLab this app is found at [epicsweb.jlab.org/myquery](https://epicsweb.jlab.org/myquery/) and internally at [epicswebtest.acc.jlab.org/myquery](https://epicswebtest.acc.jlab.org/myquery/).  However, those servers are proxies for `tomcat1.acc.jlab.org` and `tomcattest1.acc.jlab.org` respectively.   Use wget or the like to grab the release war file.
 
 ## See Also
    - [Web Archive Viewer and Expositor (WAVE)](https://github.com/JeffersonLab/wave)
