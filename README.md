@@ -99,13 +99,13 @@ gradlew integrationTest
 4. Bump and commit quick start [image version](https://github.com/JeffersonLab/myquery/blob/main/docker-compose.override.yml)
 
 ## Deploy
-At JLab this app is found at [epicsweb.jlab.org/myquery](https://epicsweb.jlab.org/myquery/) and internally at [epicswebtest.acc.jlab.org/myquery](https://epicswebtest.acc.jlab.org/myquery/).  However, those servers are proxies for `tomcat1.acc.jlab.org` and `tomcattest1.acc.jlab.org` respectively.   Use wget or the like to grab the release war file.  Don't download directly into webapps dir as file scanner may attempt to deploy before fully downloaded.  Be careful of previous war file as by default wget won't overrwite.  The war file should be attached to each release, so right click it and copy location.  Example:
+At JLab this app is found at [epicsweb.jlab.org/myquery](https://epicsweb.jlab.org/myquery/) and internally at [epicswebtest.acc.jlab.org/myquery](https://epicswebtest.acc.jlab.org/myquery/).  However, those servers are proxies for `tomcat1.acc.jlab.org` and `tomcattest1.acc.jlab.org` respectively.   Use wget or the like to grab the release war file.  Don't download directly into webapps dir as file scanner may attempt to deploy before fully downloaded.  Be careful of previous war file as by default wget won't overrwite.  The war file should be attached to each release, so right click it and copy location (or just update version in path provided in the example below).  Example:
 
 ```
 cd /tmp
-rm *.war
+rm myquery.war
 wget https://github.com/JeffersonLab/myquery/releases/download/v1.2.3/myquery.war
-mv  *.war /opt/tomcat/webapps
+mv  myquery.war /opt/tomcat/webapps
 ```
 
 **JLab Internal Docs**:  [InstallGuideTomcatRHEL9](https://accwiki.acc.jlab.org/do/view/SysAdmin/InstallGuideTomcatRHEL9)
