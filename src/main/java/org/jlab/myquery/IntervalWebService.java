@@ -122,12 +122,11 @@ public class IntervalWebService extends QueryWebService {
                                                              FloatEvent priorEvent, Class<FloatEvent> type) throws SQLException {
         EventStream<FloatEvent> stream;
 
-        switch (sampleType) {
-            case "myget": // Database-level time-based.  Stored Procedure: Fastest.  "Basic" graphical fidelity.  Takes first/next actual point at timed intervals
-                stream = nexus.openMyGetSampleStream(metadata, begin, end, limit);
-                break;
-            default:
-                throw new IllegalArgumentException("Unrecognized sampleType - " + sampleType + ".  Options include myget");
+        if (sampleType != null && sampleType.equals("myget")) {
+            // Database-level time-based.  Stored Procedure: Fastest.  "Basic" graphical fidelity.  Takes first/next actual point at timed intervals
+            stream = nexus.openMyGetSampleStream(metadata, begin, end, limit);
+        } else {
+            throw new IllegalArgumentException("Unrecognized sampleType - " + sampleType + ".  Options include myget");
         }
 
         if (priorEvent != null) {
