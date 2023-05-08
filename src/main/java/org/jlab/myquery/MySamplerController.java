@@ -1,5 +1,17 @@
 package org.jlab.myquery;
 
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import jakarta.servlet.annotation.*;
+import org.jlab.mya.ExtraInfo;
+import org.jlab.mya.Metadata;
+import org.jlab.mya.MyaDataType;
+import org.jlab.mya.event.*;
+import org.jlab.mya.stream.EventStream;
+import org.jlab.mya.stream.LabeledEnumStream;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -11,26 +23,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jakarta.json.Json;
-import jakarta.json.stream.JsonGenerator;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.jlab.mya.*;
-import org.jlab.mya.event.*;
-import org.jlab.mya.stream.EventStream;
-import org.jlab.mya.stream.FloatAnalysisStream;
-import org.jlab.mya.stream.LabeledEnumStream;
 
 /**
- * @author ryans
+ * This method provides an end point for functionality similar to the mySampler command line application.
+ * @author adamc
  */
-@WebServlet(name = "IntervalController", urlPatterns = {"/interval"})
-public class IntervalController extends QueryController {
+@WebServlet(name = "MySamplerController", value = "/mysampler")
+public class MySamplerController extends QueryController {
 
-    private final static Logger LOGGER = Logger.getLogger(IntervalController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MySamplerController.class.getName());
 
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -54,26 +55,21 @@ public class IntervalController extends QueryController {
 
         String errorReason = null;
         EventStream stream = null;
-        Event priorEvent = null;
-        Long count = null;
         Metadata metadata = null;
         List<ExtraInfo> enumLabels = null;
-        boolean sample = false;
 
-        String c = request.getParameter("c");
-        String b = request.getParameter("b");
-        String e = request.getParameter("e");
-        String l = request.getParameter("l");
-        String p = request.getParameter("p");
-        String m = request.getParameter("m");
-        String d = request.getParameter("d");
-        String f = request.getParameter("f");
-        String s = request.getParameter("s");
-        String u = request.getParameter("u");
-        String a = request.getParameter("a");
-        String v = request.getParameter("v");
-        String t = request.getParameter("t");
-        String i = request.getParameter("i");
+
+        String c = request.getParameter("c"); // channel
+        String b = request.getParameter("b"); // begin
+        String n = request.getParameter("n"); // sampleCount
+        String s = request.getParameter("s"); // intervalMillis
+        String m = request.getParameter("m"); // deployment
+        String f = request.getParameter("f"); // timestampFormatter (timestamp precision)
+        String d = request.getParameter("d"); // updatesOnly
+        String e = request.getParameter("e"); // enumsAsStrings
+        String u = request.getParameter("u"); // formatAsMillisSinceEpoch
+        String a = request.getParameter("a"); // adjustMillisWithServerOffset
+        String v = request.getParameter("v"); // decimalFormatter (value precision)
 
         try {
             if (c == null || c.trim().isEmpty()) {
@@ -82,99 +78,69 @@ public class IntervalController extends QueryController {
             if (b == null || b.trim().isEmpty()) {
                 throw new Exception("Begin Date (b) is required");
             }
-            if (e == null || e.trim().isEmpty()) {
-                throw new Exception("End Date (e) is required");
+            if (n == null || n.trim().isEmpty()) {
+                throw new Exception("Number of sampler (n) is required");
             }
+            if (s == null || s.trim().isEmpty()) {
+                throw new Exception("Step size (s) in milliseconds is required");
+            }
+
             // Replace ' ' with 'T' if present
             b = b.replace(' ', 'T');
-            e = e.replace(' ', 'T');
 
             // If only date and no time then add explicit zero time
             if (b.length() == 10) {
                 b = b + "T00:00:00";
             }
-            if (e.length() == 10) {
-                e = e + "T00:00:00";
-            }
 
             Instant begin = LocalDateTime.parse(b).atZone(
                     ZoneId.systemDefault()).toInstant();
-            Instant end = LocalDateTime.parse(e).atZone(
-                    ZoneId.systemDefault()).toInstant();
 
             String deployment = "ops";
-
             if (m != null && !m.trim().isEmpty()) {
                 deployment = m;
             }
 
-            IntervalWebService service = new IntervalWebService(deployment);
+            MySamplerWebService service = new MySamplerWebService(deployment);
 
             metadata = service.findMetadata(c);
-
             if (metadata == null) {
                 throw new Exception("Unable to find channel: '" + c + "' in deployment: '" + deployment + "'");
             }
 
+            long intervalMillis, sampleCount;
+            try {
+                intervalMillis = Long.parseLong(s);
+            } catch (NumberFormatException ex) {
+                throw new Exception("Error parsing sample interval (s) in milliseconds: '" + s + "'");
+            }
+            try {
+                sampleCount = Long.parseLong(n);
+            } catch (NumberFormatException ex) {
+                throw new Exception("Error parsing number of samples (n): '" + n + "'");
+            }
+
             boolean updatesOnly = (d != null);
-            boolean enumsAsStrings = (s != null);
+            boolean enumsAsStrings = (e != null);
 
-            if (p != null || (t != null && t.equals("mysampler"))) { // Include prior point
-                PointWebService pointService = new PointWebService(deployment);
-                priorEvent = pointService.findEvent(metadata, updatesOnly, begin, true, false, enumsAsStrings);
-            }
-
-            long limit = -1;
-
-            if (l != null && !l.trim().isEmpty()) {
-                limit = Long.parseLong(l);
-                // We were given a limit so we must count
-                count = service.count(metadata, updatesOnly, begin, end);
-                // This query seems to take about 0.1 second, so we only do it if necessary
-
-                if (count > limit) {
-                    sample = true;
-
-                    // Default to graphical sampling if nothing is specified.
-                    if (t == null || t.isEmpty()) {
-                        t = "graphical";
-                    }
-                }
-            }
-
-            if(end.isAfter(Instant.now())) { // Don't tell client to cache response if contains future bounds!
+            // Don't tell client to cache response if contains future bounds!
+            Instant end = begin.plusMillis(intervalMillis * (sampleCount - 1));
+            if (end.isAfter(Instant.now())) {
                 CacheAndEncodingFilter.disableCaching(response);
-            } else { // Let's cache, but only share value (proxy servers) if sampled
-                if(!sample) {
-                    response.setHeader("Cache-Control", "private");
-                }
-            }
-
-            boolean integrate = i != null && (t != null && !t.trim().isEmpty());
-
-            Class type = metadata.getType();
-
-            if (sample) {
-                if(type != FloatEvent.class) {
-                    throw new IllegalArgumentException("Only float events can be sampled");
-                }
-
-                stream = service.openSampleEventStream(t, metadata, begin, end, limit, count, updatesOnly, integrate, (FloatEvent)priorEvent, type);
             } else {
-                stream = service.openEventStream(metadata, updatesOnly, begin, end, priorEvent, type);
-
-                if(integrate) {
-                    stream = new FloatAnalysisStream(stream, new short[]{RunningStatistics.INTEGRATION});
-                }
+                response.setHeader("Cache-Control", "private");
             }
 
+            // Get the sampled stream.  If it's an enum convert to use string labels if requested.
+            stream = service.openEventStream(metadata, begin, intervalMillis, sampleCount, updatesOnly);
             if(metadata.getMyaType() == MyaDataType.DBR_ENUM) {
                 enumLabels = service.findExtraInfo(metadata, "enum_strings", begin, end);
-
                 if (enumsAsStrings) {
                     stream = new LabeledEnumStream((EventStream<IntEvent>) stream, enumLabels);
                 }
             }
+
+
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
@@ -212,7 +178,7 @@ public class IntervalController extends QueryController {
                         gen.write("datatype", metadata.getMyaType().name());
                         gen.write("datasize", metadata.getSize());
                         gen.write("datahost", metadata.getHost());
-                        if(metadata.getIoc() == null) {
+                        if (metadata.getIoc() == null) {
                             gen.writeNull("ioc");
                         } else {
                             gen.write("ioc", metadata.getIoc());
@@ -220,14 +186,14 @@ public class IntervalController extends QueryController {
                         gen.write("active", metadata.isActive());
                     }
 
-                    if(enumLabels != null && enumLabels.size() > 0) {
+                    if (enumLabels != null && enumLabels.size() > 0) {
                         gen.writeStartArray("labels");
-                        for(ExtraInfo info: enumLabels) {
+                        for (ExtraInfo info : enumLabels) {
                             gen.writeStartObject();
                             FormatUtil.writeTimestampJSON(gen, "d", info.getTimestamp(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                             gen.writeStartArray("value");
-                            for(String token: info.getValueAsArray()) {
-                                if(token != null && !token.isEmpty()) {
+                            for (String token : info.getValueAsArray()) {
+                                if (token != null && !token.isEmpty()) {
                                     gen.write(token);
                                 }
                             }
@@ -235,15 +201,6 @@ public class IntervalController extends QueryController {
                             gen.writeEnd();
                         }
                         gen.writeEnd();
-                    }
-
-                    gen.write("sampled", sample);
-
-                    if (count != null) {
-                        gen.write("count", count);
-                    }
-                    if (sample) {
-                        gen.write("sampleType", t);
                     }
 
                     gen.writeStartArray("data");
@@ -257,7 +214,7 @@ public class IntervalController extends QueryController {
                     } else if (stream.getType() == FloatEvent.class) {
                         dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
                                 timestampFormatter, decimalFormatter);
-                    } else if(stream.getType() == AnalyzedFloatEvent.class) {
+                    } else if (stream.getType() == AnalyzedFloatEvent.class) {
                         dataLength = generateAnalyzedFloatStream(gen, (EventStream<AnalyzedFloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
                                 timestampFormatter, decimalFormatter);
                     } else if (stream.getType() == LabeledEnumEvent.class) {

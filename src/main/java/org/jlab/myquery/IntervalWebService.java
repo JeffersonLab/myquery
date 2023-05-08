@@ -12,7 +12,6 @@ import org.jlab.mya.nexus.DataNexus;
 import org.jlab.mya.stream.*;
 
 /**
- *
  * @author adamc, ryans
  */
 public class IntervalWebService extends QueryWebService {
@@ -36,7 +35,7 @@ public class IntervalWebService extends QueryWebService {
                                                             T priorEvent, Class<T> type) throws Exception {
         EventStream stream = nexus.openEventStream(metadata, begin, end, DataNexus.IntervalQueryFetchStrategy.STREAM, updatesOnly);
 
-        if(priorEvent != null) {
+        if (priorEvent != null) {
             stream = new BoundaryAwareStream(stream, begin, end, priorEvent, updatesOnly, type);
         }
 
@@ -49,23 +48,27 @@ public class IntervalWebService extends QueryWebService {
 
 
     public EventStream<FloatEvent> openSampleEventStream(String sampleType, Metadata<FloatEvent> metadata, Instant begin, Instant end, long limit,
-            long count, boolean updatesOnly, boolean integrate, FloatEvent priorEvent, Class<FloatEvent> type) throws SQLException, UnsupportedOperationException {
+                                                         long count, boolean updatesOnly, boolean integrate, FloatEvent priorEvent, Class<FloatEvent> type) throws SQLException, UnsupportedOperationException {
 
         EventStream<FloatEvent> stream;
 
-        if (sampleType == null || sampleType.isEmpty()){
+        if (sampleType == null || sampleType.isEmpty()) {
             throw new IllegalArgumentException("sampleType required.  Options include graphical, event, binned");
         }
 
-        switch(sampleType) {
+        switch (sampleType) {
+            case "mysampler": // Now application-level time-based. Results in one query against database.
+                // Takes value at timed intervals (by looking for prior point)
+                if (integrate) {
+                    throw new UnsupportedOperationException("Integration of input into mysampler algorithm has not been implemented");
+                }
             case "graphical":  // Application-level event-based, high graphical fidelity
             case "eventsimple": // Application-level event-based. This is likely never a good sampler option given above...
                 stream = doApplicationSampling(sampleType, metadata, begin, end, limit, count, updatesOnly, integrate, priorEvent, type);
                 break;
             case "myget": // Database-level time-based.  Stored Procedure: Fastest.  "Basic" graphical fidelity.  Takes first/next actual point at timed intervals
-            case "mysampler": // Database-level time-based. Results in n-queries against database.  Takes value at timed intervals (by looking for prior point)
-                if(integrate) {
-                    throw new UnsupportedOperationException("Integration of input into myget sampler / mysampler algorithm has not been implemented");
+                if (integrate) {
+                    throw new UnsupportedOperationException("Integration of input into myget sampler algorithm has not been implemented");
                 }
 
                 stream = doDatabaseSourceSampling(sampleType, metadata, updatesOnly, begin, end, limit, priorEvent, FloatEvent.class);
@@ -79,11 +82,12 @@ public class IntervalWebService extends QueryWebService {
 
     @SuppressWarnings("unchecked")
     private EventStream<FloatEvent> doApplicationSampling(String sampleType, Metadata metadata, Instant begin, Instant end, long limit,
-                                              long count, boolean updatesOnly, boolean integrate, FloatEvent priorEvent, Class<FloatEvent> type) throws SQLException {
+                                                          long count, boolean updatesOnly, boolean integrate, FloatEvent priorEvent, Class<FloatEvent> type) throws SQLException {
 
         EventStream<FloatEvent> stream = nexus.openEventStream(metadata, begin, end);
 
-        if(priorEvent != null) {
+        // Don't do this for mysampler as it extends BoundaryAwareStream and requires a non-null priorEvent.
+        if (priorEvent != null && !sampleType.equals("mysampler")) {
             stream = new BoundaryAwareStream<>(stream, begin, end, priorEvent, updatesOnly, type);
         }
 
@@ -94,12 +98,18 @@ public class IntervalWebService extends QueryWebService {
             type2 = AnalyzedFloatEvent.class;
         }
 
-        switch(sampleType) {
+        switch (sampleType) {
             case "graphical":  // Application-level event-based, high graphical fidelity
                 stream = new FloatGraphicalSampleStream(stream, limit, count, type2);
                 break;
             case "eventsimple": // Application-level event-based. This is likely never a good sampler option given above...
                 stream = new FloatSimpleSampleStream(stream, limit, count, type2);
+                break;
+            case "mysampler": // Application-level event-based.  This mimics the CLI mySampler output.
+                double endD = (end.getEpochSecond() + end.getNano() / 1_000_000_000d);
+                double beginD = (begin.getEpochSecond() + begin.getNano() / 1_000_000_000d);
+                long stepMillis = (long) (((endD - beginD) / (limit - 1)) * 1000);
+                stream = new MySamplerStream<>(stream, begin, stepMillis, limit, priorEvent, updatesOnly, FloatEvent.class);
                 break;
             default:
                 throw new IllegalArgumentException("Unrecognized sampleType - " + sampleType + ".  Options include graphical, eventsimple, myget, mysampler");
@@ -109,22 +119,17 @@ public class IntervalWebService extends QueryWebService {
     }
 
     private EventStream<FloatEvent> doDatabaseSourceSampling(String sampleType, Metadata<FloatEvent> metadata, boolean updatesOnly, Instant begin, Instant end, long limit,
-                                                 FloatEvent priorEvent, Class<FloatEvent> type) throws SQLException {
+                                                             FloatEvent priorEvent, Class<FloatEvent> type) throws SQLException {
         EventStream<FloatEvent> stream;
 
-        switch(sampleType) {
-            case "myget": // Database-level time-based.  Stored Procedure: Fastest.  "Basic" graphical fidelity.  Takes first/next actual point at timed intervals
-                stream = nexus.openMyGetSampleStream(metadata, begin, end, limit);
-                break;
-            case "mysampler": // Database-level time-based. Results in n-queries against database.  Takes value at timed intervals (by looking for prior point)
-                long stepMillis = ((end.getEpochSecond() - begin.getEpochSecond()) / limit) * 1000;
-                stream = nexus.openMySamplerStream(metadata, begin, stepMillis, limit);
-                break;
-            default:
-            throw new IllegalArgumentException("Unrecognized sampleType - " + sampleType + ".  Options include graphical, eventsimple, myget, mysampler");
+        if (sampleType != null && sampleType.equals("myget")) {
+            // Database-level time-based.  Stored Procedure: Fastest.  "Basic" graphical fidelity.  Takes first/next actual point at timed intervals
+            stream = nexus.openMyGetSampleStream(metadata, begin, end, limit);
+        } else {
+            throw new IllegalArgumentException("Unrecognized sampleType - " + sampleType + ".  Options include myget");
         }
 
-        if(priorEvent != null) {
+        if (priorEvent != null) {
             stream = new BoundaryAwareStream<>(stream, begin, end, priorEvent, updatesOnly, type);
         }
 

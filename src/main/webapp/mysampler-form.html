@@ -2,13 +2,13 @@
 <html lang="en">
     <head>
         <link rel="stylesheet" type="text/css" href="resources/css/myquery.css" />
-        <title>myquery interval</title>
+        <title>myquery mysampler</title>
         <meta charset="UTF-8">
     </head>
     <body>
-        <h1>myquery interval</h1>
-        <p>All options but channel and time are optional.</p>        
-        <form action="interval" method="get">
+        <h1>mysampler query</h1>
+        <p>All options but channel, time, number of samples, and sample interval are optional.</p>
+        <form action="mysampler" method="get">
             <div id ="input-panel">
                 <div id="text-panel">
                     <ul>
@@ -21,21 +21,13 @@
                             <input id="b" name="b" type="text" placeholder="YYYY-MM-DD[ hh:mm:[ss]]"/> 
                         </li>
                         <li>
-                            <label for="e">End date (e): </label>
-                            <input id="e" name="e" type="text" placeholder="YYYY-MM-DD[ hh:mm:[ss]]"/> 
+                            <label for="n">Number of Samples (n): </label>
+                            <input id="n" name="n" type="number"/>
+
                         </li>
                         <li>
-                            <label for="l">Limit by binning (l): </label>
-                            <input id="l" name="l" type="text" placeholder="disabled by default"/>
-                        </li>
-                        <li>
-                            <label for="t">Sampling type: (t): </label>
-                            <select id="t" name="t">
-                                <option value="graphical" title="Provides a better graphical representation">Graphical</option>
-                                <option value="eventsimple" title="Returns every nth event">Event Simple</option>
-                                <option value="myget" title="Returns at most one event from each time-based bin.">myGet</option>
-                                <option value="mysampler" title="Returns one event from each time-based bin at fixed frequency.">mySampler</option>
-                            </select>
+                            <label for="s">Sample Interval in ms (s): </label>
+                            <input id="s" name="s" type="number"/>
                         </li>
                         <li>
                             <label for="m">Mya deployment (m): </label>
@@ -59,12 +51,8 @@
                             <input id="d" name="d" type="checkbox"/> 
                         </li>                        
                         <li>
-                            <label for="p">Include prior point (p): </label>
-                            <input id="p" name="p" type="checkbox"/> 
-                        </li>
-                        <li>
-                            <label for="s">Enumerations as string (s): </label>
-                            <input id="s" name="s" type="checkbox"/> 
+                            <label for="e">Enumerations as string (e): </label>
+                            <input id="e" name="e" type="checkbox"/>
                         </li>
                         <li>
                             <label for="u">Timestamps as milliseconds from UNIX Epoch (u): </label>
@@ -73,10 +61,6 @@
                         <li>
                             <label for="a">Adjust millis to server timezone offset (a): </label>
                             <input id="a" name="a" type="checkbox"/>
-                        </li>
-                        <li>
-                            <label for="i">Integrate [float events only] (i): </label>
-                            <input id="i" name="i" type="checkbox"/>
                         </li>
                     </ul>
                 </div>
