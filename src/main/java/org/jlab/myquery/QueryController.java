@@ -5,9 +5,11 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServlet;
+import org.jlab.mya.Metadata;
 import org.jlab.mya.RunningStatistics;
 import org.jlab.mya.event.*;
 import org.jlab.mya.stream.EventStream;
@@ -181,6 +183,31 @@ public class QueryController extends HttpServlet {
             gen.write("stdev", new BigDecimal(decimalFormatter.format(stat.getSigma())));
         }
         gen.writeEnd();
+    }
+
+    /**
+     * Write a list of metadata objects as a series of JSON objects.  Assumes that a JSON array has been started/ended
+     * outside of this method.
+     * @param gen The JSON generator used to write the data
+     * @param metadataList The metadata objects to write
+     */
+    public void generateMetadataStream(JsonGenerator gen, List<Metadata> metadataList) {
+        if (metadataList != null) {
+            for (Metadata metadata : metadataList) {
+                gen.writeStartObject();
+                gen.write("name", metadata.getName());
+                gen.write("datatype", metadata.getMyaType().name());
+                gen.write("datasize", metadata.getSize());
+                gen.write("datahost", metadata.getHost());
+                if (metadata.getIoc() == null) {
+                    gen.writeNull("ioc");
+                } else {
+                    gen.write("ioc", metadata.getIoc());
+                }
+                gen.write("active", metadata.isActive());
+                gen.writeEnd();
+            }
+        }
     }
 
     /**

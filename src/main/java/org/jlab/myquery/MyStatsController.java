@@ -194,20 +194,7 @@ public class MyStatsController extends QueryController {
             } else {
                 if (metadatas != null) {
                     gen.writeStartArray("metadata");
-                    for (Metadata metadata : metadatas) {
-                        gen.writeStartObject();
-                        gen.write("name", metadata.getName());
-                        gen.write("datatype", metadata.getMyaType().name());
-                        gen.write("datasize", metadata.getSize());
-                        gen.write("datahost", metadata.getHost());
-                        if (metadata.getIoc() == null) {
-                            gen.writeNull("ioc");
-                        } else {
-                            gen.write("ioc", metadata.getIoc());
-                        }
-                        gen.write("active", metadata.isActive());
-                        gen.writeEnd();
-                    }
+                    generateMetadataStream(gen, metadatas);
                     gen.writeEnd();
                 }
 
