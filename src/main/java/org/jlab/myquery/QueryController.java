@@ -130,6 +130,59 @@ public class QueryController extends HttpServlet {
         gen.writeEnd();
     }
 
+    public void writeRunningStatistics(String name, JsonGenerator gen, RunningStatistics stat, Instant begin,
+                                       boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
+                                       DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter){
+        if (name == null) {
+            gen.writeStartObject();
+        } else {
+            gen.writeStartObject(name);
+        }
+
+        FormatUtil.writeTimestampJSON(gen, "begin", begin, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
+                timestampFormatter);
+        gen.write("eventCount", stat.getEventCount());
+        gen.write("updateCount", stat.getUpdateCount());
+
+        if (stat.getDuration() == null) {
+            gen.writeNull("duration");
+        } else {
+            gen.write("duration", new BigDecimal(decimalFormatter.format(stat.getDuration())));
+        }
+        if (stat.getIntegration() == null) {
+            gen.writeNull("integration");
+        } else {
+            gen.write("integration", new BigDecimal(decimalFormatter.format(stat.getIntegration())));
+        }
+
+        if (stat.getMax() == null) {
+            gen.writeNull("max");
+        } else {
+            gen.write("max", new BigDecimal(decimalFormatter.format(stat.getMax())));
+        }
+        if (stat.getMean() == null) {
+            gen.writeNull("mean");
+        } else {
+            gen.write("mean", new BigDecimal(decimalFormatter.format(stat.getMean())));
+        }
+        if (stat.getMin() == null) {
+            gen.writeNull("min");
+        } else {
+            gen.write("min", new BigDecimal(decimalFormatter.format(stat.getMin())));
+        }
+        if (stat.getRms() == null) {
+            gen.writeNull("rms");
+        } else {
+            gen.write("rms", new BigDecimal(decimalFormatter.format(stat.getRms())));
+        }
+        if (stat.getSigma() == null) {
+            gen.writeNull("stdev");
+        } else {
+            gen.write("stdev", new BigDecimal(decimalFormatter.format(stat.getSigma())));
+        }
+        gen.writeEnd();
+    }
+
     /**
      * Write out the IntEventStream to a JsonGenerator.
      * @param gen
@@ -151,64 +204,29 @@ public class QueryController extends HttpServlet {
     }
 
     /**
-     * This method write a stream of RunningStatistics associated with a given start time to a JSON generator.
+     * This method write a stream of RunningStatistics associated with a given start time to a JSON generator.  Expects
+     * that a JSON array has been started outside of this method and will be closed outside of this method.
      * @param gen The JSON generator to write them to
-     * @param stats The Map of timestamps to RunningStatistics that will be written to the JSON generator
+     * @param results The Map of timestamps to RunningStatistics that will be written to the JSON generator
      * @param timestampFormatter How to format timestamps
      * @param decimalFormatter How to format decimal values
      * @param formatAsMillisSinceEpoch Should timestamps be in seconds from Epoch
      * @param adjustMillisWithServerOffset
      * @return The number of RunningStatistics written to the stream
      */
-    public long generateStatisticsStream(JsonGenerator gen, Map<Instant, RunningStatistics> stats,
+    public long generateStatisticsStream(JsonGenerator gen, MyStatsResults results,
                                          DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter,
                                          boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset) {
         long count = 0;
-        for (Instant begin : stats.keySet()) {
-            RunningStatistics stat = stats.get(begin);
-            gen.writeStartObject();
-            FormatUtil.writeTimestampJSON(gen, "begin", begin, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
-            gen.write("eventCount", stat.getEventCount());
-            gen.write("updateCount", stat.getUpdateCount());
-
-            if (stat.getDuration() == null) {
-                gen.writeNull("duration");
-            } else {
-                gen.write("duration", new BigDecimal(decimalFormatter.format(stat.getDuration())));
+        for (String name : results.getChannels()) {
+            Map<Instant, RunningStatistics> stats = results.get(name);
+            for(Instant begin : stats.keySet()) {
+                gen.writeStartObject();
+                writeRunningStatistics(name, gen, stats.get(begin), begin, formatAsMillisSinceEpoch,
+                        adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
+                gen.writeEnd();
+                count++;
             }
-            if (stat.getIntegration() == null) {
-                gen.writeNull("integration");
-            } else {
-                gen.write("integration", new BigDecimal(decimalFormatter.format(stat.getIntegration())));
-            }
-
-            if (stat.getMax() == null) {
-                gen.writeNull("max");
-            } else {
-                gen.write("max", new BigDecimal(decimalFormatter.format(stat.getMax())));
-            }
-            if (stat.getMean() == null) {
-                gen.writeNull("mean");
-            } else {
-                gen.write("mean", new BigDecimal(decimalFormatter.format(stat.getMean())));
-            }
-            if (stat.getMin() == null) {
-                gen.writeNull("min");
-            } else {
-                gen.write("min", new BigDecimal(decimalFormatter.format(stat.getMin())));
-            }
-            if (stat.getRms() == null) {
-                gen.writeNull("rms");
-            } else {
-                gen.write("rms", new BigDecimal(decimalFormatter.format(stat.getRms())));
-            }
-            if (stat.getSigma() == null) {
-                gen.writeNull("stdev");
-            } else {
-                gen.write("stdev", new BigDecimal(decimalFormatter.format(stat.getSigma())));
-            }
-            gen.writeEnd();
-            count++;
         }
 
         return count;
