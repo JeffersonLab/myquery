@@ -64,7 +64,7 @@ public class MyStatsController extends QueryController {
 
         try {
             if (c == null || c.trim().isEmpty()) {
-                throw new Exception("Channel list (l) is required");
+                throw new Exception("Channel list (c) is required");
             }
             if (b == null || b.trim().isEmpty()) {
                 throw new Exception("Begin Date (b) is required");
