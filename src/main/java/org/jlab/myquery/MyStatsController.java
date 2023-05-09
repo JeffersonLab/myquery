@@ -51,7 +51,7 @@ public class MyStatsController extends QueryController {
         List<Metadata> metadatas = null;
         MyStatsResults results = new MyStatsResults();
 
-        String l = request.getParameter("l"); // channels
+        String c = request.getParameter("c"); // channels
         String b = request.getParameter("b"); // begin
         String e = request.getParameter("e"); // end
         String n = request.getParameter("n"); // number of bins
@@ -63,7 +63,7 @@ public class MyStatsController extends QueryController {
         String v = request.getParameter("v"); // decimalFormatter (value precision)
 
         try {
-            if (l == null || l.trim().isEmpty()) {
+            if (c == null || c.trim().isEmpty()) {
                 throw new Exception("Channel list (l) is required");
             }
             if (b == null || b.trim().isEmpty()) {
@@ -104,9 +104,9 @@ public class MyStatsController extends QueryController {
             metadatas = new ArrayList<>();
             List<String> channels;
             try {
-                channels = Arrays.asList(l.split(","));
+                channels = Arrays.asList(c.split(","));
             } catch (PatternSyntaxException ex) {
-                throw new Exception("Error parsing comma separated channel list: " + l);
+                throw new Exception("Error parsing comma separated channel list: " + c);
             }
 
             for (String channel : channels) {
