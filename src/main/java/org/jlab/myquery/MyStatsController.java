@@ -193,8 +193,9 @@ public class MyStatsController extends QueryController {
                 gen.write("error", errorReason);
             } else {
                 if (metadatas != null) {
-                    gen.writeStartObject("metadata");
+                    gen.writeStartArray("metadata");
                     for (Metadata metadata : metadatas) {
+                        gen.writeStartObject();
                         gen.write("name", metadata.getName());
                         gen.write("datatype", metadata.getMyaType().name());
                         gen.write("datasize", metadata.getSize());
@@ -205,7 +206,9 @@ public class MyStatsController extends QueryController {
                             gen.write("ioc", metadata.getIoc());
                         }
                         gen.write("active", metadata.isActive());
+                        gen.writeEnd();
                     }
+                    gen.writeEnd();
                 }
 
                 gen.writeStartArray("data");
