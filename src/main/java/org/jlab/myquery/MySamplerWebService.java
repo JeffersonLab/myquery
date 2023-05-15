@@ -5,16 +5,19 @@ import org.jlab.mya.Metadata;
 import org.jlab.mya.event.Event;
 import org.jlab.mya.nexus.DataNexus;
 import org.jlab.mya.stream.*;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class provides features similar to the mySampler command line utility.
  * @author adamc
  */
 public class MySamplerWebService extends QueryWebService {
-
+    private static final Logger LOGGER = Logger.getLogger((MySamplerWebService.class.getName()));
     private final DataNexus nexus;
 
     public MySamplerWebService(String deployment) {
@@ -31,7 +34,7 @@ public class MySamplerWebService extends QueryWebService {
 
 
     @SuppressWarnings("unchecked")
-    public <T extends Event> EventStream<T> openEventStream(Metadata<T> metadata, Instant begin, long intervalMillis,
+    public <T extends Event> MySamplerStream<T> openEventStream(Metadata<T> metadata, Instant begin, long intervalMillis,
                                                             long sampleCount, boolean updatesOnly) throws SQLException, UnsupportedOperationException {
 
         PointWebService pws = new PointWebService(nexus.getDeployment());
@@ -40,6 +43,19 @@ public class MySamplerWebService extends QueryWebService {
         Instant end = begin.plusMillis(intervalMillis * (sampleCount - 1));
         EventStream<T> stream = nexus.openEventStream(metadata, begin, end, DataNexus.IntervalQueryFetchStrategy.STREAM, updatesOnly);
 
-        return new MySamplerStream<>(stream, begin, intervalMillis, sampleCount, priorEvent, updatesOnly, metadata.getType());
+        MySamplerStream<T> out;
+        try {
+            out = MySamplerStream.getMySamplerStream(stream, begin, intervalMillis, sampleCount, priorEvent, updatesOnly, metadata.getType());
+        } catch (Exception ex) {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException closeIssue) {
+                    LOGGER.log(Level.SEVERE, "Could not close stream", ex);
+                }
+            }
+            throw ex;
+        }
+        return out;
     }
 }
