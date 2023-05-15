@@ -4,10 +4,10 @@ plugins {
 }
 
 description = "MYA web-based query tool"
-version = '3.0.0'
+version = '4.0.0'
 
 ext {
-    releaseDate = 'Jan 24 2023'
+    releaseDate = 'May 15, 2023'
 }
 
 tasks.withType(JavaCompile) {
@@ -35,7 +35,7 @@ configurations {
 }
 
 dependencies {
-    implementation 'org.jlab:jmyapi:6.3.0',
+    implementation 'org.jlab:jmyapi:7.0.0',
                    'org.eclipse.parsson:parsson:1.1.1'
 	providedCompile 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     testImplementation 'junit:junit:4.13.2'
