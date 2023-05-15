@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServlet;
+import org.jlab.mya.ExtraInfo;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.RunningStatistics;
 import org.jlab.mya.event.*;
@@ -186,6 +187,62 @@ public class QueryController extends HttpServlet {
     }
 
     /**
+     * Write out Metadata to a JSON generator
+     * @param gen The generator to write to
+     * @param metadata The metatdata to write
+     */
+    public void writeMetadata(String name, JsonGenerator gen, Metadata metadata) {
+        if (name == null) {
+            gen.writeStartObject();
+        } else {
+            gen.writeStartObject(name);
+        }
+        gen.write("name", metadata.getName());
+        gen.write("datatype", metadata.getMyaType().name());
+        gen.write("datasize", metadata.getSize());
+        gen.write("datahost", metadata.getHost());
+        if (metadata.getIoc() == null) {
+            gen.writeNull("ioc");
+        } else {
+            gen.write("ioc", metadata.getIoc());
+        }
+        gen.write("active", metadata.isActive());
+        gen.writeEnd();
+    }
+
+    /**
+     * Write out the enum labels for a single channel to a JSON generator
+     * @param name Optional name for the label list
+     * @param gen The JSON generator to write to
+     * @param enumLabelList The list of ExtraInfo, i.e., the enum labels over time
+     * @param formatAsMillisSinceEpoch Write timestamps in more precise Unix-like time format
+     * @param adjustMillisWithServerOffset Adjust timestamps for server
+     * @param timestampFormatter How to format the datetimes associated with values
+     */
+    public void writeEnumLabels(String name, JsonGenerator gen, List<ExtraInfo> enumLabelList,
+                                boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
+                                DateTimeFormatter timestampFormatter) {
+        if (name != null) {
+            gen.writeStartArray(name);
+        } else {
+            gen.writeStartArray();
+        }
+        for (ExtraInfo info : enumLabelList) {
+            gen.writeStartObject();
+            FormatUtil.writeTimestampJSON(gen, "d", info.getTimestamp(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
+            gen.writeStartArray("value");
+            for (String token : info.getValueAsArray()) {
+                if (token != null && !token.isEmpty()) {
+                    gen.write(token);
+                }
+            }
+            gen.writeEnd();
+        }
+        gen.writeEnd();
+
+    }
+
+    /**
      * Write a list of metadata objects as a series of JSON objects.  Assumes that a JSON array has been started/ended
      * outside of this method.
      * @param gen The JSON generator used to write the data
@@ -194,19 +251,10 @@ public class QueryController extends HttpServlet {
     public void generateMetadataStream(JsonGenerator gen, List<Metadata> metadataList) {
         if (metadataList != null) {
             for (Metadata metadata : metadataList) {
-                gen.writeStartObject();
-                gen.write("name", metadata.getName());
-                gen.write("datatype", metadata.getMyaType().name());
-                gen.write("datasize", metadata.getSize());
-                gen.write("datahost", metadata.getHost());
-                if (metadata.getIoc() == null) {
-                    gen.writeNull("ioc");
-                } else {
-                    gen.write("ioc", metadata.getIoc());
-                }
-                gen.write("active", metadata.isActive());
-                gen.writeEnd();
+                writeMetadata(null, gen, metadata);
             }
+        } else {
+            gen.writeNull();
         }
     }
 
