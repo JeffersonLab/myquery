@@ -20,12 +20,14 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * This method provides an end point for functionality similar to the mySampler command line application.
+ *
  * @author adamc
  */
 @WebServlet(name = "MySamplerController", value = "/mysampler")
@@ -38,13 +40,11 @@ public class MySamplerController extends QueryController {
      *
      * @param request  servlet request
      * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
      * @throws IOException      if an I/O error occurs
      */
-    @SuppressWarnings({"unchecked"})
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException, ServletException {
         String jsonp = request.getParameter("jsonp");
 
         if (jsonp != null) {
@@ -54,10 +54,12 @@ public class MySamplerController extends QueryController {
         }
 
         String errorReason = null;
-        EventStream stream = null;
-        Metadata metadata = null;
-        List<ExtraInfo> enumLabels = null;
-
+        List<String> channels = null;
+        MySamplerWebService service = null;
+        long intervalMillis = -1;
+        long sampleCount = -1;
+        String deployment = "ops";
+        Instant begin = null;
 
         String c = request.getParameter("c"); // channel
         String b = request.getParameter("b"); // begin
@@ -70,6 +72,9 @@ public class MySamplerController extends QueryController {
         String u = request.getParameter("u"); // formatAsMillisSinceEpoch
         String a = request.getParameter("a"); // adjustMillisWithServerOffset
         String v = request.getParameter("v"); // decimalFormatter (value precision)
+
+        boolean updatesOnly = (d != null);
+        boolean enumsAsStrings = (e != null);
 
         try {
             if (c == null || c.trim().isEmpty()) {
@@ -93,26 +98,27 @@ public class MySamplerController extends QueryController {
                 b = b + "T00:00:00";
             }
 
-            Instant begin = LocalDateTime.parse(b).atZone(
-                    ZoneId.systemDefault()).toInstant();
+            begin = LocalDateTime.parse(b).atZone(ZoneId.systemDefault()).toInstant();
 
-            String deployment = "ops";
             if (m != null && !m.trim().isEmpty()) {
                 deployment = m;
             }
 
-            MySamplerWebService service = new MySamplerWebService(deployment);
+            service = new MySamplerWebService(deployment);
 
-            metadata = service.findMetadata(c);
-            if (metadata == null) {
-                throw new Exception("Unable to find channel: '" + c + "' in deployment: '" + deployment + "'");
+            try {
+                channels = Arrays.asList(c.split(","));
+            } catch (PatternSyntaxException ex) {
+                throw new Exception("Error parsing comma separated channel list: " + c);
             }
 
-            long intervalMillis, sampleCount;
             try {
                 intervalMillis = Long.parseLong(s);
             } catch (NumberFormatException ex) {
                 throw new Exception("Error parsing sample interval (s) in milliseconds: '" + s + "'");
+            }
+            if (intervalMillis > 315_360_000_000L) {
+                throw new IllegalArgumentException("Sample interval (s) must be less than 10 years.");
             }
             try {
                 sampleCount = Long.parseLong(n);
@@ -120,8 +126,6 @@ public class MySamplerController extends QueryController {
                 throw new Exception("Error parsing number of samples (n): '" + n + "'");
             }
 
-            boolean updatesOnly = (d != null);
-            boolean enumsAsStrings = (e != null);
 
             // Don't tell client to cache response if contains future bounds!
             Instant end = begin.plusMillis(intervalMillis * (sampleCount - 1));
@@ -131,28 +135,9 @@ public class MySamplerController extends QueryController {
                 response.setHeader("Cache-Control", "private");
             }
 
-            // Get the sampled stream.  If it's an enum convert to use string labels if requested.
-            stream = service.openEventStream(metadata, begin, intervalMillis, sampleCount, updatesOnly);
-            if(metadata.getMyaType() == MyaDataType.DBR_ENUM) {
-                enumLabels = service.findExtraInfo(metadata, "enum_strings", begin, end);
-                if (enumsAsStrings) {
-                    stream = new LabeledEnumStream((EventStream<IntEvent>) stream, enumLabels);
-                }
-            }
-
-
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
             errorReason = ex.getMessage();
-
-            try {
-                if (stream != null) {
-                    stream.close();
-                    stream = null;
-                }
-            } catch (Exception closeIssue) {
-                System.err.println("Unable to close stream");
-            }
         }
 
         DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
@@ -167,74 +152,142 @@ public class MySamplerController extends QueryController {
                 out.write((jsonp + "(").getBytes(StandardCharsets.UTF_8));
             }
 
+            // Won't compile without the -1 setting/check because of possibly uninitialized variables.
+            if (errorReason == null) {
+                if ( sampleCount == -1) {
+                    errorReason = "sampleCount (n) is required";
+                } else if (intervalMillis == -1) {
+                    errorReason = "intervalMillis (s) is required";
+                } else if (begin == null) {
+                    errorReason = "begin time (b) is required";
+                }
+            }
+
+            // The logic around multiple streams is getting a little confusing.  If we've hit an error before we process
+            // any channels, let's write the error and close out.
+            if (errorReason != null) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.write(("{\"error\": \"" + errorReason + "\"}").getBytes(StandardCharsets.UTF_8));
+                if (jsonp != null) {
+                    out.write((");").getBytes(StandardCharsets.UTF_8));
+                }
+                out.close();
+                return;
+            }
+
             try (JsonGenerator gen = Json.createGenerator(out)) {
                 gen.writeStartObject();
-
-                if (errorReason != null) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    gen.write("error", errorReason);
-                } else {
-                    if (metadata != null) {
-                        gen.write("datatype", metadata.getMyaType().name());
-                        gen.write("datasize", metadata.getSize());
-                        gen.write("datahost", metadata.getHost());
-                        if (metadata.getIoc() == null) {
-                            gen.writeNull("ioc");
-                        } else {
-                            gen.write("ioc", metadata.getIoc());
-                        }
-                        gen.write("active", metadata.isActive());
+                boolean anyErrors = false;
+                gen.writeStartObject("channels");
+                for(String channelName : channels) {
+                    boolean error = processChannelRequest(service, deployment, gen, channelName, begin,
+                            intervalMillis, sampleCount, updatesOnly, formatAsMillisSinceEpoch,
+                            adjustMillisWithServerOffset, timestampFormatter, decimalFormatter, enumsAsStrings);
+                    if (error) {
+                        anyErrors = true;
                     }
-
-                    if (enumLabels != null && enumLabels.size() > 0) {
-                        gen.writeStartArray("labels");
-                        for (ExtraInfo info : enumLabels) {
-                            gen.writeStartObject();
-                            FormatUtil.writeTimestampJSON(gen, "d", info.getTimestamp(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
-                            gen.writeStartArray("value");
-                            for (String token : info.getValueAsArray()) {
-                                if (token != null && !token.isEmpty()) {
-                                    gen.write(token);
-                                }
-                            }
-                            gen.writeEnd();
-                            gen.writeEnd();
-                        }
-                        gen.writeEnd();
-                    }
-
-                    gen.writeStartArray("data");
-
-                    long dataLength = 0;
-                    if (stream == null) {
-                        // Didn't get a stream so presumably there is an errorReason
-                    } else if (stream.getType() == IntEvent.class) {
-                        dataLength = generateIntStream(gen, (EventStream<IntEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
-                                timestampFormatter);
-                    } else if (stream.getType() == FloatEvent.class) {
-                        dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
-                                timestampFormatter, decimalFormatter);
-                    } else if (stream.getType() == AnalyzedFloatEvent.class) {
-                        dataLength = generateAnalyzedFloatStream(gen, (EventStream<AnalyzedFloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
-                                timestampFormatter, decimalFormatter);
-                    } else if (stream.getType() == LabeledEnumEvent.class) {
-                        dataLength = generateLabeledEnumStream(gen, (EventStream<LabeledEnumEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
-                    } else if (stream.getType() == MultiStringEvent.class) {
-                        dataLength = generateMultiStringStream(gen, (EventStream<MultiStringEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
-                                timestampFormatter);
-                    } else {
-                        throw new ServletException("Unsupported data type: " + stream.getClass());
-                    }
-                    gen.writeEnd();
-
-                    gen.write("returnCount", dataLength);
                 }
                 gen.writeEnd();
-
+                if (anyErrors) {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+                gen.writeEnd();
                 gen.flush();
+
+                if (jsonp != null) {
+                    out.write((");").getBytes(StandardCharsets.UTF_8));
+                }
+
+
             }
-            if (jsonp != null) {
-                out.write((");").getBytes(StandardCharsets.UTF_8));
+        } catch (Exception ex) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            LOGGER.log(Level.SEVERE, "Unexepected error", ex);
+            throw ex;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean processChannelRequest(MySamplerWebService service, String deployment, JsonGenerator gen, String channel,
+                                          Instant begin, long intervalMillis, long sampleCount, boolean updatesOnly,
+                                          boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
+                                          DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter,
+                                          boolean enumsAsStrings) throws ServletException {
+        gen.writeStartObject(channel);
+        boolean error = false;
+
+        // Write out the channel's metadata.
+        Metadata metadata = null;
+        try {
+            metadata = service.findMetadata(channel);
+            if (metadata == null) {
+                throw new Exception("Unable to find channel: '" + channel + "' in deployment: '" + deployment + "'");
+            }
+            writeMetadata("metadata", gen, metadata);
+        } catch (Exception ex) {
+            gen.write("error", ex.getMessage());
+            gen.writeEnd();
+            return true;
+        }
+
+        // Write out the channels enum label's if channel was an enumerated type
+        List<ExtraInfo> enumLabels = null;
+        if (metadata.getMyaType() == MyaDataType.DBR_ENUM) {
+            try {
+                enumLabels = service.findExtraInfo(metadata, "enum_strings", begin,
+                        begin.plusMillis(intervalMillis * (sampleCount - 1)));
+                writeEnumLabels("labels", gen, enumLabels, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
+                        timestampFormatter);
+            } catch (Exception ex) {
+                gen.write("error", ex.getMessage());
+                gen.writeEnd();
+                return true;
+            }
+        }
+
+        // Write out the channel's data
+        EventStream stream = null;
+        try {
+
+            // Cannot use try with resources since we may sometimes wrap stream in a LabeledEnumStream
+            stream = service.openEventStream(metadata, begin, intervalMillis, sampleCount, updatesOnly);
+            if (enumsAsStrings && metadata.getMyaType() == MyaDataType.DBR_ENUM && enumLabels != null && !enumLabels.isEmpty()) {
+
+                stream = new LabeledEnumStream(stream, enumLabels);
+            }
+
+            gen.writeStartArray("data");
+            long dataLength = 0;
+            if (stream.getType() == IntEvent.class) {
+                dataLength = generateIntStream(gen, (EventStream<IntEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
+                        timestampFormatter);
+            } else if (stream.getType() == FloatEvent.class) {
+                dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
+                        timestampFormatter, decimalFormatter);
+            } else if (stream.getType() == AnalyzedFloatEvent.class) {
+                dataLength = generateAnalyzedFloatStream(gen, (EventStream<AnalyzedFloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
+                        timestampFormatter, decimalFormatter);
+            } else if (stream.getType() == LabeledEnumEvent.class) {
+                dataLength = generateLabeledEnumStream(gen, (EventStream<LabeledEnumEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
+            } else if (stream.getType() == MultiStringEvent.class) {
+                dataLength = generateMultiStringStream(gen, (EventStream<MultiStringEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
+                        timestampFormatter);
+            } else {
+                gen.writeEnd();
+                throw new ServletException("Unsupported data type: " + stream.getClass());
+            }
+
+            gen.writeEnd();
+            gen.write("returnCount", dataLength);
+
+        } catch(Exception ex) {
+            // Can't just return or else we leave a connection open
+            error = true;
+            try {
+                gen.write("error", ex.getMessage());
+            } catch(Exception writeEx) {
+                LOGGER.log(Level.SEVERE, "Error trying to write error message.", writeEx);
+                throw new ServletException("Error trying to write error message to JSON", writeEx);
             }
         } finally {
             try {
@@ -242,8 +295,11 @@ public class MySamplerController extends QueryController {
                     stream.close();
                 }
             } catch (Exception closeIssue) {
-                System.err.println("Unable to close stream");
+                LOGGER.log(Level.SEVERE, "Unable to close stream.  channel=" + metadata.getName());
+                error = true;
             }
         }
+        gen.writeEnd();
+        return error;
     }
 }
