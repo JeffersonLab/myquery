@@ -189,7 +189,7 @@ public class QueryController extends HttpServlet {
     /**
      * Write out Metadata to a JSON generator
      * @param gen The generator to write to
-     * @param metadata The metatdata to write
+     * @param metadata The metadata to write
      */
     public void writeMetadata(String name, JsonGenerator gen, Metadata metadata) {
         if (name == null) {
@@ -236,9 +236,10 @@ public class QueryController extends HttpServlet {
                     gen.write(token);
                 }
             }
-            gen.writeEnd();
+            gen.writeEnd(); // value array
+            gen.writeEnd(); // object
         }
-        gen.writeEnd();
+        gen.writeEnd(); // array
 
     }
 
