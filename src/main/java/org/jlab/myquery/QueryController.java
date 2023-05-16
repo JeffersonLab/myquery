@@ -280,30 +280,31 @@ public class QueryController extends HttpServlet {
     }
 
     /**
-     * This method write a stream of RunningStatistics associated with a given start time to a JSON generator.  Expects
-     * that a JSON array has been started outside of this method and will be closed outside of this method.
+     * This method write a stream of RunningStatistics associated with a given start time to a JSON generator.  This
+     * creates the JSON array, and does not expect one to be started outside of the method.
      * @param gen The JSON generator to write them to
-     * @param results The Map of timestamps to RunningStatistics that will be written to the JSON generator
+     * @param stats The Map of timestamps to RunningStatistics that will be written to the JSON generator
      * @param timestampFormatter How to format timestamps
      * @param decimalFormatter How to format decimal values
      * @param formatAsMillisSinceEpoch Should timestamps be in seconds from Epoch
      * @param adjustMillisWithServerOffset
      * @return The number of RunningStatistics written to the stream
      */
-    public long generateStatisticsStream(JsonGenerator gen, MyStatsResults results,
+    public long generateStatisticsStream(String name, JsonGenerator gen, Map<Instant, RunningStatistics> stats,
                                          DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter,
                                          boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset) {
-        long count = 0;
-        for (String name : results.getChannels()) {
-            Map<Instant, RunningStatistics> stats = results.get(name);
-            for(Instant begin : stats.keySet()) {
-                gen.writeStartObject();
-                writeRunningStatistics(name, gen, stats.get(begin), begin, formatAsMillisSinceEpoch,
-                        adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
-                gen.writeEnd();
-                count++;
-            }
+        if (name == null) {
+            gen.writeStartArray();
+        } else {
+            gen.writeStartArray(name);
         }
+        long count = 0;
+        for(Instant begin : stats.keySet()) {
+            writeRunningStatistics(null, gen, stats.get(begin), begin, formatAsMillisSinceEpoch,
+                    adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
+            count++;
+        }
+        gen.writeEnd();
 
         return count;
     }
