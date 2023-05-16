@@ -114,10 +114,6 @@ public class MyStatsController extends QueryController {
                 if (metadata == null) {
                     throw new Exception("Unable to find channel: '" + channel + "' in deployment: '" + deployment + "'");
                 }
-
-                if (metadata.getType() != FloatEvent.class) {
-                    throw new IllegalArgumentException("This myStats only supports FloatEvents - not '" + metadata.getType().getName() + "'.");
-                }
                 metadatas.add(metadata);
             }
 
@@ -148,6 +144,11 @@ public class MyStatsController extends QueryController {
 
             Event priorEvent;
             for (Metadata metadata : metadatas) {
+
+                if (metadata.getType() != FloatEvent.class) {
+                    continue;
+                }
+
                 priorEvent = priorEvents.get(metadata.getName());
                 double interval = ((end.getEpochSecond() + end.getNano() / 1_000_000_000d) - (begin.getEpochSecond() + begin.getNano() / 1_000_000_000d)) / numBins;
                 Instant binBegin, binEnd = begin;
@@ -193,17 +194,26 @@ public class MyStatsController extends QueryController {
                 gen.write("error", errorReason);
             } else {
                 if (metadatas != null) {
-                    gen.writeStartArray("metadata");
-                    generateMetadataStream(gen, metadatas);
-                    gen.writeEnd();
+                    gen.writeStartObject("channels");
+                    for (Metadata metadata : metadatas) {
+                        gen.writeStartObject(metadata.getName());
+
+                        if (metadata.getType() != FloatEvent.class) {
+                            gen.write("error", "This myStats only supports FloatEvents - not '" +
+                                    metadata.getType().getName() + "'.");
+                            gen.writeEnd();
+                            continue;
+                        }
+
+                        writeMetadata("metadata", gen, metadata);
+                        long dataLength = generateStatisticsStream("data", gen, results.get(metadata.getName()),
+                                timestampFormatter, decimalFormatter,
+                                formatAsMillisSinceEpoch, adjustMillisWithServerOffset);
+                        gen.write("returnCount", dataLength);
+                        gen.writeEnd(); // metadata.getName()
+                    }
+                    gen.writeEnd(); // channels
                 }
-
-                gen.writeStartArray("data");
-
-                long dataLength = generateStatisticsStream(gen, results, timestampFormatter, decimalFormatter,
-                        formatAsMillisSinceEpoch, adjustMillisWithServerOffset);
-                gen.writeEnd();
-                gen.write("returnCount", dataLength);
             }
             gen.writeEnd();
             gen.flush();
