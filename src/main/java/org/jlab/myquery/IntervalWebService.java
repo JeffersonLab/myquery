@@ -109,7 +109,7 @@ public class IntervalWebService extends QueryWebService {
                 double endD = (end.getEpochSecond() + end.getNano() / 1_000_000_000d);
                 double beginD = (begin.getEpochSecond() + begin.getNano() / 1_000_000_000d);
                 long stepMillis = (long) (((endD - beginD) / (limit - 1)) * 1000);
-                stream = new MySamplerStream<>(stream, begin, stepMillis, limit, priorEvent, updatesOnly, FloatEvent.class);
+                stream = MySamplerStream.getMySamplerStream(stream, begin, stepMillis, limit, priorEvent, updatesOnly, FloatEvent.class);
                 break;
             default:
                 throw new IllegalArgumentException("Unrecognized sampleType - " + sampleType + ".  Options include graphical, eventsimple, myget, mysampler");

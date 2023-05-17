@@ -29,12 +29,11 @@ public class ChannelController extends QueryController {
      *
      * @param request servlet request
      * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
         String jsonp = request.getParameter("jsonp");
 
         if (jsonp != null) {
@@ -85,7 +84,7 @@ public class ChannelController extends QueryController {
 
             metadataList = service.findChannel(q, limit, offset);
 
-            // Disable caching of response so we don't miss new channels added:
+            // Disable caching of response, so we don't miss new channels added:
             CacheAndEncodingFilter.disableCaching(response);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Unable to service request", ex);
@@ -106,22 +105,7 @@ public class ChannelController extends QueryController {
                 gen.writeEnd();
             } else {
                 gen.writeStartArray();
-                if (metadataList != null) {
-                    for (Metadata metadata : metadataList) {
-                        gen.writeStartObject();
-                        gen.write("name", metadata.getName());
-                        gen.write("datatype", metadata.getMyaType().name());
-                        gen.write("datasize", metadata.getSize());
-                        gen.write("datahost", metadata.getHost());
-                        if(metadata.getIoc() == null) {
-                            gen.writeNull("ioc");
-                        } else {
-                            gen.write("ioc", metadata.getIoc());
-                        }
-                        gen.write("active", metadata.isActive());
-                        gen.writeEnd();
-                    }
-                }
+                generateMetadataStream(gen, metadataList);
                 gen.writeEnd();
             }
 

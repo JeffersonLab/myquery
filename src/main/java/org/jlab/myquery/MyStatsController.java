@@ -5,7 +5,6 @@ import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import org.jlab.mya.Metadata;
-import org.jlab.mya.RunningStatistics;
 import org.jlab.mya.event.*;
 import org.jlab.mya.stream.FloatAnalysisStream;
 import java.io.IOException;
@@ -19,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * This class provides functionality similar to the command line application myStats.
@@ -48,11 +48,10 @@ public class MyStatsController extends QueryController {
         }
 
         String errorReason = null;
-        Metadata metadata = null;
-        Map<Instant, RunningStatistics> stats = new TreeMap<>();  // TreeMap results in bin sorted JSON response.
+        List<Metadata> metadatas = null;
+        MyStatsResults results = new MyStatsResults();
 
-
-        String c = request.getParameter("c"); // channel
+        String c = request.getParameter("c"); // channels
         String b = request.getParameter("b"); // begin
         String e = request.getParameter("e"); // end
         String n = request.getParameter("n"); // number of bins
@@ -65,7 +64,7 @@ public class MyStatsController extends QueryController {
 
         try {
             if (c == null || c.trim().isEmpty()) {
-                throw new Exception("Channel (c) is required");
+                throw new Exception("Channel list (c) is required");
             }
             if (b == null || b.trim().isEmpty()) {
                 throw new Exception("Begin Date (b) is required");
@@ -102,13 +101,20 @@ public class MyStatsController extends QueryController {
 
             IntervalWebService service = new IntervalWebService(deployment);
 
-            metadata = service.findMetadata(c);
-            if (metadata == null) {
-                throw new Exception("Unable to find channel: '" + c + "' in deployment: '" + deployment + "'");
+            metadatas = new ArrayList<>();
+            List<String> channels;
+            try {
+                channels = Arrays.asList(c.split(","));
+            } catch (PatternSyntaxException ex) {
+                throw new Exception("Error parsing comma separated channel list: " + c);
             }
 
-            if (metadata.getType() != FloatEvent.class) {
-                throw new IllegalArgumentException("This myStats only supports FloatEvents - not '" + metadata.getType().getName() + "'.");
+            for (String channel : channels) {
+                Metadata metadata = service.findMetadata(channel);
+                if (metadata == null) {
+                    throw new Exception("Unable to find channel: '" + channel + "' in deployment: '" + deployment + "'");
+                }
+                metadatas.add(metadata);
             }
 
             long numBins;
@@ -131,23 +137,35 @@ public class MyStatsController extends QueryController {
             }
 
             PointWebService pws = new PointWebService(deployment);
-            Event priorEvent = pws.findEvent(metadata, updatesOnly, begin, true, true, false);
+            Map<String, Event> priorEvents = new HashMap<>();
+            for (Metadata metadata : metadatas) {
+                priorEvents.put(metadata.getName(), pws.findEvent(metadata, updatesOnly, begin, true, true, false));
+            }
 
-            double interval = ((end.getEpochSecond() + end.getNano() / 1_000_000_000d) - (begin.getEpochSecond() + begin.getNano() / 1_000_000_000d)) / numBins;
-            Instant binBegin, binEnd = begin;
-            for (int i = 1; i <= numBins; i++) {
-                binBegin = binEnd;
-                if (i == numBins) {
-                    binEnd = end;
-                } else {
-                    binEnd = binBegin.plusSeconds((long) interval);
+            Event priorEvent;
+            for (Metadata metadata : metadatas) {
+
+                if (metadata.getType() != FloatEvent.class) {
+                    continue;
                 }
-                // Since we provide a priorPoint, the underlying stream should be a BoundaryAwareStream.
-                try (FloatAnalysisStream fas = new FloatAnalysisStream(service.openEventStream(metadata, updatesOnly, binBegin, binEnd, priorEvent, metadata.getType()))) {
-                    while (fas.read() != null) {
-                        // Read through the entire stream.  We only want statistics from it
+
+                priorEvent = priorEvents.get(metadata.getName());
+                double interval = ((end.getEpochSecond() + end.getNano() / 1_000_000_000d) - (begin.getEpochSecond() + begin.getNano() / 1_000_000_000d)) / numBins;
+                Instant binBegin, binEnd = begin;
+                for (int i = 1; i <= numBins; i++) {
+                    binBegin = binEnd;
+                    if (i == numBins) {
+                        binEnd = end;
+                    } else {
+                        binEnd = binBegin.plusSeconds((long) interval);
                     }
-                    stats.put(binBegin, fas.getLatestStats());
+                    // Since we provide a priorPoint, the underlying stream should be a BoundaryAwareStream.
+                    try (FloatAnalysisStream fas = new FloatAnalysisStream(service.openEventStream(metadata, updatesOnly, binBegin, binEnd, priorEvent, metadata.getType()))) {
+                        while (fas.read() != null) {
+                            // Read through the entire stream.  We only want statistics from it
+                        }
+                        results.add(metadata.getName(), binBegin, fas.getLatestStats());
+                    }
                 }
             }
 
@@ -175,30 +193,27 @@ public class MyStatsController extends QueryController {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 gen.write("error", errorReason);
             } else {
-                if (metadata != null) {
-                    gen.write("datatype", metadata.getMyaType().name());
-                    gen.write("datasize", metadata.getSize());
-                    gen.write("datahost", metadata.getHost());
-                    if (metadata.getIoc() == null) {
-                        gen.writeNull("ioc");
-                    } else {
-                        gen.write("ioc", metadata.getIoc());
+                if (metadatas != null) {
+                    gen.writeStartObject("channels");
+                    for (Metadata metadata : metadatas) {
+                        gen.writeStartObject(metadata.getName());
+
+                        if (metadata.getType() != FloatEvent.class) {
+                            gen.write("error", "This myStats only supports FloatEvents - not '" +
+                                    metadata.getType().getName() + "'.");
+                            gen.writeEnd();
+                            continue;
+                        }
+
+                        writeMetadata("metadata", gen, metadata);
+                        long dataLength = generateStatisticsStream("data", gen, results.get(metadata.getName()),
+                                timestampFormatter, decimalFormatter,
+                                formatAsMillisSinceEpoch, adjustMillisWithServerOffset);
+                        gen.write("returnCount", dataLength);
+                        gen.writeEnd(); // metadata.getName()
                     }
-                    gen.write("active", metadata.isActive());
+                    gen.writeEnd(); // channels
                 }
-
-                gen.writeStartArray("data");
-
-                long dataLength = 0;
-                if (stats.isEmpty()) {
-                    // Presumably there is an error reason
-                } else {
-                    dataLength = generateStatisticsStream(gen, stats, timestampFormatter, decimalFormatter,
-                            formatAsMillisSinceEpoch, adjustMillisWithServerOffset);
-                }
-
-                gen.writeEnd();
-                gen.write("returnCount", dataLength);
             }
             gen.writeEnd();
             gen.flush();

@@ -5,9 +5,12 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServlet;
+import org.jlab.mya.ExtraInfo;
+import org.jlab.mya.Metadata;
 import org.jlab.mya.RunningStatistics;
 import org.jlab.mya.event.*;
 import org.jlab.mya.stream.EventStream;
@@ -130,6 +133,132 @@ public class QueryController extends HttpServlet {
         gen.writeEnd();
     }
 
+    public void writeRunningStatistics(String name, JsonGenerator gen, RunningStatistics stat, Instant begin,
+                                       boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
+                                       DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter){
+        if (name == null) {
+            gen.writeStartObject();
+        } else {
+            gen.writeStartObject(name);
+        }
+
+        FormatUtil.writeTimestampJSON(gen, "begin", begin, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
+                timestampFormatter);
+        gen.write("eventCount", stat.getEventCount());
+        gen.write("updateCount", stat.getUpdateCount());
+
+        if (stat.getDuration() == null) {
+            gen.writeNull("duration");
+        } else {
+            gen.write("duration", new BigDecimal(decimalFormatter.format(stat.getDuration())));
+        }
+        if (stat.getIntegration() == null) {
+            gen.writeNull("integration");
+        } else {
+            gen.write("integration", new BigDecimal(decimalFormatter.format(stat.getIntegration())));
+        }
+
+        if (stat.getMax() == null) {
+            gen.writeNull("max");
+        } else {
+            gen.write("max", new BigDecimal(decimalFormatter.format(stat.getMax())));
+        }
+        if (stat.getMean() == null) {
+            gen.writeNull("mean");
+        } else {
+            gen.write("mean", new BigDecimal(decimalFormatter.format(stat.getMean())));
+        }
+        if (stat.getMin() == null) {
+            gen.writeNull("min");
+        } else {
+            gen.write("min", new BigDecimal(decimalFormatter.format(stat.getMin())));
+        }
+        if (stat.getRms() == null) {
+            gen.writeNull("rms");
+        } else {
+            gen.write("rms", new BigDecimal(decimalFormatter.format(stat.getRms())));
+        }
+        if (stat.getSigma() == null) {
+            gen.writeNull("stdev");
+        } else {
+            gen.write("stdev", new BigDecimal(decimalFormatter.format(stat.getSigma())));
+        }
+        gen.writeEnd();
+    }
+
+    /**
+     * Write out Metadata to a JSON generator
+     * @param gen The generator to write to
+     * @param metadata The metadata to write
+     */
+    public void writeMetadata(String name, JsonGenerator gen, Metadata metadata) {
+        if (name == null) {
+            gen.writeStartObject();
+        } else {
+            gen.writeStartObject(name);
+        }
+        gen.write("name", metadata.getName());
+        gen.write("datatype", metadata.getMyaType().name());
+        gen.write("datasize", metadata.getSize());
+        gen.write("datahost", metadata.getHost());
+        if (metadata.getIoc() == null) {
+            gen.writeNull("ioc");
+        } else {
+            gen.write("ioc", metadata.getIoc());
+        }
+        gen.write("active", metadata.isActive());
+        gen.writeEnd();
+    }
+
+    /**
+     * Write out the enum labels for a single channel to a JSON generator
+     * @param name Optional name for the label list
+     * @param gen The JSON generator to write to
+     * @param enumLabelList The list of ExtraInfo, i.e., the enum labels over time
+     * @param formatAsMillisSinceEpoch Write timestamps in more precise Unix-like time format
+     * @param adjustMillisWithServerOffset Adjust timestamps for server
+     * @param timestampFormatter How to format the datetimes associated with values
+     */
+    public void writeEnumLabels(String name, JsonGenerator gen, List<ExtraInfo> enumLabelList,
+                                boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
+                                DateTimeFormatter timestampFormatter) {
+        if (name != null) {
+            gen.writeStartArray(name);
+        } else {
+            gen.writeStartArray();
+        }
+        for (ExtraInfo info : enumLabelList) {
+            gen.writeStartObject();
+            FormatUtil.writeTimestampJSON(gen, "d", info.getTimestamp(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
+            gen.writeStartArray("value");
+            for (String token : info.getValueAsArray()) {
+                if (token != null && !token.isEmpty()) {
+                    gen.write(token);
+                }
+            }
+            gen.writeEnd(); // value array
+            gen.writeEnd(); // object
+        }
+        gen.writeEnd(); // array
+
+    }
+
+    /**
+     * Write a list of metadata objects as a series of JSON objects.  Assumes that a JSON array has been started/ended
+     * outside of this method.
+     * @param gen The JSON generator used to write the data
+     * @param metadataList The metadata objects to write
+     */
+    public void generateMetadataStream(JsonGenerator gen, List<Metadata> metadataList) {
+        if (metadataList != null) {
+            for (Metadata metadata : metadataList) {
+                writeMetadata(null, gen, metadata);
+            }
+        } else {
+            gen.writeNull();
+        }
+    }
+
     /**
      * Write out the IntEventStream to a JsonGenerator.
      * @param gen
@@ -151,7 +280,8 @@ public class QueryController extends HttpServlet {
     }
 
     /**
-     * This method write a stream of RunningStatistics associated with a given start time to a JSON generator.
+     * This method write a stream of RunningStatistics associated with a given start time to a JSON generator.  This
+     * creates the JSON array, and does not expect one to be started outside of the method.
      * @param gen The JSON generator to write them to
      * @param stats The Map of timestamps to RunningStatistics that will be written to the JSON generator
      * @param timestampFormatter How to format timestamps
@@ -160,56 +290,21 @@ public class QueryController extends HttpServlet {
      * @param adjustMillisWithServerOffset
      * @return The number of RunningStatistics written to the stream
      */
-    public long generateStatisticsStream(JsonGenerator gen, Map<Instant, RunningStatistics> stats,
+    public long generateStatisticsStream(String name, JsonGenerator gen, Map<Instant, RunningStatistics> stats,
                                          DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter,
                                          boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset) {
+        if (name == null) {
+            gen.writeStartArray();
+        } else {
+            gen.writeStartArray(name);
+        }
         long count = 0;
-        for (Instant begin : stats.keySet()) {
-            RunningStatistics stat = stats.get(begin);
-            gen.writeStartObject();
-            FormatUtil.writeTimestampJSON(gen, "begin", begin, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
-            gen.write("eventCount", stat.getEventCount());
-            gen.write("updateCount", stat.getUpdateCount());
-
-            if (stat.getDuration() == null) {
-                gen.writeNull("duration");
-            } else {
-                gen.write("duration", new BigDecimal(decimalFormatter.format(stat.getDuration())));
-            }
-            if (stat.getIntegration() == null) {
-                gen.writeNull("integration");
-            } else {
-                gen.write("integration", new BigDecimal(decimalFormatter.format(stat.getIntegration())));
-            }
-
-            if (stat.getMax() == null) {
-                gen.writeNull("max");
-            } else {
-                gen.write("max", new BigDecimal(decimalFormatter.format(stat.getMax())));
-            }
-            if (stat.getMean() == null) {
-                gen.writeNull("mean");
-            } else {
-                gen.write("mean", new BigDecimal(decimalFormatter.format(stat.getMean())));
-            }
-            if (stat.getMin() == null) {
-                gen.writeNull("min");
-            } else {
-                gen.write("min", new BigDecimal(decimalFormatter.format(stat.getMin())));
-            }
-            if (stat.getRms() == null) {
-                gen.writeNull("rms");
-            } else {
-                gen.write("rms", new BigDecimal(decimalFormatter.format(stat.getRms())));
-            }
-            if (stat.getSigma() == null) {
-                gen.writeNull("stdev");
-            } else {
-                gen.write("stdev", new BigDecimal(decimalFormatter.format(stat.getSigma())));
-            }
-            gen.writeEnd();
+        for(Instant begin : stats.keySet()) {
+            writeRunningStatistics(null, gen, stats.get(begin), begin, formatAsMillisSinceEpoch,
+                    adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
             count++;
         }
+        gen.writeEnd();
 
         return count;
     }
