@@ -5,6 +5,7 @@ import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -1082,6 +1083,23 @@ public class MySamplerQueryTest {
         try(JsonReader reader = Json.createReader(new StringReader(response.body()))) {
             JsonObject json = reader.readObject();
             assertEquals(exp, json.toString());
+        }
+    }
+
+    @Test
+    public void jsonpTest() throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mysampler?c=channel1,channel2&b=2019-08-12+23%3A59%3A00&n=5&s=15000&m=docker&f=6&v=&jsonp=1234test")).build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode());
+
+        String exp = "1234test({\"channels\":{\"channel1\":{\"metadata\":{\"name\":\"channel1\",\"datatype\":\"DBR_DOUBLE\",\"datasize\":1,\"datahost\":\"mya\",\"ioc\":null,\"active\":true},\"data\":[{\"d\":\"2019-08-12 23:59:00.000000\",\"v\":94.550102},{\"d\":\"2019-08-12 23:59:15.000000\",\"v\":94.987701},{\"d\":\"2019-08-12 23:59:30.000000\",\"v\":94.651604},{\"d\":\"2019-08-12 23:59:45.000000\",\"v\":94.292702},{\"d\":\"2019-08-13 00:00:00.000000\",\"v\":95.179703}],\"returnCount\":5},\"channel2\":{\"metadata\":{\"name\":\"channel2\",\"datatype\":\"DBR_ENUM\",\"datasize\":1,\"datahost\":\"mya\",\"ioc\":null,\"active\":true},\"labels\":[{\"d\":\"2016-08-12 13:00:49.000000\",\"value\":[\"BEAM SYNC ONLY\",\"PULSE MODE VL\",\"TUNE MODE\",\"CW MODE (DC)\",\"USER MODE\"]}],\"data\":[{\"d\":\"2019-08-12 23:59:00.000000\",\"v\":3},{\"d\":\"2019-08-12 23:59:15.000000\",\"v\":3},{\"d\":\"2019-08-12 23:59:30.000000\",\"v\":3},{\"d\":\"2019-08-12 23:59:45.000000\",\"v\":3},{\"d\":\"2019-08-13 00:00:00.000000\",\"v\":3}],\"returnCount\":5}}});";
+
+        String result;
+        try (BufferedReader reader = new BufferedReader(new StringReader(response.body()))) {
+            result = reader.readLine();
+            assertEquals(exp, result);
         }
     }
 }
