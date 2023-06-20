@@ -217,9 +217,10 @@ public class MyStatsController extends QueryController {
             }
             gen.writeEnd();
             gen.flush();
-        }
-        if (jsonp != null) {
-            out.write((");").getBytes(StandardCharsets.UTF_8));
+
+            if (jsonp != null) {
+                out.write((");").getBytes(StandardCharsets.UTF_8));
+            }
         }
     }
 }

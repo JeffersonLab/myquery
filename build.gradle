@@ -4,10 +4,10 @@ plugins {
 }
 
 description = "MYA web-based query tool"
-version = '4.0.0'
+version = '4.0.1'
 
 ext {
-    releaseDate = 'May 16, 2023'
+    releaseDate = 'June 20, 2023'
 }
 
 tasks.withType(JavaCompile) {
