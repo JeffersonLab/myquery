@@ -189,7 +189,7 @@ public class MySamplerController extends QueryController {
                 }
                 gen.writeEnd();
                 if (anyErrors) {
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 }
                 gen.writeEnd();
                 gen.flush();
@@ -202,7 +202,7 @@ public class MySamplerController extends QueryController {
             }
         } catch (Exception ex) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.log(Level.SEVERE, "Unexepected error", ex);
+            LOGGER.log(Level.SEVERE, "Unexpected error", ex);
             throw ex;
         }
     }
