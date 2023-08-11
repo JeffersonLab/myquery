@@ -23,6 +23,14 @@ import org.jlab.mya.stream.EventStream;
 @SuppressWarnings("JavaDoc")
 public class QueryController extends HttpServlet {
 
+    private void writeDisconnectAndType(JsonGenerator gen, Event event) {
+        if (event.getCode().isDisconnection()) {
+            gen.write("x", JsonValue.TRUE);
+        }
+        if (!event.getCode().getDescription().isEmpty()) {
+            gen.write("t", event.getCode().name());
+        }
+    }
     public void writeIntEvent(String name, JsonGenerator gen, IntEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter) {
         if (name != null) {
             gen.writeStartObject(name);
@@ -34,12 +42,8 @@ public class QueryController extends HttpServlet {
 
         if (!event.getCode().isDisconnection()) {
             gen.write("v", event.getValue());
-        } else {
-            gen.write("x", JsonValue.TRUE);
         }
-        if (!event.getCode().getDescription().isEmpty()) {
-            gen.write("t", event.getCode().name());
-        }
+        writeDisconnectAndType(gen, event);
 
         gen.writeEnd();
     }
@@ -56,12 +60,8 @@ public class QueryController extends HttpServlet {
         if (!event.getCode().isDisconnection()) {
             // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
             gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
-        } else {
-            gen.write("x", JsonValue.TRUE);
         }
-        if (!event.getCode().getDescription().isEmpty()) {
-            gen.write("t", event.getCode().name());
-        }
+        writeDisconnectAndType(gen, event);
 
         gen.writeEnd();
     }
@@ -78,12 +78,8 @@ public class QueryController extends HttpServlet {
         if (!event.getCode().isDisconnection()) {
             // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
             gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
-        } else {
-            gen.write("x", JsonValue.TRUE);
         }
-        if (!event.getCode().getDescription().isEmpty()) {
-            gen.write("t", event.getCode().name());
-        }
+        writeDisconnectAndType(gen, event);
 
         // stats should be available for even disconnect events since things like integration would be happening up to
         // the disconnection.
@@ -109,12 +105,8 @@ public class QueryController extends HttpServlet {
 
         if (!event.getCode().isDisconnection()) {
             gen.write("v", event.getLabel());
-        } else {
-            gen.write("x", JsonValue.TRUE);
         }
-        if (!event.getCode().getDescription().isEmpty()) {
-            gen.write("t", event.getCode().name());
-        }
+        writeDisconnectAndType(gen, event);
 
         gen.writeEnd();
     }
@@ -135,12 +127,8 @@ public class QueryController extends HttpServlet {
                 gen.write(value);
             }
             gen.writeEnd();
-        } else {
-            gen.write("x", JsonValue.TRUE);
         }
-        if (!event.getCode().getDescription().isEmpty()) {
-            gen.write("t", event.getCode().name());
-        }
+        writeDisconnectAndType(gen, event);
 
         gen.writeEnd();
     }
@@ -293,7 +281,7 @@ public class QueryController extends HttpServlet {
 
     /**
      * This method write a stream of RunningStatistics associated with a given start time to a JSON generator.  This
-     * creates the JSON array, and does not expect one to be started outside of the method.
+     * creates the JSON array, and does not expect one to be started outside the method.
      * @param gen The JSON generator to write them to
      * @param stats The Map of timestamps to RunningStatistics that will be written to the JSON generator
      * @param timestampFormatter How to format timestamps
