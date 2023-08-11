@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import jakarta.json.JsonValue;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServlet;
 import org.jlab.mya.ExtraInfo;
@@ -22,13 +23,14 @@ import org.jlab.mya.stream.EventStream;
 @SuppressWarnings("JavaDoc")
 public class QueryController extends HttpServlet {
 
-    private void writeInformationalEvent(JsonGenerator gen, Event event) {
-        gen.write("t", event.getCode().name());
+    private void writeDisconnectAndType(JsonGenerator gen, Event event) {
         if (event.getCode().isDisconnection()) {
-            gen.write("x", true);
+            gen.write("x", JsonValue.TRUE);
+        }
+        if (!event.getCode().getDescription().isEmpty()) {
+            gen.write("t", event.getCode().name());
         }
     }
-
     public void writeIntEvent(String name, JsonGenerator gen, IntEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter) {
         if (name != null) {
             gen.writeStartObject(name);
@@ -38,11 +40,10 @@ public class QueryController extends HttpServlet {
 
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
 
-        if (event.getCode() == EventCode.UPDATE) {
+        if (!event.getCode().isDisconnection()) {
             gen.write("v", event.getValue());
-        } else {
-            writeInformationalEvent(gen, event);
         }
+        writeDisconnectAndType(gen, event);
 
         gen.writeEnd();
     }
@@ -56,12 +57,11 @@ public class QueryController extends HttpServlet {
 
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
 
-        if (event.getCode() == EventCode.UPDATE) {
+        if (!event.getCode().isDisconnection()) {
             // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
             gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
-        } else {
-            writeInformationalEvent(gen, event);
         }
+        writeDisconnectAndType(gen, event);
 
         gen.writeEnd();
     }
@@ -75,18 +75,20 @@ public class QueryController extends HttpServlet {
 
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
 
-        if (event.getCode() == EventCode.UPDATE) {
+        if (!event.getCode().isDisconnection()) {
             // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
             gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
-            double[] stats = event.getEventStats();
-            if(stats != null && stats.length == 1) {
-                // We only support integration at this point.  Once more are supported this will have to be a loop that
-                // references short[] map for position/index of each stat
-                // i for integration?   Good enough for now
-                gen.write("i", new BigDecimal(decimalFormatter.format(stats[0])));
-            }
-        } else {
-            writeInformationalEvent(gen, event);
+        }
+        writeDisconnectAndType(gen, event);
+
+        // stats should be available for even disconnect events since things like integration would be happening up to
+        // the disconnection.
+        double[] stats = event.getEventStats();
+        if(stats != null && stats.length == 1) {
+            // We only support integration at this point.  Once more are supported this will have to be a loop that
+            // references short[] map for position/index of each stat
+            // i for integration?   Good enough for now
+            gen.write("i", new BigDecimal(decimalFormatter.format(stats[0])));
         }
 
         gen.writeEnd();
@@ -101,11 +103,10 @@ public class QueryController extends HttpServlet {
         
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
 
-        if (event.getCode() == EventCode.UPDATE) {
+        if (!event.getCode().isDisconnection()) {
             gen.write("v", event.getLabel());
-        } else {
-            writeInformationalEvent(gen, event);
         }
+        writeDisconnectAndType(gen, event);
 
         gen.writeEnd();
     }
@@ -119,16 +120,15 @@ public class QueryController extends HttpServlet {
         
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
 
-        if (event.getCode() == EventCode.UPDATE) {
+        if (!event.getCode().isDisconnection()) {
             String[] values = event.getValue();
             gen.writeStartArray("v");
             for (String value : values) {
                 gen.write(value);
             }
             gen.writeEnd();
-        } else {
-            writeInformationalEvent(gen, event);
         }
+        writeDisconnectAndType(gen, event);
 
         gen.writeEnd();
     }
@@ -281,7 +281,7 @@ public class QueryController extends HttpServlet {
 
     /**
      * This method write a stream of RunningStatistics associated with a given start time to a JSON generator.  This
-     * creates the JSON array, and does not expect one to be started outside of the method.
+     * creates the JSON array, and does not expect one to be started outside the method.
      * @param gen The JSON generator to write them to
      * @param stats The Map of timestamps to RunningStatistics that will be written to the JSON generator
      * @param timestampFormatter How to format timestamps

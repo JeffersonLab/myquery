@@ -1052,22 +1052,27 @@ public class MySamplerQueryTest {
                 "data": [
                   {
                     "d": "2019-08-12 23:59:00.000000",
+                    "x": true,
                     "t": "UNDEFINED"
                   },
                   {
                     "d": "2019-08-12 23:59:15.000000",
+                    "x": true,
                     "t": "UNDEFINED"
                   },
                   {
                     "d": "2019-08-12 23:59:30.000000",
+                    "x": true,
                     "t": "UNDEFINED"
                   },
                   {
                     "d": "2019-08-12 23:59:45.000000",
+                    "x": true,
                     "t": "UNDEFINED"
                   },
                   {
                     "d": "2019-08-13 00:00:00.000000",
+                    "x": true,
                     "t": "UNDEFINED"
                   }
                 ],
