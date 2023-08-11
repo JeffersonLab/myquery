@@ -25,13 +25,21 @@ public class IntervalQueryTest {
 
         assertEquals(200, response.statusCode());
 
+        JsonObject json;
         try(JsonReader reader = Json.createReader(new StringReader(response.body()))) {
-            JsonObject json = reader.readObject();
-
-            int count = json.getInt("returnCount");
-
-            assertEquals(32990, count);
+            json = reader.readObject();
         }
+
+        int count = json.getInt("returnCount");
+        assertEquals(32990, count);
+
+        String expString = "{\"d\":\"2019-08-12T00:00:00\",\"v\": 95.180199,\"t\":\"ORIGIN_OF_CHANNELS_HISTORY\"}";
+        JsonObject exp;
+        try(JsonReader reader = Json.createReader(new StringReader(expString))) {
+            exp = reader.readObject();
+        }
+        JsonObject first = json.getJsonArray("data").getJsonObject(0);
+        assertEquals(exp, first);
     }
 
     @Test
