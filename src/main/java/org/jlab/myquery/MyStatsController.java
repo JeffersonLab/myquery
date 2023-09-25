@@ -176,7 +176,7 @@ public class MyStatsController extends QueryController {
         }
 
         DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
-        DecimalFormat decimalFormatter = FormatUtil.getDecimalFormat(v);
+        short sigFigs = FormatUtil.getSignificantFigures(v);
         boolean formatAsMillisSinceEpoch = (u != null);
         boolean adjustMillisWithServerOffset = (a != null);
 
@@ -207,7 +207,7 @@ public class MyStatsController extends QueryController {
 
                         writeMetadata("metadata", gen, metadata);
                         long dataLength = generateStatisticsStream("data", gen, results.get(metadata.getName()),
-                                timestampFormatter, decimalFormatter,
+                                timestampFormatter, sigFigs,
                                 formatAsMillisSinceEpoch, adjustMillisWithServerOffset);
                         gen.write("returnCount", dataLength);
                         gen.writeEnd(); // metadata.getName()

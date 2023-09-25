@@ -139,7 +139,7 @@ public class QueryController extends HttpServlet {
 
     public void writeRunningStatistics(String name, JsonGenerator gen, RunningStatistics stat, Instant begin,
                                        boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
-                                       DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter){
+                                       DateTimeFormatter timestampFormatter, short sigFigs){
         if (name == null) {
             gen.writeStartObject();
         } else {
@@ -151,41 +151,50 @@ public class QueryController extends HttpServlet {
         gen.write("eventCount", stat.getEventCount());
         gen.write("updateCount", stat.getUpdateCount());
 
+        MathContext context = new MathContext(sigFigs);
+
         if (stat.getDuration() == null) {
             gen.writeNull("duration");
         } else {
-            gen.write("duration", new BigDecimal(decimalFormatter.format(stat.getDuration())));
+            BigDecimal bd = new BigDecimal(stat.getDuration());
+            gen.write("duration", bd.round(context));
         }
         if (stat.getIntegration() == null) {
             gen.writeNull("integration");
         } else {
-            gen.write("integration", new BigDecimal(decimalFormatter.format(stat.getIntegration())));
+            BigDecimal bd = new BigDecimal(stat.getIntegration());
+            gen.write("integration", bd.round(context));
         }
 
         if (stat.getMax() == null) {
             gen.writeNull("max");
         } else {
-            gen.write("max", new BigDecimal(decimalFormatter.format(stat.getMax())));
+            BigDecimal bd = new BigDecimal(stat.getMax());
+            gen.write("max", bd.round(context));
         }
         if (stat.getMean() == null) {
             gen.writeNull("mean");
         } else {
-            gen.write("mean", new BigDecimal(decimalFormatter.format(stat.getMean())));
+            BigDecimal bd = new BigDecimal(stat.getMean());
+            gen.write("mean", bd.round(context));
         }
         if (stat.getMin() == null) {
             gen.writeNull("min");
         } else {
-            gen.write("min", new BigDecimal(decimalFormatter.format(stat.getMin())));
+            BigDecimal bd = new BigDecimal(stat.getMin());
+            gen.write("min", bd.round(context));
         }
         if (stat.getRms() == null) {
             gen.writeNull("rms");
         } else {
-            gen.write("rms", new BigDecimal(decimalFormatter.format(stat.getRms())));
+            BigDecimal bd = new BigDecimal(stat.getRms());
+            gen.write("rms", bd.round(context));
         }
         if (stat.getSigma() == null) {
             gen.writeNull("stdev");
         } else {
-            gen.write("stdev", new BigDecimal(decimalFormatter.format(stat.getSigma())));
+            BigDecimal bd = new BigDecimal(stat.getSigma());
+            gen.write("stdev", bd.round(context));
         }
         gen.writeEnd();
     }
@@ -286,16 +295,18 @@ public class QueryController extends HttpServlet {
     /**
      * This method write a stream of RunningStatistics associated with a given start time to a JSON generator.  This
      * creates the JSON array, and does not expect one to be started outside the method.
+     *
+     * @param name The array name
      * @param gen The JSON generator to write them to
      * @param stats The Map of timestamps to RunningStatistics that will be written to the JSON generator
      * @param timestampFormatter How to format timestamps
-     * @param decimalFormatter How to format decimal values
+     * @param sigFigs The number of significant figures to round to (using Banker's rounding / HALF_UP)
      * @param formatAsMillisSinceEpoch Should timestamps be in seconds from Epoch
-     * @param adjustMillisWithServerOffset
+     * @param adjustMillisWithServerOffset true to adjust timestamp to server timezone offset
      * @return The number of RunningStatistics written to the stream
      */
     public long generateStatisticsStream(String name, JsonGenerator gen, Map<Instant, RunningStatistics> stats,
-                                         DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter,
+                                         DateTimeFormatter timestampFormatter, short sigFigs,
                                          boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset) {
         if (name == null) {
             gen.writeStartArray();
@@ -305,7 +316,7 @@ public class QueryController extends HttpServlet {
         long count = 0;
         for(Instant begin : stats.keySet()) {
             writeRunningStatistics(null, gen, stats.get(begin), begin, formatAsMillisSinceEpoch,
-                    adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
+                    adjustMillisWithServerOffset, timestampFormatter, sigFigs);
             count++;
         }
         gen.writeEnd();
@@ -316,13 +327,14 @@ public class QueryController extends HttpServlet {
     /**
      * Write out the FloatEvents to a JsonGenerator.
      *
-     * @param gen
-     * @param stream
-     * @param formatAsMillisSinceEpoch
-     * @param timestampFormatter
-     * @param decimalFormatter
+     * @param gen The JsonGenerator
+     * @param stream The EventStream
+     * @param formatAsMillisSinceEpoch true to format timestamp as millis since epoch
+     * @param adjustMillisWithServerOffset true to adjust timestamp to server timezone offset
+     * @param timestampFormatter timestamp formatter
+     * @param sigFigs The number of significant figures to round to (using Banker's rounding / HALF_UP)
      * @return The count of events written to the JsonGenerator
-     * @throws IOException
+     * @throws IOException If Unable to generate the stream
      */
     public long generateFloatStream(JsonGenerator gen, EventStream<FloatEvent> stream,
             boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter,
@@ -339,13 +351,14 @@ public class QueryController extends HttpServlet {
     /**
      * Write out the AnalyzedFloatEvents to a JsonGenerator.
      *
-     * @param gen
-     * @param stream
-     * @param formatAsMillisSinceEpoch
-     * @param timestampFormatter
-     * @param decimalFormatter
+     * @param gen The JsonGenerator
+     * @param stream The EventStream
+     * @param formatAsMillisSinceEpoch true to format timestamp as millis since epoch
+     * @param adjustMillisWithServerOffset true to adjust timestamp to server timezone offset
+     * @param timestampFormatter timestamp formatter
+     * @param sigFigs The number of significant figures to round to (using Banker's rounding / HALF_UP)
      * @return The count of events written to the JsonGenerator
-     * @throws IOException
+     * @throws IOException If Unable to generate the stream
      */
     public long generateAnalyzedFloatStream(JsonGenerator gen, EventStream<AnalyzedFloatEvent> stream,
                                     boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter,
