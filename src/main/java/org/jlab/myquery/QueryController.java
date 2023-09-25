@@ -2,6 +2,7 @@ package org.jlab.myquery;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -48,7 +49,7 @@ public class QueryController extends HttpServlet {
         gen.writeEnd();
     }
 
-    public void writeFloatEvent(String name, JsonGenerator gen, FloatEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter) {
+    public void writeFloatEvent(String name, JsonGenerator gen, FloatEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter, short sigFigs) {
         if (name != null) {
             gen.writeStartObject(name);
         } else {
@@ -59,14 +60,15 @@ public class QueryController extends HttpServlet {
 
         if (!event.getCode().isDisconnection()) {
             // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
-            gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
+            BigDecimal bd = new BigDecimal(event.getValue());
+            gen.write("v", bd.round(new MathContext(sigFigs)));
         }
         writeDisconnectAndType(gen, event);
 
         gen.writeEnd();
     }
 
-    public void writeAnalyzedFloatEvent(String name, JsonGenerator gen, AnalyzedFloatEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter) {
+    public void writeAnalyzedFloatEvent(String name, JsonGenerator gen, AnalyzedFloatEvent event, boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter, short sigFigs) {
         if (name != null) {
             gen.writeStartObject(name);
         } else {
@@ -77,7 +79,8 @@ public class QueryController extends HttpServlet {
 
         if (!event.getCode().isDisconnection()) {
             // Round number (banker's rounding) and create String then create new BigDecimal to ensure no quotes are used in JSON
-            gen.write("v", new BigDecimal(decimalFormatter.format(event.getValue())));
+            BigDecimal bd = new BigDecimal(event.getValue());
+            gen.write("v", bd.round(new MathContext(sigFigs)));
         }
         writeDisconnectAndType(gen, event);
 
@@ -88,7 +91,8 @@ public class QueryController extends HttpServlet {
             // We only support integration at this point.  Once more are supported this will have to be a loop that
             // references short[] map for position/index of each stat
             // i for integration?   Good enough for now
-            gen.write("i", new BigDecimal(decimalFormatter.format(stats[0])));
+            BigDecimal bd = new BigDecimal(stats[0]);
+            gen.write("i", bd.round(new MathContext(sigFigs)));
         }
 
         gen.writeEnd();
@@ -322,12 +326,12 @@ public class QueryController extends HttpServlet {
      */
     public long generateFloatStream(JsonGenerator gen, EventStream<FloatEvent> stream,
             boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter,
-            DecimalFormat decimalFormatter) throws IOException {
+            short sigFigs) throws IOException {
         long count = 0;
         FloatEvent event;
         while ((event = stream.read()) != null) {
             count++;
-            writeFloatEvent(null, gen, event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
+            writeFloatEvent(null, gen, event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, sigFigs);
         }
         return count;
     }
@@ -345,12 +349,12 @@ public class QueryController extends HttpServlet {
      */
     public long generateAnalyzedFloatStream(JsonGenerator gen, EventStream<AnalyzedFloatEvent> stream,
                                     boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset, DateTimeFormatter timestampFormatter,
-                                    DecimalFormat decimalFormatter) throws IOException {
+                                    short sigFigs) throws IOException {
         long count = 0;
         AnalyzedFloatEvent event;
         while ((event = stream.read()) != null) {
             count++;
-            writeAnalyzedFloatEvent(null, gen, event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
+            writeAnalyzedFloatEvent(null, gen, event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, sigFigs);
         }
         return count;
     }

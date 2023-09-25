@@ -141,7 +141,7 @@ public class MySamplerController extends QueryController {
         }
 
         DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
-        DecimalFormat decimalFormatter = FormatUtil.getDecimalFormat(v);
+        short sigFigs = FormatUtil.getSignificantFigures(v);
         boolean formatAsMillisSinceEpoch = (u != null);
         boolean adjustMillisWithServerOffset = (a != null);
 
@@ -182,7 +182,7 @@ public class MySamplerController extends QueryController {
                 for(String channelName : channels) {
                     boolean error = processChannelRequest(service, deployment, gen, channelName, begin,
                             intervalMillis, sampleCount, updatesOnly, formatAsMillisSinceEpoch,
-                            adjustMillisWithServerOffset, timestampFormatter, decimalFormatter, enumsAsStrings);
+                            adjustMillisWithServerOffset, timestampFormatter, sigFigs, enumsAsStrings);
                     if (error) {
                         anyErrors = true;
                     }
@@ -211,7 +211,7 @@ public class MySamplerController extends QueryController {
     private boolean processChannelRequest(MySamplerWebService service, String deployment, JsonGenerator gen, String channel,
                                           Instant begin, long intervalMillis, long sampleCount, boolean updatesOnly,
                                           boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
-                                          DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter,
+                                          DateTimeFormatter timestampFormatter, short sigFigs,
                                           boolean enumsAsStrings) throws ServletException {
         gen.writeStartObject(channel);
         boolean error = false;
@@ -263,10 +263,10 @@ public class MySamplerController extends QueryController {
                         timestampFormatter);
             } else if (stream.getType() == FloatEvent.class) {
                 dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
-                        timestampFormatter, decimalFormatter);
+                        timestampFormatter, sigFigs);
             } else if (stream.getType() == AnalyzedFloatEvent.class) {
                 dataLength = generateAnalyzedFloatStream(gen, (EventStream<AnalyzedFloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
-                        timestampFormatter, decimalFormatter);
+                        timestampFormatter, sigFigs);
             } else if (stream.getType() == LabeledEnumEvent.class) {
                 dataLength = generateLabeledEnumStream(gen, (EventStream<LabeledEnumEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
             } else if (stream.getType() == MultiStringEvent.class) {

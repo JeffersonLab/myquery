@@ -190,7 +190,7 @@ public class IntervalController extends QueryController {
         }
 
         DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
-        DecimalFormat decimalFormatter = FormatUtil.getDecimalFormat(v);
+        short sigFigs = FormatUtil.getSignificantFigures(v);
         boolean formatAsMillisSinceEpoch = (u != null);
         boolean adjustMillisWithServerOffset = (a != null);
 
@@ -256,10 +256,10 @@ public class IntervalController extends QueryController {
                                 timestampFormatter);
                     } else if (stream.getType() == FloatEvent.class) {
                         dataLength = generateFloatStream(gen, (EventStream<FloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
-                                timestampFormatter, decimalFormatter);
+                                timestampFormatter, sigFigs);
                     } else if(stream.getType() == AnalyzedFloatEvent.class) {
                         dataLength = generateAnalyzedFloatStream(gen, (EventStream<AnalyzedFloatEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset,
-                                timestampFormatter, decimalFormatter);
+                                timestampFormatter, sigFigs);
                     } else if (stream.getType() == LabeledEnumEvent.class) {
                         dataLength = generateLabeledEnumStream(gen, (EventStream<LabeledEnumEvent>) stream, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                     } else if (stream.getType() == MultiStringEvent.class) {
