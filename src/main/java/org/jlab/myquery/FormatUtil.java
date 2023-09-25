@@ -27,12 +27,12 @@ public class FormatUtil {
         if (v != null && !v.trim().isEmpty()) {
             sigFigs = Integer.parseInt(v);
 
-            if(sigFigs < 0) {
-                sigFigs = 0;
+            if(sigFigs < 1) {
+                sigFigs = 1;
             }
 
-            if (sigFigs > 38) {
-                sigFigs = 38;
+            if (sigFigs > 18) {
+                sigFigs = 18;
             }
         }
 
