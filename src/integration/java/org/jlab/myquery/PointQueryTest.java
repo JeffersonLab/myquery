@@ -43,7 +43,7 @@ public class PointQueryTest {
         String endPoint = "http://localhost:8080/myquery/point?m=docker&c=channel1&t=2019-08-12+00:00:00.2925281&f=6";
 
         String expString =  "{\"datatype\":\"DBR_DOUBLE\",\"datasize\":1,\"datahost\":\"mya\"," +
-                "\"data\":{\"d\":\"2019-08-12 00:00:00.292528\",\"v\":95.180199,\"t\":\"ORIGIN_OF_CHANNELS_HISTORY\"}}";
+                "\"data\":{\"d\":\"2019-08-12 00:00:00.292528\",\"v\":95.1802,\"t\":\"ORIGIN_OF_CHANNELS_HISTORY\"}}";
         JsonObject exp;
         try (JsonReader reader = Json.createReader(new StringReader(expString))) {
             exp = reader.readObject();
