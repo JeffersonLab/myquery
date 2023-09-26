@@ -120,7 +120,7 @@ public class PointController extends QueryController {
         boolean formatAsMillisSinceEpoch = (u != null);
         boolean adjustMillisWithServerOffset = (a != null);
         DateTimeFormatter timestampFormatter = FormatUtil.getInstantFormatter(f);
-        DecimalFormat decimalFormatter = FormatUtil.getDecimalFormat(v);
+        short sigFigs = FormatUtil.getSignificantFigures(v);
 
         OutputStream out = response.getOutputStream();
 
@@ -143,7 +143,7 @@ public class PointController extends QueryController {
                     if (event instanceof IntEvent) {
                         writeIntEvent("data", gen, (IntEvent) event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                     } else if (event instanceof FloatEvent) {
-                        writeFloatEvent("data", gen, (FloatEvent) event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, decimalFormatter);
+                        writeFloatEvent("data", gen, (FloatEvent) event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter, sigFigs);
                     } else if (event instanceof LabeledEnumEvent) {
                         writeLabeledEnumEvent(null, gen, (LabeledEnumEvent) event, formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
                     } else if (event instanceof MultiStringEvent) {
