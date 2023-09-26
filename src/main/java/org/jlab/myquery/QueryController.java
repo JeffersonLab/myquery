@@ -157,13 +157,13 @@ public class QueryController extends HttpServlet {
             gen.writeNull("duration");
         } else {
             BigDecimal bd = new BigDecimal(stat.getDuration());
-            gen.write("duration", bd.round(context));
+            gen.write("duration", bd);
         }
         if (stat.getIntegration() == null) {
             gen.writeNull("integration");
         } else {
             BigDecimal bd = new BigDecimal(stat.getIntegration());
-            gen.write("integration", bd.round(context));
+            gen.write("integration", bd);
         }
 
         if (stat.getMax() == null) {
