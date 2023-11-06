@@ -116,8 +116,8 @@ systemctl start tomcat
 create_log_file_cleanup_cron() {
 cat > /root/delete-old-app-logs.sh << EOF
 #!/bin/sh
-if [ -d ${APP_HOME}/log ] ; then
- /usr/bin/find ${APP_HOME}/log/ -mtime +30 -exec /usr/bin/rm {} \;
+if [ -d ${APP_HOME}/logs ] ; then
+ /usr/bin/find ${APP_HOME}/logs/ -mtime +30 -exec /usr/bin/rm {} \;
 fi
 EOF
 chmod +x /root/delete-old-app-logs.sh
