@@ -11,6 +11,7 @@ import org.jlab.mya.MyaDataType;
 import org.jlab.mya.event.*;
 import org.jlab.mya.stream.EventStream;
 import org.jlab.mya.stream.LabeledEnumStream;
+import org.jlab.mya.stream.MySamplerStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -60,6 +61,7 @@ public class MySamplerController extends QueryController {
         long sampleCount = -1;
         String deployment = "ops";
         Instant begin = null;
+        MySamplerStream.Strategy strategy = MySamplerStream.Strategy.N_QUERIES;
 
         String c = request.getParameter("c"); // channel
         String b = request.getParameter("b"); // begin
@@ -72,11 +74,20 @@ public class MySamplerController extends QueryController {
         String u = request.getParameter("u"); // formatAsMillisSinceEpoch
         String a = request.getParameter("a"); // adjustMillisWithServerOffset
         String v = request.getParameter("v"); // decimalFormatter (value precision)
+        String x = request.getParameter("x"); // Sampling strategy
 
         boolean updatesOnly = (d != null);
         boolean enumsAsStrings = (e != null);
-
         try {
+
+            if (x != null && x.equals("s")) {
+                strategy = MySamplerStream.Strategy.STREAM;
+            } else if (x != null && x.equals("n")) {
+                strategy = MySamplerStream.Strategy.N_QUERIES;
+            } else if (x != null) {
+                throw new Exception("Unrecognized strategy: " + "'" + x + "'");
+            }
+
             if (c == null || c.trim().isEmpty()) {
                 throw new Exception("Channel (c) is required");
             }
@@ -182,7 +193,8 @@ public class MySamplerController extends QueryController {
                 for(String channelName : channels) {
                     boolean error = processChannelRequest(service, deployment, gen, channelName, begin,
                             intervalMillis, sampleCount, updatesOnly, formatAsMillisSinceEpoch,
-                            adjustMillisWithServerOffset, timestampFormatter, decimalFormatter, enumsAsStrings);
+                            adjustMillisWithServerOffset, timestampFormatter, decimalFormatter, enumsAsStrings,
+                            strategy);
                     if (error) {
                         anyErrors = true;
                     }
@@ -212,7 +224,8 @@ public class MySamplerController extends QueryController {
                                           Instant begin, long intervalMillis, long sampleCount, boolean updatesOnly,
                                           boolean formatAsMillisSinceEpoch, boolean adjustMillisWithServerOffset,
                                           DateTimeFormatter timestampFormatter, DecimalFormat decimalFormatter,
-                                          boolean enumsAsStrings) throws ServletException {
+                                          boolean enumsAsStrings, MySamplerStream.Strategy strategy)
+            throws ServletException {
         gen.writeStartObject(channel);
         boolean error = false;
 
@@ -248,9 +261,8 @@ public class MySamplerController extends QueryController {
         // Write out the channel's data
         EventStream stream = null;
         try {
-
             // Cannot use try with resources since we may sometimes wrap stream in a LabeledEnumStream
-            stream = service.openEventStream(metadata, begin, intervalMillis, sampleCount, updatesOnly);
+            stream = service.openEventStream(metadata, begin, intervalMillis, sampleCount, updatesOnly, strategy);
             if (enumsAsStrings && metadata.getMyaType() == MyaDataType.DBR_ENUM && enumLabels != null && !enumLabels.isEmpty()) {
 
                 stream = new LabeledEnumStream(stream, enumLabels);
@@ -279,7 +291,6 @@ public class MySamplerController extends QueryController {
 
             gen.writeEnd();
             gen.write("returnCount", dataLength);
-
         } catch(Exception ex) {
             // Can't just return or else we leave a connection open
             error = true;
