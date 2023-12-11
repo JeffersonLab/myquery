@@ -114,15 +114,16 @@ systemctl start tomcat
 }
 
 create_log_file_cleanup_cron() {
-cat > /root/delete-old-app-logs.sh << EOF
+cat > /opt/tomcat/delete-old-app-logs.sh << EOF
 #!/bin/sh
-if [ -d ${APP_HOME}/log ] ; then
- /usr/bin/find ${APP_HOME}/log/ -mtime +30 -exec /usr/bin/rm {} \;
+if [ -d ${APP_HOME}/logs ] ; then
+ /usr/bin/find ${APP_HOME}/logs/ -mtime +30 -exec /usr/bin/rm {} \;
 fi
 EOF
-chmod +x /root/delete-old-app-logs.sh
+chmod +x /opt/tomcat/delete-old-app-logs.sh
+chown tomcat:tomcat /opt/tomcat/delete-old-app-logs.sh
 cat > /etc/cron.d/delete-old-app-logs.cron << EOF
-0 0 * * * /root/delete-old-app-logs.sh >/dev/null 2>&1
+0 0 * * * tomcat /opt/tomcat/delete-old-app-logs.sh >/dev/null 2>&1
 EOF
 }
 

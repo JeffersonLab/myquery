@@ -4,7 +4,7 @@ plugins {
 }
 
 description = "MYA web-based query tool"
-version = '5.2.0'
+version = '6.1.0'
 
 ext {
     releaseDate = 'Nov 30, 2023'

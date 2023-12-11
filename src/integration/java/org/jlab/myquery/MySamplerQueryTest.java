@@ -68,6 +68,7 @@ public class MySamplerQueryTest {
                      }
                    }
                  }""";
+
         String exp;
         try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
             exp = r.readObject().toString();
@@ -1115,7 +1116,7 @@ public class MySamplerQueryTest {
 
         assertEquals(200, response.statusCode());
 
-        String exp = "1234test({\"channels\":{\"channel1\":{\"metadata\":{\"name\":\"channel1\",\"datatype\":\"DBR_DOUBLE\",\"datasize\":1,\"datahost\":\"mya\",\"ioc\":null,\"active\":true},\"data\":[{\"d\":\"2019-08-12 23:59:00.000000\",\"v\":94.550102},{\"d\":\"2019-08-12 23:59:15.000000\",\"v\":94.987701},{\"d\":\"2019-08-12 23:59:30.000000\",\"v\":94.651604},{\"d\":\"2019-08-12 23:59:45.000000\",\"v\":94.292702},{\"d\":\"2019-08-13 00:00:00.000000\",\"v\":95.179703}],\"returnCount\":5},\"channel2\":{\"metadata\":{\"name\":\"channel2\",\"datatype\":\"DBR_ENUM\",\"datasize\":1,\"datahost\":\"mya\",\"ioc\":null,\"active\":true},\"labels\":[{\"d\":\"2016-08-12 13:00:49.000000\",\"value\":[\"BEAM SYNC ONLY\",\"PULSE MODE VL\",\"TUNE MODE\",\"CW MODE (DC)\",\"USER MODE\"]}],\"data\":[{\"d\":\"2019-08-12 23:59:00.000000\",\"v\":3},{\"d\":\"2019-08-12 23:59:15.000000\",\"v\":3},{\"d\":\"2019-08-12 23:59:30.000000\",\"v\":3},{\"d\":\"2019-08-12 23:59:45.000000\",\"v\":3},{\"d\":\"2019-08-13 00:00:00.000000\",\"v\":3}],\"returnCount\":5}}});";
+        String exp = "1234test({\"channels\":{\"channel1\":{\"metadata\":{\"name\":\"channel1\",\"datatype\":\"DBR_DOUBLE\",\"datasize\":1,\"datahost\":\"mya\",\"ioc\":null,\"active\":true},\"data\":[{\"d\":\"2019-08-12 23:59:00.000000\",\"v\":94.5501},{\"d\":\"2019-08-12 23:59:15.000000\",\"v\":94.9877},{\"d\":\"2019-08-12 23:59:30.000000\",\"v\":94.6516},{\"d\":\"2019-08-12 23:59:45.000000\",\"v\":94.2927},{\"d\":\"2019-08-13 00:00:00.000000\",\"v\":95.1797}],\"returnCount\":5},\"channel2\":{\"metadata\":{\"name\":\"channel2\",\"datatype\":\"DBR_ENUM\",\"datasize\":1,\"datahost\":\"mya\",\"ioc\":null,\"active\":true},\"labels\":[{\"d\":\"2016-08-12 13:00:49.000000\",\"value\":[\"BEAM SYNC ONLY\",\"PULSE MODE VL\",\"TUNE MODE\",\"CW MODE (DC)\",\"USER MODE\"]}],\"data\":[{\"d\":\"2019-08-12 23:59:00.000000\",\"v\":3},{\"d\":\"2019-08-12 23:59:15.000000\",\"v\":3},{\"d\":\"2019-08-12 23:59:30.000000\",\"v\":3},{\"d\":\"2019-08-12 23:59:45.000000\",\"v\":3},{\"d\":\"2019-08-13 00:00:00.000000\",\"v\":3}],\"returnCount\":5}}});";
 
         String result;
         try (BufferedReader reader = new BufferedReader(new StringReader(response.body()))) {

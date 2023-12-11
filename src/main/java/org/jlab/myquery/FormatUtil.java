@@ -21,6 +21,24 @@ public class FormatUtil {
 
     public final static ZoneId DEFAULT_ZONE = ZoneId.systemDefault();
 
+    public static short getSignificantFigures(String v) {
+        int sigFigs = 6;
+
+        if (v != null && !v.trim().isEmpty()) {
+            sigFigs = Integer.parseInt(v);
+
+            if(sigFigs < 1) {
+                sigFigs = 1;
+            }
+
+            if (sigFigs > 18) {
+                sigFigs = 18;
+            }
+        }
+
+        return (short)sigFigs;
+    }
+
     public static DecimalFormat getDecimalFormat(String v) {
         int vInt = 6;
 

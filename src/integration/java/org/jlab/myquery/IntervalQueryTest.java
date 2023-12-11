@@ -33,7 +33,7 @@ public class IntervalQueryTest {
         int count = json.getInt("returnCount");
         assertEquals(32990, count);
 
-        String expString = "{\"d\":\"2019-08-12T00:00:00\",\"v\": 95.180199,\"t\":\"ORIGIN_OF_CHANNELS_HISTORY\"}";
+        String expString = "{\"d\":\"2019-08-12T00:00:00\",\"v\": 95.1802,\"t\":\"ORIGIN_OF_CHANNELS_HISTORY\"}";
         JsonObject exp;
         try(JsonReader reader = Json.createReader(new StringReader(expString))) {
             exp = reader.readObject();
@@ -63,23 +63,23 @@ public class IntervalQueryTest {
                                 "data": [
                             {
                                 "d": "2019-08-12 23:59:00.000000",
-                                    "v": 94.550102
+                                    "v": 94.5501
                             },
                             {
                                 "d": "2019-08-12 23:59:15.000000",
-                                    "v": 94.987701
+                                    "v": 94.9877
                             },
                             {
                                 "d": "2019-08-12 23:59:30.000000",
-                                    "v": 94.651604
+                                    "v": 94.6516
                             },
                             {
                                 "d": "2019-08-12 23:59:45.000000",
-                                    "v": 94.292702
+                                    "v": 94.2927
                             },
                             {
                                 "d": "2019-08-13 00:00:00.000000",
-                                    "v": 95.179703
+                                    "v": 95.1797
                             }
                   ],
                             "returnCount": 5
