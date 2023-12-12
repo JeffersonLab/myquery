@@ -19,10 +19,16 @@ public class MySamplerQueryTest {
     @Test
     public void basicUsageTest() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mysampler?c=channel1&b=2019-08-12+23%3A59%3A00&n=5&s=15000&m=docker&f=6&v=")).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mysampler?c=channel1&b=2019-08-12+23%3A59%3A00&n=5&s=15000&m=docker&f=6&v=&x=n")).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpRequest request2 = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mysampler?c=channel1&b=2019-08-12+23%3A59%3A00&n=5&s=15000&m=docker&f=6&v=&x=s")).build();
+        HttpResponse<String> response2 = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpRequest request3 = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mysampler?c=channel1&b=2019-08-12+23%3A59%3A00&n=5&s=15000&m=docker&f=6&v=")).build();
+        HttpResponse<String> response3 = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
+        assertEquals(200, response2.statusCode());
+        assertEquals(200, response3.statusCode());
 
         String jsonString = """
         {
@@ -63,14 +69,24 @@ public class MySamplerQueryTest {
            }
          }""";
         String exp;
-        try(JsonReader r = Json.createReader(new StringReader(jsonString))) {
+        try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
             exp = r.readObject().toString();
         }
 
-        try(JsonReader reader = Json.createReader(new StringReader(response.body()))) {
+        try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
             JsonObject json = reader.readObject();
             assertEquals(exp, json.toString());
         }
+        try (JsonReader reader = Json.createReader(new StringReader(response2.body()))) {
+            JsonObject json = reader.readObject();
+            assertEquals(exp, json.toString());
+        }
+
+        try (JsonReader reader = Json.createReader(new StringReader(response3.body()))) {
+            JsonObject json = reader.readObject();
+            assertEquals(exp, json.toString());
+        }
+
     }
 
     @Test
@@ -1081,11 +1097,11 @@ public class MySamplerQueryTest {
             }
           }""";
         String exp;
-        try(JsonReader r = Json.createReader(new StringReader(jsonString))) {
+        try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
             exp = r.readObject().toString();
         }
 
-        try(JsonReader reader = Json.createReader(new StringReader(response.body()))) {
+        try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
             JsonObject json = reader.readObject();
             assertEquals(exp, json.toString());
         }
@@ -1106,5 +1122,27 @@ public class MySamplerQueryTest {
             result = reader.readLine();
             assertEquals(exp, result);
         }
+    }
+
+
+    @Test
+    public void repeatUsageTest() throws IOException, InterruptedException {
+        // Check that we don't have some sort of resource exhaustion.  Hit this bug in development and thought best to
+        // include explicit test for it.
+        HttpClient client = HttpClient.newHttpClient();
+        // Test the stream strategy
+        for (int i = 0; i < 20; i++) {
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mysampler?c=channel1&b=2019-08-12+23%3A59%3A00&n=5&s=15000&m=docker&f=6&v=&s=s")).build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(200, response.statusCode());
+        }
+
+        // Test the n_queries strategy
+        for (int i = 0; i < 20; i++) {
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mysampler?c=channel1&b=2019-08-12+23%3A59%3A00&n=5&s=15000&m=docker&f=6&v=&s=n")).build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(200, response.statusCode());
+        }
+
     }
 }

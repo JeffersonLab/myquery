@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 /**
  * This class provides features similar to the mySampler command line utility.
+ *
  * @author adamc
  */
 public class MySamplerWebService extends QueryWebService {
@@ -34,18 +35,31 @@ public class MySamplerWebService extends QueryWebService {
 
 
     @SuppressWarnings("unchecked")
-    public <T extends Event> MySamplerStream<T> openEventStream(Metadata<T> metadata, Instant begin, long intervalMillis,
-                                                            long sampleCount, boolean updatesOnly) throws SQLException, UnsupportedOperationException {
+    public <T extends Event> MySamplerStream<T> openEventStream(Metadata<T> metadata, Instant begin,
+                                                                long intervalMillis, long sampleCount,
+                                                                boolean updatesOnly, MySamplerStream.Strategy strategy)
+            throws SQLException, UnsupportedOperationException {
 
         PointWebService pws = new PointWebService(nexus.getDeployment());
         T priorEvent = (T) pws.findEvent(metadata, updatesOnly, begin, true, false, false);
 
         Instant end = begin.plusMillis(intervalMillis * (sampleCount - 1));
-        EventStream<T> stream = nexus.openEventStream(metadata, begin, end, DataNexus.IntervalQueryFetchStrategy.STREAM, updatesOnly);
 
+        EventStream<T> stream = null;
         MySamplerStream<T> out;
         try {
-            out = MySamplerStream.getMySamplerStream(stream, begin, intervalMillis, sampleCount, priorEvent, updatesOnly, metadata.getType());
+            if (strategy == MySamplerStream.Strategy.STREAM) {
+                stream = nexus.openEventStream(metadata, begin, end,
+                        DataNexus.IntervalQueryFetchStrategy.STREAM, updatesOnly);
+                out = MySamplerStream.getMySamplerStream(stream, begin, intervalMillis, sampleCount, priorEvent,
+                        updatesOnly, metadata.getType());
+            } else if (strategy == MySamplerStream.Strategy.N_QUERIES) {
+                out = MySamplerStream.getMySamplerStream(begin, intervalMillis, sampleCount, updatesOnly,
+                        metadata.getType(), nexus, metadata);
+            } else {
+                throw new IllegalArgumentException(("Unsupported strategy - " + strategy));
+            }
+
         } catch (Exception ex) {
             if (stream != null) {
                 try {
