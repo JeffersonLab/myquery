@@ -1,0 +1,31 @@
+name: CD
+
+on:
+  push:
+    paths:
+      - 'VERSION'
+
+jobs:
+  release:
+    uses: jeffersonlab/java-workflows/.github/workflows/gh-release.yml@v1
+    with:
+      files: build/libs/myquery.war
+    secrets: inherit
+
+  docker_publish:
+    needs:
+      - release
+    uses: jeffersonlab/container-workflows/.github/workflows/docker-publish.yml@v1
+    with:
+      semvertag: ${{ needs.release.outputs.semvertag }}
+    secrets: inherit
+
+  epicswebtest_deploy:
+    needs:
+      - release
+    uses: jeffersonlab/general-workflows/.github/workflows/jlab-deploy-app.yml@v1
+    with:
+      app: myquery
+      env: epicswebtest
+      ver: ${{ needs.release.outputs.semver }}
+    secrets: inherit
