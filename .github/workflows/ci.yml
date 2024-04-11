@@ -23,7 +23,7 @@ jobs:
         with:
           gradle-version: wrapper
       - name: Start containers
-        run: docker compose -f "build.yml" up -d
+        run: docker compose -f "build.yaml" up -d
       - name: Wait for containers to settle
         run: docker exec -i myquery bash -c "sleep 10"
       - name: Run build and integration test
@@ -33,4 +33,4 @@ jobs:
         run: docker logs myquery
       - name: Stop containers
         if: always()
-        run: docker compose -f "build.yml" down
+        run: docker compose -f "build.yaml" down

@@ -1,7 +1,7 @@
 services:
   mya:
     extends:
-      file: deps.yml
+      file: deps.yaml
       service: mya
 
   myquery:

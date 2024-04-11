@@ -1,12 +1,12 @@
 services:
   mya:
     extends:
-      file: build.yml
+      file: build.yaml
       service: mya
 
   myquery:
     extends:
-      file: build.yml
+      file: build.yaml
       service: myquery
     environment:
       CORS_ALLOWED_ORIGINS: "*"

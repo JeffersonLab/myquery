@@ -54,7 +54,7 @@ http://localhost:8080/myquery/channel?q=channel%25&m=docker
 A [deployments.properites](https://github.com/JeffersonLab/jmyapi#deployments) file must be placed in the lib directory of Tomcat.  Download the mariadb [database driver](https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.0.8/mariadb-java-client-3.0.8.jar) and place it in the lib directory of Tomcat.  A new [context.xml](https://github.com/JeffersonLab/myquery/blob/main/docker/myquery/conf/context.xml) file is needed in the Tomcat conf directory that includes a DataSource for each host in the deployments.properties. 
 
 ### CORS
-You can enable the Tomcat [CORS filter](https://tomcat.apache.org/tomcat-10.1-doc/config/filter.html#CORS_Filter) for cross origin support by setting the environment variable `CORS_ALLOWED_ORIGINS` to the orgins you'd like to support.  See [Docker Compose example](https://github.com/JeffersonLab/myquery/blob/main/cors-test.yml).
+You can enable the Tomcat [CORS filter](https://tomcat.apache.org/tomcat-10.1-doc/config/filter.html#CORS_Filter) for cross origin support by setting the environment variable `CORS_ALLOWED_ORIGINS` to the orgins you'd like to support.  See [Docker Compose example](https://github.com/JeffersonLab/myquery/blob/main/cors-test.yaml).
 
 ## Build
 This project is built with [Java 17](https://adoptium.net/) (compiled to Java 17 bytecode), and uses the [Gradle 7](https://gradle.org/) build tool to automatically download dependencies and build the project from source:
@@ -71,7 +71,7 @@ gradlew build
 ## Develop
 In order to iterate rapidly when making changes it's often useful to run the app directly on the local workstation, perhaps leveraging an IDE.  In this scenario run the service dependencies with:
 ```
-docker compose -f deps.yml up
+docker compose -f deps.yaml up
 ```
 **Note**: The local install of Tomcat should be [configured](https://github.com/JeffersonLab/myquery#configure) to proxy connections to mya via localhost and therefore `deployments.properties` should contain:
 ```
@@ -85,7 +85,7 @@ Further, the local mya DataSource must also leverage localhost port forwarding s
 ## Test
 Continuous Integration (CI) is setup using GitHub Actions, so on push tests are automatically run unless `[no ci]` is included in the commit message.   Tests can be manually run on a local workstation using:
 ```
-docker compose -f build.yml up
+docker compose -f build.yaml up
 ```
 Wait for containers to start then:
 ```
@@ -96,7 +96,7 @@ gradlew integrationTest
 1. Bump the version number and release date in build.gradle and commit and push to GitHub (using [Semantic Versioning](https://semver.org/)).   
 2. Create a new release on the GitHub [Releases](https://github.com/JeffersonLab/myquery/releases) page corresponding to same version in build.gradle (Enumerate changes and link issues).  Attach war file for users to download.
 3. Build and publish a new Docker image [from the GitHub tag](https://gist.github.com/slominskir/a7da801e8259f5974c978f9c3091d52c#8-build-an-image-based-of-github-tag).  GitHub is configured to do this automatically on git push of semver tag (typically part of GitHub release) or the [Publish to DockerHub](https://github.com/JeffersonLab/myquery/actions/workflows/docker-publish.yml) action can be manually triggered after selecting a tag.
-4. Bump and commit quick start [image version](https://github.com/JeffersonLab/myquery/blob/main/docker-compose.override.yml)
+4. Bump and commit quick start [image version](https://github.com/JeffersonLab/myquery/blob/main/docker-compose.override.yaml)
 
 ## Deploy
 At JLab this app is found at [epicsweb.jlab.org/myquery](https://epicsweb.jlab.org/myquery/) and internally at [epicswebtest.acc.jlab.org/myquery](https://epicswebtest.acc.jlab.org/myquery/).  However, those servers are proxies for `tomcat1.acc.jlab.org` and `tomcattest1.acc.jlab.org` respectively.   Use wget or the like to grab the release war file.  Don't download directly into webapps dir as file scanner may attempt to deploy before fully downloaded.  Be careful of previous war file as by default wget won't overrwite.  The war file should be attached to each release, so right click it and copy location (or just update version in path provided in the example below).  Example:

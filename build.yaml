@@ -1,12 +1,12 @@
 services:
   mya:
     extends:
-      file: docker-compose.yml
+      file: compose.yaml
       service: mya
 
   myquery:
     extends:
-      file: docker-compose.yml
+      file: compose.yaml
       service: myquery
     build:
       context: .
