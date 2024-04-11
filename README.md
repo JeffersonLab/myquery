@@ -93,19 +93,19 @@ gradlew integrationTest
 ```
 
 ## Release
-1. Bump the version number and release date in build.gradle and commit and push to GitHub (using [Semantic Versioning](https://semver.org/)).   
-2. Create a new release on the GitHub [Releases](https://github.com/JeffersonLab/myquery/releases) page corresponding to same version in build.gradle (Enumerate changes and link issues).  Attach war file for users to download.
-3. Build and publish a new Docker image [from the GitHub tag](https://gist.github.com/slominskir/a7da801e8259f5974c978f9c3091d52c#8-build-an-image-based-of-github-tag).  GitHub is configured to do this automatically on git push of semver tag (typically part of GitHub release) or the [Publish to DockerHub](https://github.com/JeffersonLab/myquery/actions/workflows/docker-publish.yml) action can be manually triggered after selecting a tag.
-4. Bump and commit quick start [image version](https://github.com/JeffersonLab/myquery/blob/main/docker-compose.override.yaml)
+1. Bump the version number in the VERSION file and commit and push to GitHub (using [Semantic Versioning](https://semver.org/)).
+2. The [CD](https://github.com/JeffersonLab/myquery/blob/main/.github/workflows/cd.yml) GitHub Action should run automatically invoking:
+    - The [Create release](https://github.com/JeffersonLab/java-workflows/blob/main/.github/workflows/gh-release.yml) GitHub Action to tag the source and create release notes summarizing any pull requests.   Edit the release notes to add any missing details.  A war file artifact is attached to the release.
+    - The [Publish docker image](https://github.com/JeffersonLab/container-workflows/blob/main/.github/workflows/docker-publish.yml) GitHub Action to create a new demo Docker image, and bump the [compose.override.yaml](https://github.com/JeffersonLab/myquery/blob/main/compose.override.yaml) to use the new image.
+    - The [Deploy to JLab](https://github.com/JeffersonLab/general-workflows/blob/main/.github/workflows/jlab-deploy-app.yml) GitHub Action to deploy to the JLab test environment.
 
 ## Deploy
-At JLab this app is found at [epicsweb.jlab.org/myquery](https://epicsweb.jlab.org/myquery/) and internally at [epicswebtest.acc.jlab.org/myquery](https://epicswebtest.acc.jlab.org/myquery/).  However, those servers are proxies for `tomcat1.acc.jlab.org` and `tomcattest1.acc.jlab.org` respectively.   Use wget or the like to grab the release war file.  Don't download directly into webapps dir as file scanner may attempt to deploy before fully downloaded.  Be careful of previous war file as by default wget won't overrwite.  The war file should be attached to each release, so right click it and copy location (or just update version in path provided in the example below).  Example:
+The deploy to JLab's epicswebtest is handled automatically via the release workflow.
+
+At JLab this app is found at [epicsweb.jlab.org/myquery](https://epicsweb.jlab.org/myquery/) and internally at [epicswebtest.acc.jlab.org/myquery](https://epicswebtest.acc.jlab.org/myquery/).  However, those servers are proxies for `tomcat1.acc.jlab.org` and `tomcattest1.acc.jlab.org` respectively. A deploy script is provided on each server to automate wget and deploy. Example:
 
 ```
-cd /tmp
-rm myquery.war
-wget https://github.com/JeffersonLab/myquery/releases/download/v1.2.3/myquery.war
-mv  myquery.war /opt/tomcat/webapps
+/opt/tomcat/deploy.sh myquery 1.2.3
 ```
 
 **JLab Internal Docs**:  [InstallGuideTomcatRHEL9](https://accwiki.acc.jlab.org/do/view/SysAdmin/InstallGuideTomcatRHEL9)
