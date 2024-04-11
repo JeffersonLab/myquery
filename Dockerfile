@@ -23,8 +23,8 @@ ARG RUN_USER=tomcat
 ARG DEPLOYMENTS=/usr/local/tomcat/webapps
 USER root
 COPY --from=builder /app/build/libs /usr/local/tomcat/webapps
-COPY --from=builder /app/docker/myquery/lib /usr/local/tomcat/lib
-COPY --from=builder /app/docker/myquery/conf /usr/local/tomcat/conf
+COPY --from=builder /app/container/myquery/lib /usr/local/tomcat/lib
+COPY --from=builder /app/container/myquery/conf /usr/local/tomcat/conf
 COPY --from=builder /app/mariadb-java-client-3.0.8.jar /usr/local/tomcat/lib
 RUN useradd -m tomcat \
     && if [ -z "${CUSTOM_CRT_URL}" ] ; then echo "No custom cert needed"; else \
