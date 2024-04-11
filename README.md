@@ -105,7 +105,7 @@ The deploy to JLab's epicswebtest is handled automatically via the release workf
 At JLab this app is found at [epicsweb.jlab.org/myquery](https://epicsweb.jlab.org/myquery/) and internally at [epicswebtest.acc.jlab.org/myquery](https://epicswebtest.acc.jlab.org/myquery/).  However, those servers are proxies for `tomcat1.acc.jlab.org` and `tomcattest1.acc.jlab.org` respectively. A deploy script is provided on each server to automate wget and deploy. Example:
 
 ```
-/opt/tomcat/deploy.sh myquery 1.2.3
+/opt/tomcat/cd/deploy.sh myquery 1.2.3
 ```
 
 **JLab Internal Docs**:  [InstallGuideTomcatRHEL9](https://accwiki.acc.jlab.org/do/view/SysAdmin/InstallGuideTomcatRHEL9)
