@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   unit:
-    uses: jeffersonlab/java-workflows/.github/workflows/unit-ci.yml@v1
+    uses: jeffersonlab/java-workflows/.github/workflows/unit-ci.yaml@v2
   integration:
     needs:
       - unit
