@@ -40,7 +40,7 @@ http://localhost:8080/myquery/channel?q=channel%25&m=docker
 
 ## Install
  1. Download [Java JDK 17+](https://adoptium.net/)
- 2. Download [Apache Tomcat 10+](http://tomcat.apache.org/) (Compiled against Jakarta EE)
+ 2. Download [Apache Tomcat 11](http://tomcat.apache.org/) (Compiled against Jakarta EE)
  3. Download [MariaDB Driver](https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.0.8/mariadb-java-client-3.0.8.jar) and drop it into the Tomcat lib directory
  4. Download [myquery.war](https://github.com/JeffersonLab/myquery/releases) and drop it into the Tomcat webapps directory
  5. [Configure](https://github.com/JeffersonLab/myquery#configure) Tomcat
