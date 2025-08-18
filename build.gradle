@@ -29,7 +29,7 @@ configurations {
     integrationRuntimeOnly.extendsFrom runtimeOnly
 }
 dependencies {
-    implementation 'org.jlab:jmyapi:9.0.0',
+    implementation 'org.jlab:jmyapi:10.0.1',
                    'org.eclipse.parsson:parsson:1.1.1'
 	providedCompile 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     testImplementation 'junit:junit:4.13.2'
