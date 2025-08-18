@@ -4,19 +4,18 @@ plugins {
 }
 
 description = "MYA web-based query tool"
-version new File("${projectDir}/VERSION").text.trim()
+version = new File("${projectDir}/VERSION").text.trim()
+ext.version = project.version
 ext.releaseDate = new Date().format('MMM dd yyyy')
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.release = 17
     options.encoding = 'UTF-8'
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
-
 repositories {
     mavenCentral()
 }
-
 sourceSets {
     integration {
         java.srcDir "${projectDir}/src/integration/java"
@@ -25,20 +24,17 @@ sourceSets {
         runtimeClasspath += sourceSets.main.output
     }
 }
-
 configurations {
     integrationImplementation.extendsFrom testImplementation
     integrationRuntimeOnly.extendsFrom runtimeOnly
 }
-
 dependencies {
     implementation 'org.jlab:jmyapi:9.0.0',
                    'org.eclipse.parsson:parsson:1.1.1'
 	providedCompile 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     testImplementation 'junit:junit:4.13.2'
 }
-
-task integrationTest(type: Test) {
+tasks.register('integrationTest', Test) {
     description = 'Runs integration tests.'
     group = 'verification'
 
@@ -51,12 +47,14 @@ task integrationTest(type: Test) {
         showStandardStreams = true
     }
 }
-
+tasks.named('jar') {
+    enabled = false
+}
 war {
     archiveFileName = 'myquery.war'
     filesMatching('WEB-INF/web.xml') {
         filter {
-            String line -> line.replaceAll("@VERSION@", project.version)
+            String line -> line.replaceAll("@VERSION@", version)
         }
         filter {
             String line -> line.replaceAll("@RELEASE_DATE@", releaseDate)
