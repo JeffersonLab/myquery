@@ -108,7 +108,7 @@ At JLab this app is found at [epicsweb.jlab.org/myquery](https://epicsweb.jlab.o
 /opt/tomcat/cd/deploy.sh myquery 1.2.3
 ```
 
-**JLab Internal Docs**:  [InstallGuideTomcatRHEL9](https://accwiki.acc.jlab.org/do/view/SysAdmin/InstallGuideTomcatRHEL9)
+**JLab Internal Docs**:  [builds/epicsweb](https://acgdocs.acc.jlab.org/ace/builds/epicsweb)
 
 ## See Also
    - [Web Archive Viewer and Expositor (WAVE)](https://github.com/JeffersonLab/wave)
