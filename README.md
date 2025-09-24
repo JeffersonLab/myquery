@@ -102,7 +102,7 @@ gradlew integrationTest
 ## Deploy
 The deploy to JLab's epicswebtest is handled automatically via the release workflow.
 
-At JLab this app is found at [epicsweb.jlab.org/myquery](https://epicsweb.jlab.org/myquery/) and internally at [epicswebtest.acc.jlab.org/myquery](https://epicswebtest.acc.jlab.org/myquery/).  However, those servers are proxies for `tomcat1.acc.jlab.org`, `tomcat2.acc.jlab.org` and `tomcattest1.acc.jlab.org`, `tomcattest2.acc.jlab.org` respectively. A deploy script is provided on each server to automate wget and deploy. Example:
+At JLab this app is found at [epicsweb.jlab.org/myquery](https://epicsweb.jlab.org/myquery/) and internally at [epicswebtest.acc.jlab.org/myquery](https://epicswebtest.acc.jlab.org/myquery/).  However, those servers are proxies for a clustered set of hosts `tomcat1.acc.jlab.org`, `tomcat2.acc.jlab.org` and `tomcattest1.acc.jlab.org`, `tomcattest2.acc.jlab.org` respectively. A deploy script is provided on each server to automate wget and deploy. Example:
 
 ```
 /opt/tomcat/cd/deploy.sh myquery 1.2.3
