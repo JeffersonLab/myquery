@@ -108,7 +108,11 @@ public class QueryController extends HttpServlet {
         FormatUtil.writeTimestampJSON(gen, "d", event.getTimestampAsInstant(), formatAsMillisSinceEpoch, adjustMillisWithServerOffset, timestampFormatter);
 
         if (!event.getCode().isDisconnection()) {
-            gen.write("v", event.getLabel());
+            if(event.getLabel() == null) {
+                gen.write("v", event.getValue());
+            } else {
+                gen.write("v", event.getLabel());
+            }
         }
         writeDisconnectAndType(gen, event);
 
