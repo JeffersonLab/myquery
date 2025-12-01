@@ -1,10 +1,10 @@
 package org.jlab.myquery;
 
+import static org.junit.Assert.assertEquals;
+
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
-import org.junit.Test;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -12,19 +12,24 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class MyStatsQueryTest {
-    @Test
-    public void basicUsageTest() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mystats?c=channel1,channel4&b=2019-08-12&e=2019-08-12+01%3A00%3A00&n=5&m=docker&f=3&v=6")).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+  @Test
+  public void basicUsageTest() throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(
+                URI.create(
+                    "http://localhost:8080/myquery/mystats?c=channel1,channel4&b=2019-08-12&e=2019-08-12+01%3A00%3A00&n=5&m=docker&f=3&v=6"))
+            .build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(200, response.statusCode());
+    assertEquals(200, response.statusCode());
 
-        String jsonString = """
+    String jsonString =
+        """
           {
             "channels": {
               "channel1": {
@@ -175,26 +180,32 @@ public class MyStatsQueryTest {
               }
             }
           }""";
-        String exp;
-        try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
-            exp = r.readObject().toString();
-        }
-
-        try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
-            JsonObject json = reader.readObject();
-            assertEquals(exp, json.toString());
-        }
+    String exp;
+    try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
+      exp = r.readObject().toString();
     }
 
-    @Test
-    public void unsupportedTypeTest() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mystats?c=channel1,channel2&b=2019-08-12+00%3A01%3A00&e=2019-08-19+02%3A00%3A00&n=2&m=docker&f=&v=")).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
+      JsonObject json = reader.readObject();
+      assertEquals(exp, json.toString());
+    }
+  }
 
-        assertEquals(200, response.statusCode());
+  @Test
+  public void unsupportedTypeTest() throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(
+                URI.create(
+                    "http://localhost:8080/myquery/mystats?c=channel1,channel2&b=2019-08-12+00%3A01%3A00&e=2019-08-19+02%3A00%3A00&n=2&m=docker&f=&v="))
+            .build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        String jsonString = """
+    assertEquals(200, response.statusCode());
+
+    String jsonString =
+        """
            {
              "channels": {
                "channel1": {
@@ -240,31 +251,37 @@ public class MyStatsQueryTest {
              }
            }""";
 
-        String exp;
-        try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
-            exp = r.readObject().toString();
-        }
-
-        try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
-            JsonObject json = reader.readObject();
-            assertEquals(exp, json.toString());
-        }
+    String exp;
+    try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
+      exp = r.readObject().toString();
     }
 
-    @Test
-    public void jsonpTest() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mystats?c=channel1,channel4&b=2019-08-12&e=2019-08-12+01%3A00%3A00&n=1&m=docker&f=3&v=6&jsonp=1234test")).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(200, response.statusCode());
-
-        String exp = "1234test({\"channels\":{\"channel1\":{\"metadata\":{\"name\":\"channel1\",\"datatype\":\"DBR_DOUBLE\",\"datasize\":1,\"datahost\":\"mya\",\"ioc\":null,\"active\":true},\"data\":[{\"begin\":\"2019-08-12 00:00:00.000\",\"eventCount\":1716,\"updateCount\":1715,\"duration\":3594.42103290557861328125,\"integration\":341342.2010727164451964199542999267578125,\"max\":96.9524,\"mean\":94.9644,\"min\":0,\"rms\":95.2675,\"stdev\":7.59226}],\"returnCount\":1},\"channel4\":{\"metadata\":{\"name\":\"channel4\",\"datatype\":\"DBR_DOUBLE\",\"datasize\":1,\"datahost\":\"mya\",\"ioc\":null,\"active\":true},\"data\":[{\"begin\":\"2019-08-12 00:00:00.000\",\"eventCount\":0,\"updateCount\":0,\"duration\":null,\"integration\":null,\"max\":null,\"mean\":null,\"min\":null,\"rms\":null,\"stdev\":null}],\"returnCount\":1}}});";
-
-        String result;
-        try (BufferedReader reader = new BufferedReader(new StringReader(response.body()))) {
-            result = reader.readLine();
-            assertEquals(exp, result);
-        }
+    try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
+      JsonObject json = reader.readObject();
+      assertEquals(exp, json.toString());
     }
+  }
+
+  @Test
+  public void jsonpTest() throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(
+                URI.create(
+                    "http://localhost:8080/myquery/mystats?c=channel1,channel4&b=2019-08-12&e=2019-08-12+01%3A00%3A00&n=1&m=docker&f=3&v=6&jsonp=1234test"))
+            .build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    assertEquals(200, response.statusCode());
+
+    String exp =
+        "1234test({\"channels\":{\"channel1\":{\"metadata\":{\"name\":\"channel1\",\"datatype\":\"DBR_DOUBLE\",\"datasize\":1,\"datahost\":\"mya\",\"ioc\":null,\"active\":true},\"data\":[{\"begin\":\"2019-08-12 00:00:00.000\",\"eventCount\":1716,\"updateCount\":1715,\"duration\":3594.42103290557861328125,\"integration\":341342.2010727164451964199542999267578125,\"max\":96.9524,\"mean\":94.9644,\"min\":0,\"rms\":95.2675,\"stdev\":7.59226}],\"returnCount\":1},\"channel4\":{\"metadata\":{\"name\":\"channel4\",\"datatype\":\"DBR_DOUBLE\",\"datasize\":1,\"datahost\":\"mya\",\"ioc\":null,\"active\":true},\"data\":[{\"begin\":\"2019-08-12 00:00:00.000\",\"eventCount\":0,\"updateCount\":0,\"duration\":null,\"integration\":null,\"max\":null,\"mean\":null,\"min\":null,\"rms\":null,\"stdev\":null}],\"returnCount\":1}}});";
+
+    String result;
+    try (BufferedReader reader = new BufferedReader(new StringReader(response.body()))) {
+      result = reader.readLine();
+      assertEquals(exp, result);
+    }
+  }
 }

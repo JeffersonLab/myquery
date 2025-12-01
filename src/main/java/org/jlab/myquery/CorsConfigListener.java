@@ -2,7 +2,6 @@ package org.jlab.myquery;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebListener;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,22 +12,23 @@ import java.util.logging.Logger;
 @WebListener
 public class CorsConfigListener implements ServletContextListener {
 
-    private final static Logger LOGGER = Logger.getLogger(CorsConfigListener.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(CorsConfigListener.class.getName());
 
-    @Override
-    public void contextInitialized(ServletContextEvent event) {
-        String origins = System.getenv("CORS_ALLOWED_ORIGINS");
+  @Override
+  public void contextInitialized(ServletContextEvent event) {
+    String origins = System.getenv("CORS_ALLOWED_ORIGINS");
 
-        if(origins != null && !origins.isEmpty()) {
-            LOGGER.log(Level.INFO, "CORS_ALLOWED_ORIGINS: " + origins);
+    if (origins != null && !origins.isEmpty()) {
+      LOGGER.log(Level.INFO, "CORS_ALLOWED_ORIGINS: " + origins);
 
-            ServletContext context = event.getServletContext();
+      ServletContext context = event.getServletContext();
 
-            FilterRegistration registration = context.addFilter("CorsFilter", "org.apache.catalina.filters.CorsFilter");
+      FilterRegistration registration =
+          context.addFilter("CorsFilter", "org.apache.catalina.filters.CorsFilter");
 
-            registration.addMappingForUrlPatterns(null, false, "/*");
+      registration.addMappingForUrlPatterns(null, false, "/*");
 
-            registration.setInitParameter("cors.allowed.origins", origins);
-        }
+      registration.setInitParameter("cors.allowed.origins", origins);
     }
+  }
 }
