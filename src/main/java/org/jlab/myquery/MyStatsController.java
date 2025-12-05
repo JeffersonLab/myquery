@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 import org.jlab.mya.Metadata;
+import org.jlab.mya.RunningStatistics;
 import org.jlab.mya.event.*;
 import org.jlab.mya.stream.FloatAnalysisStream;
 
@@ -136,20 +137,12 @@ public class MyStatsController extends QueryController {
       }
 
       PointWebService pws = new PointWebService(deployment);
-      Map<String, Event> priorEvents = new HashMap<>();
-      for (Metadata metadata : metadatas) {
-        priorEvents.put(
-            metadata.getName(), pws.findEvent(metadata, updatesOnly, begin, true, true, false));
-      }
-
-      Event priorEvent;
       for (Metadata metadata : metadatas) {
 
         if (metadata.getType() != FloatEvent.class) {
           continue;
         }
 
-        priorEvent = priorEvents.get(metadata.getName());
         double interval =
             ((end.getEpochSecond() + end.getNano() / 1_000_000_000d)
                     - (begin.getEpochSecond() + begin.getNano() / 1_000_000_000d))
@@ -162,16 +155,10 @@ public class MyStatsController extends QueryController {
           } else {
             binEnd = binBegin.plusSeconds((long) interval);
           }
-          // Since we provide a priorPoint, the underlying stream should be a BoundaryAwareStream.
-          try (FloatAnalysisStream fas =
-              new FloatAnalysisStream(
-                  service.openEventStream(
-                      metadata, updatesOnly, binBegin, binEnd, priorEvent, metadata.getType()))) {
-            while (fas.read() != null) {
-              // Read through the entire stream.  We only want statistics from it
-            }
-            results.add(metadata.getName(), binBegin, fas.getLatestStats());
-          }
+          results.add(
+              metadata.getName(),
+              binBegin,
+              getBinStats(binBegin, binEnd, metadata, service, pws, updatesOnly));
         }
       }
 
@@ -236,5 +223,44 @@ public class MyStatsController extends QueryController {
         out.write((");").getBytes(StandardCharsets.UTF_8));
       }
     }
+  }
+
+  /**
+   * Gets the statistics for a bin. Handle this as a separate method to ensure proper handling of
+   * prior events.
+   *
+   * @implNote There was also an intention to make testing easier, but mocking the web services was
+   *     not straightforward.
+   * @param binBegin The start of the bin.
+   * @param binEnd The end of the bin.
+   * @param metadata The metadata for the channel.
+   * @param intervalService The interval web service.
+   * @param pointService The point web service.
+   * @param updatesOnly Whether to only include updates.
+   * @return The statistics for the bin.
+   * @throws Exception If an error occurs.
+   */
+  private static RunningStatistics getBinStats(
+      Instant binBegin,
+      Instant binEnd,
+      Metadata metadata,
+      IntervalWebService intervalService,
+      PointWebService pointService,
+      boolean updatesOnly)
+      throws Exception {
+    Event priorEvent = pointService.findEvent(metadata, updatesOnly, binBegin, true, true, false);
+    RunningStatistics stats;
+
+    // Since we provide a priorPoint, the underlying stream should be a BoundaryAwareStream.
+    try (FloatAnalysisStream fas =
+        new FloatAnalysisStream(
+            intervalService.openEventStream(
+                metadata, updatesOnly, binBegin, binEnd, priorEvent, metadata.getType()))) {
+      while (fas.read() != null) {
+        // Read through the entire stream.  We only want statistics from it
+      }
+      stats = fas.getLatestStats();
+    }
+    return stats;
   }
 }
