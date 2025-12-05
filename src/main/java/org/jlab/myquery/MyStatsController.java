@@ -2,13 +2,8 @@ package org.jlab.myquery;
 
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
-import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
-import org.jlab.mya.Metadata;
-import org.jlab.mya.RunningStatistics;
-import org.jlab.mya.event.*;
-import org.jlab.mya.stream.FloatAnalysisStream;
-
+import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -20,9 +15,14 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
+import org.jlab.mya.Metadata;
+import org.jlab.mya.RunningStatistics;
+import org.jlab.mya.event.*;
+import org.jlab.mya.stream.FloatAnalysisStream;
 
 /**
  * This class provides functionality similar to the command line application myStats.
+ *
  * @author adamc
  */
 @WebServlet(name = "MyStatsController", value = "/mystats")
@@ -32,7 +32,7 @@ public class MyStatsController extends QueryController {
   /**
    * Handles the HTTP <code>GET</code> method.
    *
-   * @param request  servlet request
+   * @param request servlet request
    * @param response servlet response
    * @throws IOException if an I/O error occurs
    */
@@ -143,7 +143,10 @@ public class MyStatsController extends QueryController {
           continue;
         }
 
-        double interval = ((end.getEpochSecond() + end.getNano() / 1_000_000_000d) - (begin.getEpochSecond() + begin.getNano() / 1_000_000_000d)) / numBins;
+        double interval =
+            ((end.getEpochSecond() + end.getNano() / 1_000_000_000d)
+                    - (begin.getEpochSecond() + begin.getNano() / 1_000_000_000d))
+                / numBins;
         Instant binBegin, binEnd = begin;
         for (int i = 1; i <= numBins; i++) {
           binBegin = binEnd;
@@ -152,7 +155,10 @@ public class MyStatsController extends QueryController {
           } else {
             binEnd = binBegin.plusSeconds((long) interval);
           }
-          results.add(metadata.getName(), binBegin, getBinStats(binBegin, binEnd, metadata, service, pws, updatesOnly));
+          results.add(
+              metadata.getName(),
+              binBegin,
+              getBinStats(binBegin, binEnd, metadata, service, pws, updatesOnly));
         }
       }
 
@@ -220,8 +226,11 @@ public class MyStatsController extends QueryController {
   }
 
   /**
-   * Gets the statistics for a bin.  Handle this as a separate method to ensure proper handling of prior events.
-   * @implNote There was also an intention to make testing easier, but mocking the web services was not straightforward.
+   * Gets the statistics for a bin. Handle this as a separate method to ensure proper handling of
+   * prior events.
+   *
+   * @implNote There was also an intention to make testing easier, but mocking the web services was
+   *     not straightforward.
    * @param binBegin The start of the bin.
    * @param binEnd The end of the bin.
    * @param metadata The metadata for the channel.
@@ -231,20 +240,27 @@ public class MyStatsController extends QueryController {
    * @return The statistics for the bin.
    * @throws Exception If an error occurs.
    */
-  private static RunningStatistics getBinStats(Instant binBegin, Instant binEnd, Metadata metadata,
-                                              IntervalWebService intervalService, PointWebService pointService,
-                                              boolean updatesOnly) throws Exception {
-      Event priorEvent = pointService.findEvent(metadata, updatesOnly, binBegin, true, true, false);
-      RunningStatistics stats;
+  private static RunningStatistics getBinStats(
+      Instant binBegin,
+      Instant binEnd,
+      Metadata metadata,
+      IntervalWebService intervalService,
+      PointWebService pointService,
+      boolean updatesOnly)
+      throws Exception {
+    Event priorEvent = pointService.findEvent(metadata, updatesOnly, binBegin, true, true, false);
+    RunningStatistics stats;
 
-      // Since we provide a priorPoint, the underlying stream should be a BoundaryAwareStream.
-      try (FloatAnalysisStream fas = new FloatAnalysisStream(intervalService.openEventStream(metadata,
-                                      updatesOnly, binBegin, binEnd, priorEvent, metadata.getType()))){
-          while (fas.read() != null) {
-              // Read through the entire stream.  We only want statistics from it
-          }
-          stats = fas.getLatestStats();
+    // Since we provide a priorPoint, the underlying stream should be a BoundaryAwareStream.
+    try (FloatAnalysisStream fas =
+        new FloatAnalysisStream(
+            intervalService.openEventStream(
+                metadata, updatesOnly, binBegin, binEnd, priorEvent, metadata.getType()))) {
+      while (fas.read() != null) {
+        // Read through the entire stream.  We only want statistics from it
       }
-      return stats;
+      stats = fas.getLatestStats();
+    }
+    return stats;
   }
 }

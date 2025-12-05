@@ -15,22 +15,28 @@ import java.net.http.HttpResponse;
 import org.junit.Test;
 
 public class MyStatsQueryTest {
-    @Test
-    public void basicUsageTest() throws IOException, InterruptedException {
-        /*
-        This test runs a basic myStats query across multiple channels and bins.  Only channel1 bin
-        "2019-08-12T00:24:00", was fully checked for accuracy.  This same bin is then queried again in basicUsageTest2
-        as the only bin to ensure that the binning logic is correct for both single and multiple bins.  This is OK as
-        the FloatAnalysisStream handles should be tested more thoroughly as part of jmyapi and that handles all the
-        analysis logic outside bin creation.
-         */
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mystats?c=channel1,channel4&b=2019-08-12+00%3A23%3A50&e=2019-08-12+00%3A24%3A20&n=3&m=docker&f=&v=")).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+  @Test
+  public void basicUsageTest() throws IOException, InterruptedException {
+    /*
+    This test runs a basic myStats query across multiple channels and bins.  Only channel1 bin
+    "2019-08-12T00:24:00", was fully checked for accuracy.  This same bin is then queried again in basicUsageTest2
+    as the only bin to ensure that the binning logic is correct for both single and multiple bins.  This is OK as
+    the FloatAnalysisStream handles should be tested more thoroughly as part of jmyapi and that handles all the
+    analysis logic outside bin creation.
+     */
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(
+                URI.create(
+                    "http://localhost:8080/myquery/mystats?c=channel1,channel4&b=2019-08-12+00%3A23%3A50&e=2019-08-12+00%3A24%3A20&n=3&m=docker&f=&v="))
+            .build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
     assertEquals(200, response.statusCode());
 
-        String jsonString = """
+    String jsonString =
+        """
                 {
                  "channels": {
                    "channel1": {
@@ -133,28 +139,35 @@ public class MyStatsQueryTest {
                    }
                  }
                }""";
-        String exp;
-        try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
-            exp = r.readObject().toString();
-        }
-
-        try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
-            JsonObject json = reader.readObject();
-            assertEquals(exp, json.toString());
-        }
+    String exp;
+    try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
+      exp = r.readObject().toString();
     }
 
-    @Test
-    public void basicUsageTest2() throws IOException, InterruptedException {
-        // This test should match the corresponding bin in basicUsageTest.  This helps ensure that the binning logic is
-        // correct.  See basicUsageTest comments for more details.
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mystats?c=channel1&b=2019-08-12+00%3A24%3A00&e=2019-08-12+00%3A24%3A10&n=1&m=docker&f=3&v=6")).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
+      JsonObject json = reader.readObject();
+      assertEquals(exp, json.toString());
+    }
+  }
 
-        assertEquals(200, response.statusCode());
+  @Test
+  public void basicUsageTest2() throws IOException, InterruptedException {
+    // This test should match the corresponding bin in basicUsageTest.  This helps ensure that the
+    // binning logic is
+    // correct.  See basicUsageTest comments for more details.
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(
+                URI.create(
+                    "http://localhost:8080/myquery/mystats?c=channel1&b=2019-08-12+00%3A24%3A00&e=2019-08-12+00%3A24%3A10&n=1&m=docker&f=3&v=6"))
+            .build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        String jsonString = """
+    assertEquals(200, response.statusCode());
+
+    String jsonString =
+        """
           {
             "channels": {
               "channel1": {
@@ -195,18 +208,26 @@ public class MyStatsQueryTest {
     }
   }
 
-    @Test
-    public void basicUsageTest3() throws IOException, InterruptedException {
-        // This test checks that the binning logic is correct the binning moves past the last event in the time range.
-        // At one point bins after the last event were producing null values even though the previous event had a value.
-        // See basicUsageTest comments for more details.
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mystats?c=channel1&b=2019-08-12+23%3A59%3A50&e=2019-08-13+00%3A00%3A20&n=3&m=docker&f=&v=")).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+  @Test
+  public void basicUsageTest3() throws IOException, InterruptedException {
+    // This test checks that the binning logic is correct the binning moves past the last event in
+    // the time range.
+    // At one point bins after the last event were producing null values even though the previous
+    // event had a value.
+    // See basicUsageTest comments for more details.
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(
+                URI.create(
+                    "http://localhost:8080/myquery/mystats?c=channel1&b=2019-08-12+23%3A59%3A50&e=2019-08-13+00%3A00%3A20&n=3&m=docker&f=&v="))
+            .build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(200, response.statusCode());
+    assertEquals(200, response.statusCode());
 
-        String jsonString = """
+    String jsonString =
+        """
             {
              "channels": {
                "channel1": {
@@ -260,27 +281,34 @@ public class MyStatsQueryTest {
                }
              }
            }""";
-        String exp;
-        try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
-            exp = r.readObject().toString();
-        }
-
-        try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
-            JsonObject json = reader.readObject();
-            assertEquals(exp, json.toString());
-        }
+    String exp;
+    try (JsonReader r = Json.createReader(new StringReader(jsonString))) {
+      exp = r.readObject().toString();
     }
 
-    @Test
-    public void unsupportedTypeTest() throws IOException, InterruptedException {
-        // Check that we can handle a channel with an unsupported event type without losing data for other channels.
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/myquery/mystats?c=channel1,channel2&b=2019-08-12+00%3A01%3A00&e=2019-08-19+02%3A00%3A00&n=2&m=docker&f=&v=")).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    try (JsonReader reader = Json.createReader(new StringReader(response.body()))) {
+      JsonObject json = reader.readObject();
+      assertEquals(exp, json.toString());
+    }
+  }
+
+  @Test
+  public void unsupportedTypeTest() throws IOException, InterruptedException {
+    // Check that we can handle a channel with an unsupported event type without losing data for
+    // other channels.
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(
+                URI.create(
+                    "http://localhost:8080/myquery/mystats?c=channel1,channel2&b=2019-08-12+00%3A01%3A00&e=2019-08-19+02%3A00%3A00&n=2&m=docker&f=&v="))
+            .build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
     assertEquals(200, response.statusCode());
 
-        String jsonString = """
+    String jsonString =
+        """
             {
               "channels": {
                 "channel1": {
