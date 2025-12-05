@@ -7,14 +7,11 @@ import jakarta.servlet.annotation.*;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.RunningStatistics;
 import org.jlab.mya.event.*;
-import org.jlab.mya.stream.EventStream;
 import org.jlab.mya.stream.FloatAnalysisStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -238,14 +235,14 @@ public class MyStatsController extends QueryController {
                                               IntervalWebService intervalService, PointWebService pointService,
                                               boolean updatesOnly) throws Exception {
       Event priorEvent = pointService.findEvent(metadata, updatesOnly, binBegin, true, true, false);
-      RunningStatistics stats = null;
+      RunningStatistics stats;
 
       // Since we provide a priorPoint, the underlying stream should be a BoundaryAwareStream.
       try (FloatAnalysisStream fas = new FloatAnalysisStream(intervalService.openEventStream(metadata,
                                       updatesOnly, binBegin, binEnd, priorEvent, metadata.getType()))){
           while (fas.read() != null) {
               // Read through the entire stream.  We only want statistics from it
-          };
+          }
           stats = fas.getLatestStats();
       }
       return stats;
