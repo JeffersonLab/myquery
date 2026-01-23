@@ -54,7 +54,7 @@ http://localhost:8080/myquery/channel?q=channel%25&m=docker
 A [deployments.properites](https://github.com/JeffersonLab/jmyapi#deployments) file must be placed in the lib directory of Tomcat.  Download the mariadb [database driver](https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.0.8/mariadb-java-client-3.0.8.jar) and place it in the lib directory of Tomcat.  A new [context.xml](https://github.com/JeffersonLab/myquery/blob/main/docker/myquery/conf/context.xml) file is needed in the Tomcat conf directory that includes a DataSource for each host in the deployments.properties. 
 
 ### CORS
-You can enable the Tomcat [CORS filter](https://tomcat.apache.org/tomcat-10.1-doc/config/filter.html#CORS_Filter) for cross origin support by setting the environment variable `CORS_ALLOWED_ORIGINS` to the orgins you'd like to support.  See [Docker Compose example](https://github.com/JeffersonLab/myquery/blob/main/cors-test.yaml).
+You can enable the Tomcat [CORS filter](https://tomcat.apache.org/tomcat-10.1-doc/config/filter.html#CORS_Filter) for cross origin support by setting the environment variable `CORS_ALLOWED_ORIGINS` to the orgins you'd like to support.  See [Docker Compose example](https://github.com/JeffersonLab/myquery/blob/main/cors-test.yaml) and [Same Origin Policy](https://github.com/JeffersonLab/jam/wiki/Same-Origin-Policy).
 
 ## Build
 This project is built with [Java 21](https://adoptium.net/) (compiled to Java 17 bytecode), and uses the [Gradle 9](https://gradle.org/) build tool to automatically download dependencies and build the project from source:
