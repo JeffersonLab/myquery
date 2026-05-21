@@ -385,6 +385,12 @@ public class QueryController extends HttpServlet {
     IntEvent event;
     while ((event = stream.read()) != null) {
       count++;
+      // Run a periodic flush to keep any compression buffers flushed.  Highly compressible data
+      // might not trigger
+      // a flush before a timeout is hit in certain pathological cases
+      if (count % 1000 == 0) {
+        gen.flush();
+      }
       writeIntEvent(
           null,
           gen,
@@ -437,6 +443,12 @@ public class QueryController extends HttpServlet {
           timestampFormatter,
           sigFigs);
       count++;
+      // Run a periodic flush to keep any compression buffers flushed.  Highly compressible data
+      // might not trigger
+      // a flush before a timeout is hit in certain pathological cases
+      if (count % 1000 == 0) {
+        gen.flush();
+      }
     }
     gen.writeEnd();
 
@@ -468,6 +480,12 @@ public class QueryController extends HttpServlet {
     FloatEvent event;
     while ((event = stream.read()) != null) {
       count++;
+      // Run a periodic flush to keep any compression buffers flushed.  Highly compressible data
+      // might not trigger
+      // a flush before a timeout is hit in certain pathological cases
+      if (count % 1000 == 0) {
+        gen.flush();
+      }
       writeFloatEvent(
           null,
           gen,
@@ -505,6 +523,12 @@ public class QueryController extends HttpServlet {
     AnalyzedFloatEvent event;
     while ((event = stream.read()) != null) {
       count++;
+      // Run a periodic flush to keep any compression buffers flushed.  Highly compressible data
+      // might not trigger
+      // a flush before a timeout is hit in certain pathological cases
+      if (count % 1000 == 0) {
+        gen.flush();
+      }
       writeAnalyzedFloatEvent(
           null,
           gen,
@@ -538,6 +562,12 @@ public class QueryController extends HttpServlet {
     long count = 0;
     while ((event = stream.read()) != null) {
       count++;
+      // Run a periodic flush to keep any compression buffers flushed.  Highly compressible data
+      // might not trigger
+      // a flush before a timeout is hit in certain pathological cases
+      if (count % 1000 == 0) {
+        gen.flush();
+      }
       writeLabeledEnumEvent(
           null,
           gen,
@@ -570,6 +600,12 @@ public class QueryController extends HttpServlet {
     long count = 0;
     while ((event = stream.read()) != null) {
       count++;
+      // Run a periodic flush to keep any compression buffers flushed.  Highly compressible data
+      // might not trigger
+      // a flush before a timeout is hit in certain pathological cases
+      if (count % 1000 == 0) {
+        gen.flush();
+      }
       writeMultiStringEvent(
           null,
           gen,

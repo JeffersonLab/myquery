@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
+import java.util.zip.GZIPOutputStream;
 import org.jlab.mya.ExtraInfo;
 import org.jlab.mya.Metadata;
 import org.jlab.mya.MyaDataType;
@@ -46,12 +47,6 @@ public class MySamplerController extends QueryController {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     String jsonp = request.getParameter("jsonp");
-
-    if (jsonp != null) {
-      response.setContentType("application/javascript");
-    } else {
-      response.setContentType("application/json");
-    }
 
     String errorReason = null;
     List<String> channels = null;
@@ -155,7 +150,26 @@ public class MySamplerController extends QueryController {
     boolean adjustMillisWithServerOffset = (a != null);
 
     try {
-      OutputStream out = response.getOutputStream();
+      OutputStream rawOut = response.getOutputStream();
+      OutputStream out = rawOut;
+      GZIPOutputStream gzipOut = null;
+
+      String acceptEncoding = request.getHeader("Accept-Encoding");
+      boolean useGzip = acceptEncoding != null && acceptEncoding.contains("gzip");
+      if (useGzip) {
+        // Use a vnd tree content type for JSON with GZIP compression to avoid compression by the
+        // Tomcat connector
+        response.setHeader("Content-Type", "application/vnd.org.jlab.myquery+json");
+        response.setHeader("Content-Encoding", "gzip");
+        response.setHeader("Vary", "Accept-Encoding");
+        // Need syncflush=true here so that a flush on the stream also flushes the deflate buffer.
+        gzipOut = new GZIPOutputStream(rawOut, true);
+        out = gzipOut;
+      } else if (jsonp != null) {
+        response.setContentType("application/javascript");
+      } else {
+        response.setContentType("application/json");
+      }
 
       if (jsonp != null) {
         out.write((jsonp + "(").getBytes(StandardCharsets.UTF_8));
@@ -195,6 +209,7 @@ public class MySamplerController extends QueryController {
                   service,
                   deployment,
                   gen,
+                  gzipOut,
                   channelName,
                   begin,
                   intervalMillis,
@@ -220,6 +235,10 @@ public class MySamplerController extends QueryController {
         if (jsonp != null) {
           out.write((");").getBytes(StandardCharsets.UTF_8));
         }
+
+        if (gzipOut != null) {
+          gzipOut.finish();
+        }
       }
     } catch (Exception ex) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -233,6 +252,7 @@ public class MySamplerController extends QueryController {
       MySamplerWebService service,
       String deployment,
       JsonGenerator gen,
+      GZIPOutputStream gzipOut,
       String channel,
       Instant begin,
       long intervalMillis,
